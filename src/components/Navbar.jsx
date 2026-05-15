@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { useI18n } from "../i18n";
+import { useTheme } from "../context/ThemeContext";
 
 const Navbar = () => {
+    const { isRtl, language, toggleLanguage, t } = useI18n();
+    const { theme, toggleTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState("Home");
     
     const navItems = [
-        { href: "#Home", label: "Home" },
-        { href: "#About", label: "About" },
-        { href: "#Portofolio", label: "Portofolio" },
-        { href: "#Contact", label: "Contact" },
+        { href: "#Home", label: t("nav.home") },
+        { href: "#About", label: t("nav.about") },
+        { href: "#Portofolio", label: t("nav.portfolio") },
+        { href: "#Contact", label: t("nav.contact") },
     ];
 
     useEffect(() => {
@@ -69,9 +73,9 @@ const Navbar = () => {
         <nav
             className={`fixed w-full top-0 z-50 transition-all duration-500 ${
                 isOpen
-                    ? "bg-[#030014]"
+                    ? "bg-[var(--bg-primary)]"
                     : scrolled
-                    ? "bg-[#030014]/50 backdrop-blur-xl"
+                    ? "bg-[var(--nav-bg)] backdrop-blur-xl"
                     : "bg-transparent"
             }`}
         >
@@ -84,13 +88,13 @@ const Navbar = () => {
                             onClick={(e) => scrollToSection(e, "#Home")}
                             className="text-xl font-bold bg-gradient-to-r from-[#a855f7] to-[#6366f1] bg-clip-text text-transparent"
                         >
-                            Ekizr
+                            OMAR
                         </a>
                     </div>
         
                     {/* Desktop Navigation */}
                     <div className="hidden md:block">
-                        <div className="ml-8 flex items-center space-x-8">
+                        <div className="ms-8 flex items-center gap-8">
                             {navItems.map((item) => (
                                 <a
                                     key={item.label}
@@ -102,13 +106,13 @@ const Navbar = () => {
                                         className={`relative z-10 transition-colors duration-300 ${
                                             activeSection === item.href.substring(1)
                                                 ? "bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-semibold"
-                                                : "text-[#e2d3fd] group-hover:text-white"
+                                                : "text-secondary group-hover:text-primary"
                                         }`}
                                     >
                                         {item.label}
                                     </span>
                                     <span
-                                        className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] transform origin-left transition-transform duration-300 ${
+                                        className={`absolute bottom-0 start-0 w-full h-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] transform origin-left rtl:origin-right transition-transform duration-300 ${
                                             activeSection === item.href.substring(1)
                                                 ? "scale-x-100"
                                                 : "scale-x-0 group-hover:scale-x-100"
@@ -116,6 +120,22 @@ const Navbar = () => {
                                     />
                                 </a>
                             ))}
+                            <button
+                                type="button"
+                                onClick={toggleLanguage}
+                                aria-label={t("language.label")}
+                                className="rounded-full border border-primary bg-secondary/50 px-3 py-1.5 text-xs font-semibold text-secondary hover:border-accent-primary/50 hover:text-primary transition-colors"
+                            >
+                                {language === "en" ? "AR" : "EN"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={toggleTheme}
+                                className="rounded-full border border-primary bg-secondary/50 p-1.5 text-secondary hover:border-accent-primary/50 hover:text-primary transition-colors"
+                                aria-label="Toggle Theme"
+                            >
+                                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                            </button>
                         </div>
                     </div>
         
@@ -123,7 +143,7 @@ const Navbar = () => {
                     <div className="md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className={`relative p-2 text-[#e2d3fd] hover:text-white transition-transform duration-300 ease-in-out transform ${
+                            className={`relative p-2 text-secondary hover:text-primary transition-transform duration-300 ease-in-out transform ${
                                 isOpen ? "rotate-90 scale-125" : "rotate-0 scale-100"
                             }`}
                         >
@@ -154,17 +174,32 @@ const Navbar = () => {
                             className={`block px-4 py-3 text-lg font-medium transition-all duration-300 ease ${
                                 activeSection === item.href.substring(1)
                                     ? "bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-semibold"
-                                    : "text-[#e2d3fd] hover:text-white"
+                                    : "text-secondary hover:text-primary"
                             }`}
                             style={{
                                 transitionDelay: `${index * 100}ms`,
-                                transform: isOpen ? "translateX(0)" : "translateX(50px)",
+                                transform: isOpen ? "translateX(0)" : `translateX(${isRtl ? "-50px" : "50px"})`,
                                 opacity: isOpen ? 1 : 0,
                             }}
                         >
                             {item.label}
                         </a>
                     ))}
+                    <button
+                        type="button"
+                        onClick={toggleLanguage}
+                        className="block px-4 py-3 text-lg font-medium text-secondary hover:text-primary transition-colors"
+                    >
+                        {language === "en" ? t("language.arabic") : t("language.english")}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className="flex items-center gap-2 px-4 py-3 text-lg font-medium text-secondary hover:text-primary transition-colors"
+                    >
+                        {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                    </button>
                 </div>
             </div>
         </nav>

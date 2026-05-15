@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { Eye, ArrowRight, ExternalLink } from 'lucide-react';
+import { useI18n } from "../i18n";
 
 const ProjectCardModal = ({ title, description, link }) => {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
       <button
-        className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/90 transition-colors duration-200"
+        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/90 transition-colors duration-200"
         onClick={() => setIsOpen(true)}
       >
-        <span className="text-sm">Details</span>
+        <span className="text-sm">{t("project.details")}</span>
         <ArrowRight className="w-4 h-4" />
       </button>
 
@@ -24,27 +26,27 @@ const ProjectCardModal = ({ title, description, link }) => {
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="absolute top-4 right-4 rounded-md p-2 hover:bg-gray-800 transition-colors duration-200"
+              className="absolute top-4 end-4 rounded-md p-2 hover:bg-gray-800 transition-colors duration-200"
               onClick={() => setIsOpen(false)}
             >
               <Eye className="h-5 w-5" />
             </button>
             <h2 className="mb-4 text-2xl font-bold">{title}</h2>
             <p className="mb-6 text-gray-400">{description}</p>
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end gap-4">
               <a
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-md bg-blue-600 px-4 py-2 font-medium hover:bg-blue-700 transition-colors duration-200"
               >
-                Live Demo <ExternalLink className="ml-2 inline-block h-5 w-5" />
+                {t("project.liveDemo")} <ExternalLink className="ms-2 inline-block h-5 w-5" />
               </a>
               <button
                 className="rounded-md bg-gray-800 px-4 py-2 font-medium hover:bg-gray-700 transition-colors duration-200"
                 onClick={() => setIsOpen(false)}
               >
-                Close
+                {t("common.close")}
               </button>
             </div>
           </div>

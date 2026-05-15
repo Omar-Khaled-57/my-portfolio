@@ -2,21 +2,117 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Default Dark Mode (Legacy Colors) */
+  --bg-primary: #030014;
+  --bg-secondary: #0a0a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --accent-primary: #6366f1;
+  --accent-secondary: #a855f7;
+  --border-color: rgba(255, 255, 255, 0.06);
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --nav-bg: rgba(3, 0, 20, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.02);
+  --blob-opacity: 0.2;
+  --blob-mix-blend: multiply;
+  --text-gradient-start: #f3f4f6;
+  --text-gradient-end: #d1d5db;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --accent-primary: #4f46e5;
+  --accent-secondary: #9333ea;
+  --border-color: rgba(0, 0, 0, 0.05);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --nav-bg: rgba(248, 250, 252, 0.8);
+  --glass-bg: rgba(255, 255, 255, 0.5);
+  --blob-opacity: 0.15;
+  --blob-mix-blend: multiply;
+  --text-gradient-start: #0f172a;
+  --text-gradient-end: #334155;
+}
+
+@layer utilities {
+  .text-primary {
+    color: var(--text-primary);
+  }
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+  .bg-primary {
+    background-color: var(--bg-primary);
+  }
+  .bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+  .border-primary {
+    border-color: var(--border-color);
+  }
+  .glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+  }
+  .strong-shadow {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+  .tab-active {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 16px -4px rgba(99, 102, 241, 0.15), 0 2px 8px -4px rgba(0,0,0,0.1);
+  }
+  .placeholder-secondary::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.5;
+  }
+}
+
+[data-theme="light"] .strong-shadow {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .placeholder-secondary::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
 * {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-	  font-family: "Poppins", system-ui, sans-serif;
+	font-family: "Poppins", system-ui, sans-serif;
 	scroll-behavior: smooth;
 	scrollbar-width: thin;
-	scrollbar-color: rgba(99, 102, 241, 0.3) rgba(12, 5, 53, 0.356);
+	scrollbar-color: var(--accent-primary) var(--bg-secondary);
+}
+
+[dir="rtl"] * {
+	font-family: 'Cairo', sans-serif;
 }
 
 html,
 body {
 	overflow-x: hidden;
-	background: #030014;
+	background: var(--bg-primary);
+    color: var(--text-primary);
 	scroll-behavior: smooth !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Fix Autofill Background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px var(--bg-secondary) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 
@@ -97,10 +193,10 @@ body {
 
  @keyframes shine {
   from {
-	     left: -100%;
+	     inset-inline-start: -100%;
   }
 	  to {
-	    left: 200%;
+	    inset-inline-start: 200%;
 	   }
 	 }
 	 .animate-shine {
@@ -149,7 +245,7 @@ body {
 	content: '';
 	position: absolute;
 	top: 20px;
-	left: 20px;
+	inset-inline-start: 20px;
 	width: 20px;
 	height: 20px;
 	border-radius: 50%;
@@ -158,14 +254,14 @@ body {
   
   .main > div:nth-child(2)::after {
 	top: 35px;
-	left: 35px;
+	inset-inline-start: 35px;
 	width: 35px;
 	height: 35px;
   }
   
   .main > div:nth-child(3)::after {
 	top: 25px;
-	left: 25px;
+	inset-inline-start: 25px;
 	width: 25px;
 	height: 25px;
   }

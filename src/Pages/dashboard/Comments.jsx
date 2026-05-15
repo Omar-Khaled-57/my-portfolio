@@ -11,19 +11,22 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useI18n } from "../../i18n";
+import Swal from "sweetalert2";
 
 const PAGE_SIZE = 10;
 
 const Card = ({ children, className = "" }) => (
   <div className={`relative group ${className}`}>
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-2xl blur opacity-10 group-hover:opacity-20 transition duration-500 pointer-events-none" />
-    <div className="relative bg-white/5 backdrop-blur-xl border border-white/12 rounded-2xl h-full">
+    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-10 group-hover:opacity-20 transition duration-500 pointer-events-none" />
+    <div className="relative glass-card rounded-2xl h-full border border-primary strong-shadow">
       {children}
     </div>
   </div>
 );
 
 export default function Comments() {
+  const { language, t } = useI18n();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -51,24 +54,68 @@ export default function Comments() {
   }, [filter, search]);
 
   const pin = async (id, value) => {
-    await supabase
-      .from("portfolio_comments")
-      .update({ is_pinned: value })
-      .eq("id", id);
-    fetchComments();
+    try {
+      const { error } = await supabase
+        .from("portfolio_comments")
+        .update({ is_pinned: value })
+        .eq("id", id);
+      if (error) throw error;
+      fetchComments();
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message,
+        background: 'var(--bg-secondary)',
+        color: 'var(--text-primary)'
+      });
+    }
   };
 
   const remove = async (id) => {
-    if (!confirm("Delete this comment?")) return;
-    await supabase.from("portfolio_comments").delete().eq("id", id);
-    fetchComments();
+    const result = await Swal.fire({
+      title: t("dashboard.deleteCommentConfirm"),
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: t("common.delete"),
+      cancelButtonText: t("common.cancel"),
+      background: 'var(--bg-secondary)',
+      color: 'var(--text-primary)'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const { error } = await supabase.from("portfolio_comments").delete().eq("id", id);
+        if (error) throw error;
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          timer: 1500,
+          showConfirmButton: false,
+          background: 'var(--bg-secondary)',
+          color: 'var(--text-primary)'
+        });
+        fetchComments();
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message,
+          background: 'var(--bg-secondary)',
+          color: 'var(--text-primary)'
+        });
+      }
+    }
   };
 
   const pinnedCount = comments.filter((c) => c.is_pinned).length;
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    return new Date(dateStr).toLocaleDateString(language === "ar" ? "ar-EG" : "en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -100,46 +147,49 @@ export default function Comments() {
       <div className="flex items-start sm:items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-xl blur opacity-50 pointer-events-none" />
-            <div className="relative w-9 h-9 bg-[#030014] rounded-xl border border-white/15 flex items-center justify-center">
-              <MessageSquare className="w-4 h-4 text-indigo-400" />
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl blur opacity-50 pointer-events-none" />
+            <div className="relative w-9 h-9 bg-primary rounded-xl border border-primary flex items-center justify-center">
+              <MessageSquare className="w-4 h-4 text-accent-primary" />
             </div>
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white">
-              Comments
+            <h1 className="text-xl sm:text-2xl font-bold text-primary">
+              {t("comments.title")}
             </h1>
-            <p className="text-gray-500 text-xs">
-              {comments.length} total · {pinnedCount} pinned
+            <p className="text-secondary text-xs">
+              {t("dashboard.commentsTotal", { total: comments.length, pinned: pinnedCount })}
             </p>
           </div>
         </div>
 
         {/* Filter tabs */}
-        <div className="flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
+        <div className="grid grid-cols-2 gap-3 sm:min-w-[280px]">
           {[
-            { value: "all", label: "All", count: comments.length },
-            { value: "pinned", label: "Pinned", count: pinnedCount },
+            { value: "all", label: t("dashboard.filterAll"), count: comments.length },
+            { value: "pinned", label: t("dashboard.filterPinned"), count: pinnedCount },
           ].map((tab) => (
             <button
               key={tab.value}
               onClick={() => setFilter(tab.value)}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm transition-all duration-200 ${
+              className={`group relative min-w-0 overflow-hidden rounded-2xl px-4 py-3 text-xs sm:text-sm transition-all duration-300 ${
                 filter === tab.value
-                  ? "bg-gradient-to-r from-indigo-500/25 to-purple-500/20 border border-indigo-500/35 text-white font-medium"
-                  : "text-gray-500 hover:text-gray-300"
+                  ? "glass-card text-primary strong-shadow shadow-accent-primary/10"
+                  : "text-secondary hover:text-primary hover:bg-secondary/70 hover:shadow-lg"
               }`}
             >
-              {tab.label}
-              <span
-                className={`px-1.5 py-0.5 rounded-full text-xs ${
+              <div className={`absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur transition-opacity duration-300 pointer-events-none ${
+                filter === tab.value ? "opacity-20" : "opacity-0 group-hover:opacity-20"
+              }`} />
+              <div className="relative flex items-center justify-between gap-3">
+                <span className="truncate font-semibold">{tab.label}</span>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold transition-colors duration-300 ${
                   filter === tab.value
-                    ? "bg-indigo-500/25 text-indigo-300"
-                    : "bg-white/8 text-gray-500"
-                }`}
-              >
-                {tab.count}
-              </span>
+                    ? "bg-accent-primary/20 text-accent-primary"
+                    : "bg-primary/10 text-secondary group-hover:text-accent-primary"
+                }`}>
+                  {tab.count}
+                </span>
+              </div>
             </button>
           ))}
         </div>
@@ -148,17 +198,17 @@ export default function Comments() {
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Total", value: comments.length, color: "text-indigo-400" },
-          { label: "Pinned", value: pinnedCount, color: "text-purple-400" },
+          { label: t("dashboard.total"), value: comments.length, color: "text-accent-primary" },
+          { label: t("dashboard.pinned"), value: pinnedCount, color: "text-accent-secondary" },
           {
-            label: "Unpinned",
+            label: t("dashboard.unpinned"),
             value: comments.length - pinnedCount,
-            color: "text-blue-400",
+            color: "text-blue-500",
           },
         ].map((stat) => (
           <Card key={stat.label}>
             <div className="p-3 sm:p-4">
-              <p className="text-gray-500 text-xs mb-1">{stat.label}</p>
+              <p className="text-secondary text-xs mb-1 font-medium">{stat.label}</p>
               <p className={`text-xl sm:text-2xl font-bold ${stat.color}`}>
                 {stat.value}
               </p>
@@ -169,18 +219,18 @@ export default function Comments() {
 
       {/* Search bar */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+        <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary pointer-events-none" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or message..."
-          className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-gray-200 placeholder-gray-600 text-sm outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+          placeholder={t("dashboard.searchComments")}
+          className="w-full bg-secondary border border-primary rounded-xl ps-10 pe-10 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/50 focus:ring-1 focus:ring-accent-primary/20 transition-all"
         />
         {search && (
           <button
             onClick={() => setSearch("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+            className="absolute end-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -190,8 +240,11 @@ export default function Comments() {
       {/* Result count when searching */}
       {search && (
         <p className="text-xs text-gray-500 -mt-3">
-          {filtered.length} result{filtered.length !== 1 ? "s" : ""} for "
-          {search}"
+          {t("dashboard.searchResults", {
+            count: filtered.length,
+            plural: filtered.length !== 1 && language === "en" ? "s" : "",
+            query: search,
+          })}
         </p>
       )}
 
@@ -206,10 +259,10 @@ export default function Comments() {
             <MessageSquare className="w-10 h-10 text-gray-700 mx-auto mb-3" />
             <p className="text-gray-500 text-sm">
               {search
-                ? "No comments match your search."
+                ? t("dashboard.noSearchComments")
                 : filter === "pinned"
-                  ? "No pinned comments."
-                  : "No comments yet."}
+                  ? t("dashboard.noPinnedComments")
+                  : t("dashboard.noComments")}
             </p>
           </div>
         </Card>
@@ -218,18 +271,18 @@ export default function Comments() {
           {paginated.map((comment) => (
             <div key={comment.id} className="relative group">
               {comment.is_pinned && (
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-2xl blur opacity-15 pointer-events-none" />
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-15 pointer-events-none" />
               )}
               <div
-                className={`relative bg-white/5 backdrop-blur-xl border rounded-2xl px-4 py-4 sm:px-5 transition-all duration-200 ${
+                className={`relative bg-secondary backdrop-blur-xl border rounded-2xl px-4 py-4 sm:px-5 transition-all duration-200 ${
                   comment.is_pinned
-                    ? "border-indigo-500/30"
-                    : "border-white/10 hover:border-white/18"
+                    ? "border-accent-primary/30"
+                    : "border-primary hover:border-accent-primary/25"
                 }`}
               >
                 <div className="flex items-start gap-3 sm:gap-4">
                   {/* Avatar */}
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 border border-primary flex items-center justify-center shrink-0">
                     <img
                       src={comment.profile_image || "/default-avatar.jpg"}
                       alt="Avatar"
@@ -239,7 +292,7 @@ export default function Comments() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="text-sm font-semibold text-white">
+                      <span className="text-sm font-semibold text-primary">
                         {/* Highlight search match in name */}
                         {highlightMatch(
                           comment.user_name || "Anonymous",
@@ -247,16 +300,16 @@ export default function Comments() {
                         )}
                       </span>
                       {comment.is_pinned && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/25 text-indigo-300 text-xs">
-                          <Pin className="w-2.5 h-2.5" /> Pinned
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent-primary/15 border border-accent-primary/25 text-accent-primary text-xs font-medium">
+                          <Pin className="w-2.5 h-2.5" /> {t("dashboard.pinned")}
                         </span>
                       )}
-                      <span className="flex items-center gap-1 text-gray-600 text-xs ml-auto shrink-0">
+                      <span className="flex items-center gap-1 text-secondary text-xs ms-auto shrink-0">
                         <Calendar className="w-3 h-3" />
                         {formatDate(comment.created_at)}
                       </span>
                     </div>
-                    <p className="text-gray-300 text-sm leading-relaxed">
+                    <p className="text-primary text-sm leading-relaxed opacity-80">
                       {/* Highlight search match in content */}
                       {highlightMatch(comment.content || "", search)}
                     </p>
@@ -266,7 +319,7 @@ export default function Comments() {
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => pin(comment.id, !comment.is_pinned)}
-                      title={comment.is_pinned ? "Unpin" : "Pin"}
+                      title={comment.is_pinned ? t("dashboard.unpin") : t("dashboard.pin")}
                       className={`p-2 rounded-lg border transition-all duration-200 ${
                         comment.is_pinned
                           ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20"
@@ -296,15 +349,18 @@ export default function Comments() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between gap-3 pt-2">
-          <p className="text-xs text-gray-500">
-            Showing {(page - 1) * PAGE_SIZE + 1}–
-            {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+          <p className="text-xs text-secondary">
+            {t("dashboard.showing", {
+              from: (page - 1) * PAGE_SIZE + 1,
+              to: Math.min(page * PAGE_SIZE, filtered.length),
+              total: filtered.length,
+            })}
           </p>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="p-1.5 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded-lg border border-primary text-secondary hover:text-primary hover:border-accent-primary/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -323,7 +379,7 @@ export default function Comments() {
                 p === "..." ? (
                   <span
                     key={`dots-${i}`}
-                    className="px-2 text-gray-600 text-xs"
+                    className="px-2 text-secondary text-xs"
                   >
                     …
                   </span>
@@ -333,8 +389,8 @@ export default function Comments() {
                     onClick={() => setPage(p)}
                     className={`min-w-[32px] h-8 px-2 rounded-lg text-xs border transition-all duration-200 ${
                       page === p
-                        ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300 font-medium"
-                        : "border-white/10 text-gray-400 hover:text-white hover:border-white/20"
+                        ? "bg-accent-primary/20 border-accent-primary/40 text-accent-primary font-medium"
+                        : "border-primary text-secondary hover:text-primary hover:border-accent-primary/20"
                     }`}
                   >
                     {p}
@@ -345,7 +401,7 @@ export default function Comments() {
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="p-1.5 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded-lg border border-primary text-secondary hover:text-primary hover:border-accent-primary/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

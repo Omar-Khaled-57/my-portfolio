@@ -2,8 +2,10 @@ import React, { useState } from "react"
 import { Modal, IconButton, Box, Fade, Backdrop, Zoom, Typography } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
+import { useI18n } from "../i18n"
 
 const Certificate = ({ ImgSertif }) => {
+	const { t } = useI18n()
 	const [open, setOpen] = useState(false)
 
 	const handleOpen = () => {
@@ -48,8 +50,8 @@ const Certificate = ({ ImgSertif }) => {
 							content: '""',
 							position: "absolute",
 							top: 0,
-							left: 0,
-							right: 0,
+							insetInlineStart: 0,
+							insetInlineEnd: 0,
 							bottom: 0,
 							backgroundColor: "rgba(0, 0, 0, 0.1)",
 							zIndex: 1,
@@ -58,7 +60,7 @@ const Certificate = ({ ImgSertif }) => {
 					<img
 						className="certificate-image"
 						src={ImgSertif}
-						alt="Certificate"
+						alt={t("certificate.alt")}
 						style={{
 							width: "100%",
 							height: "auto",
@@ -78,8 +80,8 @@ const Certificate = ({ ImgSertif }) => {
 					sx={{
 						position: "absolute",
 						top: 0,
-						left: 0,
-						right: 0,
+						insetInlineStart: 0,
+						insetInlineEnd: 0,
 						bottom: 0,
 						opacity: 0,
 						transition: "all 0.3s ease",
@@ -93,7 +95,7 @@ const Certificate = ({ ImgSertif }) => {
 						sx={{
 							position: "absolute",
 							top: "50%",
-							left: "50%",
+							insetInlineStart: "50%",
 							transform: "translate(-50%, -60%)",
 							opacity: 0,
 							transition: "all 0.4s ease",
@@ -114,7 +116,7 @@ const Certificate = ({ ImgSertif }) => {
 								fontWeight: 600,
 								textShadow: "0 2px 4px rgba(0,0,0,0.3)",
 							}}>
-							View Certificate
+							{t("certificate.view")}
 						</Typography>
 					</Box>
 				</Box>
@@ -162,7 +164,7 @@ const Certificate = ({ ImgSertif }) => {
 						onClick={handleClose}
 						sx={{
 							position: "absolute",
-							right: 16,
+							insetInlineEnd: 16,
 							top: 16,
 							color: "white",
 							bgcolor: "rgba(0,0,0,0.6)",
@@ -180,7 +182,7 @@ const Certificate = ({ ImgSertif }) => {
 					{/* Modal Image */}
 					<img
 						src={ImgSertif}
-						alt="Certificate Full View"
+						alt={t("certificate.fullAlt")}
 						style={{
 							display: "block",
 							maxWidth: "100%",

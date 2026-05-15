@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 
 import { supabase } from "../supabase"; 
 
@@ -16,15 +16,20 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Certificate from "../components/Certificate";
 import { Code, Award, Boxes } from "lucide-react";
+import { useI18n } from "../i18n";
+import { useTheme as useCustomTheme } from "../context/ThemeContext";
 
 
-const ToggleButton = ({ onClick, isShowingMore }) => (
+const ToggleButton = ({ onClick, isShowingMore }) => {
+  const { t } = useI18n();
+
+  return (
   <button
     onClick={onClick}
     className="
       px-3 py-1.5
-      text-slate-300 
-      hover:text-white 
+      text-secondary 
+      hover:text-primary 
       text-sm 
       font-medium 
       transition-all 
@@ -33,12 +38,11 @@ const ToggleButton = ({ onClick, isShowingMore }) => (
       flex 
       items-center 
       gap-2
-      bg-white/5 
-      hover:bg-white/10
+      bg-secondary 
+      hover:bg-secondary/80
       rounded-md
       border 
-      border-white/10
-      hover:border-white/20
+      border-primary
       backdrop-blur-sm
       group
       relative
@@ -46,7 +50,7 @@ const ToggleButton = ({ onClick, isShowingMore }) => (
     "
   >
     <span className="relative z-10 flex items-center gap-2">
-      {isShowingMore ? "See Less" : "See More"}
+      {isShowingMore ? t("common.seeLess") : t("common.seeMore")}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
@@ -66,9 +70,10 @@ const ToggleButton = ({ onClick, isShowingMore }) => (
         <polyline points={isShowingMore ? "18 15 12 9 6 15" : "6 9 12 15 18 9"}></polyline>
       </svg>
     </span>
-    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-500/50 transition-all duration-300 group-hover:w-full"></span>
+    <span className="absolute bottom-0 start-0 w-0 h-0.5 bg-purple-500/50 transition-all duration-300 group-hover:w-full"></span>
   </button>
-);
+  );
+};
 
 
 function TabPanel({ children, value, index, ...other }) {
@@ -102,25 +107,55 @@ function a11yProps(index) {
   };
 }
 
-// techStacks tetap sama
-const techStacks = [
-  { icon: "html.svg", language: "HTML" },
-  { icon: "css.svg", language: "CSS" },
-  { icon: "javascript.svg", language: "JavaScript" },
-  { icon: "tailwind.svg", language: "Tailwind CSS" },
-  { icon: "reactjs.svg", language: "ReactJS" },
-  { icon: "vite.svg", language: "Vite" },
-  { icon: "nodejs.svg", language: "Node JS" },
-  { icon: "bootstrap.svg", language: "Bootstrap" },
-  { icon: "firebase.svg", language: "Firebase" },
-  { icon: "MUI.svg", language: "Material UI" },
-  { icon: "vercel.svg", language: "Vercel" },
-  { icon: "SweetAlert.svg", language: "SweetAlert2" },
-];
+
 
 export default function FullWidthTabs() {
+  const { t, direction } = useI18n();
   const theme = useTheme();
+  const { theme: currentTheme } = useCustomTheme();
   const [value, setValue] = useState(0);
+
+  const mainTools = useMemo(() => [
+    { icon: "/tools/html.svg", language: "HTML" },
+    { icon: "/tools/css.svg", language: "CSS" },
+    { icon: "/tools/js.svg", language: "JavaScript" },
+    { icon: "/tools/ts.svg", language: "TypeScript" },
+    { icon: "/tools/react.svg", language: "React" },
+    { icon: "/tools/tailwind.svg", language: "Tailwind" },
+    { icon: "/tools/next.svg", language: "Next.js" },
+    { icon: "/tools/postgres.svg", language: "PostgreSQL" },
+    { icon: "/tools/vite.svg", language: "Vite" },
+    { icon: "/tools/vue.svg", language: "Vue" },
+    { icon: "/tools/nodejs.svg", language: "Node.js" },
+    { icon: "/tools/express2.svg", language: "Express.js" },
+    { icon: "/tools/jwt.svg", language: "JWT" },
+    { icon: "/tools/supabase.svg", language: "Supabase" },
+    { icon: "/tools/firebase.svg", language: "Firebase" },
+    { icon: "/tools/git.svg", language: "Git" },
+    { icon: "/tools/vercel.svg", language: "Vercel" },
+    { icon: "/tools/SweetAlert.svg", language: "SweetAlert" },
+    { icon: "/tools/sonner.svg", language: "Sonner)" },
+    { icon: "/tools/framer.svg", language: "Framer Motion", needsInvert: true },
+    { icon: "/tools/animejs.png", language: "Anime.js" },
+    { icon: "/tools/i18n.png", language: "i18next" },
+    { icon: "/tools/MUI.svg", language: "Material UI" },
+  ], []);
+
+  const otherTools = useMemo(() => [
+    { icon: "/tools/cpp.svg", language: "C/C++" },
+    { icon: "/tools/mysql.svg", language: "MySQL" },
+    { icon: "/tools/php.svg", language: "PHP" },
+    { 
+      icon: currentTheme === "dark" ? "/tools/rust-dark.svg" : "/tools/rust-light.svg", 
+      language: "Rust" 
+    },
+    { icon: "/tools/tauri.svg", language: "Tauri" },
+    { icon: "/tools/kotlin.svg", language: "Kotlin" },
+    { icon: "/tools/python.svg", language: "Python" },
+    { icon: "/tools/keras.svg", language: "Keras" },
+    { icon: "/tools/tensorflow.svg", language: "TensorFlow" },
+    { icon: "/tools/electron.svg", language: "Electron" },
+  ], [currentTheme]);
   const [projects, setProjects] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -194,7 +229,7 @@ export default function FullWidthTabs() {
 
   // Sisa dari komponen (return statement) tidak ada perubahan
   return (
-    <div className="md:px-[10%] px-[5%] w-full sm:mt-0 mt-[3rem] bg-[#030014] overflow-hidden" id="Portofolio">
+    <div className="md:px-[10%] px-[5%] w-full sm:mt-0 mt-[3rem] bg-primary overflow-hidden" id="Portofolio">
       {/* Header section - unchanged */}
       <div className="text-center pb-10" data-aos="fade-up" data-aos-duration="1000">
         <h2 className="inline-block text-3xl md:text-5xl font-bold text-center mx-auto text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a855f7]">
@@ -203,14 +238,14 @@ export default function FullWidthTabs() {
             backgroundImage: 'linear-gradient(45deg, #6366f1 10%, #a855f7 93%)',
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+            WebkitTextFillColor: 'transparent',
+            paddingBottom: '0.1em'
           }}>
-            Portfolio Showcase
+            {t("portfolio.title")}
           </span>
         </h2>
-        <p className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base mt-2">
-          Explore my journey through projects, certifications, and technical expertise. 
-          Each section represents a milestone in my continuous learning path.
+        <p className="text-secondary max-w-2xl mx-auto text-sm md:text-base mt-2">
+          {t("portfolio.description")}
         </p>
       </div>
 
@@ -221,7 +256,7 @@ export default function FullWidthTabs() {
           elevation={0}
           sx={{
             bgcolor: "transparent",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
+            border: "1px solid var(--border-color)",
             borderRadius: "20px",
             position: "relative",
             overflow: "hidden",
@@ -229,8 +264,8 @@ export default function FullWidthTabs() {
               content: '""',
               position: "absolute",
               top: 0,
-              left: 0,
-              right: 0,
+              insetInlineStart: 0,
+              insetInlineEnd: 0,
               bottom: 0,
               background: "linear-gradient(180deg, rgba(139, 92, 246, 0.03) 0%, rgba(59, 130, 246, 0.03) 100%)",
               backdropFilter: "blur(10px)",
@@ -251,7 +286,7 @@ export default function FullWidthTabs() {
               "& .MuiTab-root": {
                 fontSize: { xs: "0.9rem", md: "1rem" },
                 fontWeight: "600",
-                color: "#94a3b8",
+                color: "var(--text-secondary)",
                 textTransform: "none",
                 transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                 padding: "20px 0",
@@ -259,7 +294,7 @@ export default function FullWidthTabs() {
                 margin: "8px",
                 borderRadius: "12px",
                 "&:hover": {
-                  color: "#ffffff",
+                  color: "var(--text-primary)",
                   backgroundColor: "rgba(139, 92, 246, 0.1)",
                   transform: "translateY(-2px)",
                   "& .lucide": {
@@ -267,11 +302,11 @@ export default function FullWidthTabs() {
                   },
                 },
                 "&.Mui-selected": {
-                  color: "#fff",
+                  color: "var(--text-primary)",
                   background: "linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2))",
                   boxShadow: "0 4px 15px -3px rgba(139, 92, 246, 0.2)",
                   "& .lucide": {
-                    color: "#a78bfa",
+                    color: "var(--accent-primary)",
                   },
                 },
               },
@@ -285,24 +320,24 @@ export default function FullWidthTabs() {
           >
             <Tab
               icon={<Code className="mb-2 w-5 h-5 transition-all duration-300" />}
-              label="Projects"
+              label={t("portfolio.projects")}
               {...a11yProps(0)}
             />
             <Tab
               icon={<Award className="mb-2 w-5 h-5 transition-all duration-300" />}
-              label="Certificates"
+              label={t("portfolio.certificates")}
               {...a11yProps(1)}
             />
             <Tab
               icon={<Boxes className="mb-2 w-5 h-5 transition-all duration-300" />}
-              label="Tech Stack"
+              label={t("portfolio.techStack")}
               {...a11yProps(2)}
             />
           </Tabs>
         </AppBar>
 
         <SwipeableViews
-          axis={theme.direction === "rtl" ? "x-reverse" : "x"}
+          axis={direction === "rtl" ? "x-reverse" : "x"}
           index={value}
           onChangeIndex={setValue}
         >
@@ -361,15 +396,41 @@ export default function FullWidthTabs() {
           </TabPanel>
 
           <TabPanel value={value} index={2} dir={theme.direction}>
-            <div className="container mx-auto flex justify-center items-center overflow-hidden pb-[5%]">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5">
-                {techStacks.map((stack, index) => (
+            <div className="container mx-auto flex flex-col justify-center items-center overflow-hidden pb-[5%]">
+              <h3 className="text-xl font-bold text-primary mb-8 self-start border-l-4 border-accent-primary pl-4">
+                {t("portfolio.mainTools")}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5 mb-16 w-full">
+                {mainTools.map((stack, index) => (
                   <div
                     key={index}
                     data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
                     data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
                   >
-                    <TechStackIcon TechStackIcon={stack.icon} Language={stack.language} />
+                    <TechStackIcon 
+                      TechStackIcon={stack.icon} 
+                      Language={stack.language} 
+                      isWhite={stack.needsInvert && currentTheme === "dark"} 
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <h3 className="text-xl font-bold text-primary mb-8 self-start border-l-4 border-accent-primary pl-4">
+                {t("portfolio.otherTools")}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5 w-full">
+                {otherTools.map((stack, index) => (
+                  <div
+                    key={index}
+                    data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
+                    data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
+                  >
+                    <TechStackIcon 
+                      TechStackIcon={stack.icon} 
+                      Language={stack.language} 
+                      isWhite={stack.needsInvert && currentTheme === "dark"} 
+                    />
                   </div>
                 ))}
               </div>

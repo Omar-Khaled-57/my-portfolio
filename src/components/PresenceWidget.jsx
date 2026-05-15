@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Music2, Code2, Gamepad2, Headphones } from "lucide-react";
+import { useI18n } from "../i18n";
 
 export default function PresenceWidget() {
+  const { t } = useI18n();
   const [activities, setActivities] = useState([]);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function PresenceWidget() {
             if (a.type === "coding") {
               return {
                 key: `coding-${idx}`,
-                title: a.details || "Coding",
+                title: a.details || t("presence.coding"),
                 subtitle: a.state || a.app,
                 type: "coding",
                 icon: "vscode",
@@ -38,7 +40,7 @@ export default function PresenceWidget() {
 
             return {
               key: `activity-${idx}`,
-              title: a.name || "Playing a Game",
+              title: a.name || t("presence.playingGame"),
               subtitle: a.state || a.type,
               type: a.type || "unknown",
               icon: "gaming",
@@ -55,7 +57,7 @@ export default function PresenceWidget() {
     fetchPresence();
     const interval = setInterval(fetchPresence, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [t]);
 
   if (!activities.length) return null;
 
@@ -105,10 +107,10 @@ export default function PresenceWidget() {
 
   const getActivityLabel = (type) => {
     const labels = {
-      spotify: "NOW PLAYING",
-      coding: "CODING",
-      gaming: "PLAYING",
-      default: "ACTIVE"
+      spotify: t("presence.nowPlaying"),
+      coding: t("presence.codingBadge"),
+      gaming: t("presence.playingBadge"),
+      default: t("presence.activeBadge")
     };
     return labels[type] || labels.default;
   };
@@ -127,7 +129,7 @@ export default function PresenceWidget() {
                   
                   {/* Icon/Image */}
                   <div className="relative flex-shrink-0">
-                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-black/20 backdrop-blur-sm ring-2 ring-white/10 group-hover:ring-white/20 transition-all duration-300">
+                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-secondary/20 backdrop-blur-sm ring-2 border-primary group-hover:border-accent-primary/20 transition-all duration-300">
                       {act.image ? (
                         <img 
                           src={act.image} 
@@ -153,7 +155,7 @@ export default function PresenceWidget() {
                     
                     {/* Music bars - hanya Spotify */}
                     {act.type === "spotify" && (
-                      <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded p-0.5 shadow-lg">
+                      <div className="absolute -bottom-0.5 -end-0.5 bg-green-500 rounded p-0.5 shadow-lg">
                         <div className="flex items-end gap-0.5 h-2">
                           <div className="w-0.5 bg-white rounded-full animate-music-1"></div>
                           <div className="w-0.5 bg-white rounded-full animate-music-2"></div>
@@ -172,10 +174,10 @@ export default function PresenceWidget() {
                       </span>
                     </div>
                     
-                    <h3 className="text-white font-bold text-sm truncate mb-0.5">
+                    <h3 className="text-primary font-bold text-sm truncate mb-0.5">
                       {act.title}
                     </h3>
-                    <p className="text-white/60 text-xs truncate">
+                    <p className="text-secondary text-xs truncate">
                       {act.subtitle}
                     </p>
                   </div>

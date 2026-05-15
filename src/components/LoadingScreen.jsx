@@ -1,6 +1,8 @@
 import React from 'react';
+import { useI18n } from "../i18n";
 
 const LoadingScreen = () => {
+  const { t } = useI18n();
   return (
     <div className="min-h-screen bg-[#030014] flex items-center justify-center">
       <div className="relative">
@@ -9,7 +11,7 @@ const LoadingScreen = () => {
           <div className="w-12 h-12 rounded-full border-4 border-t-transparent border-[#6366f1] animate-spin"></div>
           <div className="relative">
             <div className="absolute -inset-1 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded blur opacity-20"></div>
-            <span className="relative text-gray-200 text-sm">Loading...</span>
+            <span className="relative text-gray-200 text-sm">{t("common.loading")}</span>
           </div>
         </div>
       </div>
