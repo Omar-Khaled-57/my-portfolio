@@ -204,8 +204,12 @@ const resources = {
     "common.clear": "Clear",
     "common.upload": "Upload",
     "common.uploading": "Uploading...",
-    "common.back": "Back",
-    "common.save": "Save",
+    "dashboard.back": "Back",
+    "dashboard.save": "Save",
+    "dashboard.freezeComments": "Freeze Comments",
+    "dashboard.unfreezeComments": "Unfreeze Comments",
+    "dashboard.commentsFrozen": "Comments Frozen",
+    "dashboard.commentsUnfrozen": "Comments Unfrozen",
   },
   ar: {
     "language.label": "اللغة",
@@ -396,6 +400,10 @@ const resources = {
     "dashboard.deleteCommentConfirm": "هل تريد حذف هذا التعليق؟",
     "dashboard.unpin": "إلغاء التثبيت",
     "dashboard.pin": "تثبيت",
+    "dashboard.freezeComments": "تجميد التعليقات",
+    "dashboard.unfreezeComments": "إلغاء تجميد التعليقات",
+    "dashboard.commentsFrozen": "تم تجميد التعليقات",
+    "dashboard.commentsUnfrozen": "تم إلغاء تجميد التعليقات",
   },
 };
 

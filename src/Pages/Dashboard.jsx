@@ -5,7 +5,7 @@ import Projects from './dashboard/Projects'
 import Certificates from './dashboard/Certificates'
 import Comments from './dashboard/Comments'
 import { useTheme } from "../context/ThemeContext"
-import { FolderGit2, Award, MessageSquare, LogOut, LayoutDashboard, Menu, Sun, Moon, Languages } from 'lucide-react'
+import { FolderGit2, Award, MessageSquare, LogOut, LayoutDashboard, Menu, Sun, Moon, Languages, Home } from 'lucide-react'
 import { useI18n } from "../i18n"
 
 export default function Dashboard() {
@@ -21,6 +21,7 @@ export default function Dashboard() {
   }
 
   const NAV_ITEMS = [
+    { to: '/', label: 'Home', icon: Home, external: true },
     { to: 'projects', label: t('portfolio.projects'), icon: FolderGit2 },
     { to: 'certificates', label: t('portfolio.certificates'), icon: Award },
     { to: 'comments', label: t('comments.title'), icon: MessageSquare },
@@ -56,7 +57,7 @@ export default function Dashboard() {
       <nav className="flex flex-col gap-1.5 flex-1 min-h-0">
         <p className="text-[10px] text-secondary uppercase tracking-widest px-4 mb-2 shrink-0 opacity-60 font-bold">{t("dashboard.menu")}</p>
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
-          const active = location.pathname.includes(to)
+          const active = to !== '/' && location.pathname.includes(to)
           return (
             <Link
               key={to}

@@ -102,7 +102,7 @@ export default function Comments() {
       
       Swal.fire({
         icon: 'success',
-        title: newValue ? 'Comments Frozen' : 'Comments Unfrozen',
+        title: newValue ? t('dashboard.commentsFrozen') : t('dashboard.commentsUnfrozen'),
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
@@ -224,7 +224,9 @@ export default function Comments() {
             }`}
           >
             {isFrozen ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-            <span className="text-sm font-medium">{isFrozen ? 'Comments Frozen' : 'Freeze Comments'}</span>
+            <span className="text-sm font-medium">
+                {isFrozen ? t('dashboard.commentsFrozen') : t('dashboard.freezeComments')}
+            </span>
           </button>
         </div>
 

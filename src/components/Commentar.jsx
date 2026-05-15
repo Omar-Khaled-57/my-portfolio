@@ -376,7 +376,7 @@ const Komentar = () => {
         } finally {
             setIsSubmitting(false);
         }
-    }, [uploadImage]);
+    }, [uploadImage, t]);
 
     const formatDate = useCallback((timestamp) => {
         if (!timestamp) return '';

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { supabase } from "../supabase";
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from "../context/ThemeContext"
-import { Mail, Lock, LogIn, Sparkles, Eye, EyeOff, Sun, Moon, Languages } from 'lucide-react'
+import { Mail, Lock, LogIn, Sparkles, Eye, EyeOff, Sun, Moon, Languages, ArrowLeft } from 'lucide-react'
 import { useI18n } from "../i18n"
 
 export default function Login() {
@@ -34,6 +34,17 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative bg-[var(--bg-primary)]">
+      {/* Back Button */}
+      <div className="absolute top-6 left-6 flex items-center gap-3" dir="ltr">
+        <button
+          onClick={() => navigate('/')}
+          className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300 flex items-center gap-2 group"
+          title="Back to Home"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-medium hidden md:block">Back to Home</span>
+        </button>
+      </div>
       {/* Toggles */}
       <div className="absolute top-6 right-6 flex items-center gap-3" dir="ltr">
         <button
