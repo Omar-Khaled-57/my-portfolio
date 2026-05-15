@@ -3,7 +3,7 @@
 A premium, production-ready personal portfolio website built with **React 18**, **Tailwind CSS**, and **Supabase**. This project features a stunning glassmorphism design, multi-language support (English & Arabic), a secure admin dashboard, and real-time interaction.
 
 ## 🚀 Live Demo
-[https://github.com/Omar-Khaled-57/Portfolio](https://github.com/Omar-Khaled-57/Portfolio)
+[https://omar-el-khouly.vercel.app](https://omar-el-khouly.vercel.app)
 
 ---
 
