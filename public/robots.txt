@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://github.com/Omar-Khaled-57/my-portfolio/sitemap.xml
+Sitemap: https://omar-el-khouly.vercel.app/sitemap.xml
