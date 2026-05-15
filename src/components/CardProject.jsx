@@ -8,7 +8,7 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
   const { t, language } = useI18n();
   const handleLiveDemo = (e) => {
     if (!ProjectLink) {
-      console.log("ProjectLink kosong");
+      console.log("ProjectLink is empty");
       e.preventDefault();
       alert(t("project.liveDemoMissing"));
     }
@@ -16,7 +16,7 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
 
   const handleDetails = (e) => {
     if (!id) {
-      console.log("ID kosong");
+      console.log("ID is empty");
       e.preventDefault();
       alert(t("project.detailsMissing"));
     }

@@ -46,17 +46,17 @@ const ContactPage = () => {
     });
 
     try {
-      // Ganti dengan email Anda di FormSubmit
+      // Replace with your email in FormSubmit
       const formSubmitUrl = 'https://formsubmit.co/khaledelkhly57@gmail.com';
       
-      // Siapkan data form untuk FormSubmit
+      // Prepare form data for FormSubmit
       const submitData = new FormData();
       submitData.append('name', formData.name);
       submitData.append('email', formData.email);
       submitData.append('message', formData.message);
       submitData.append('_subject', 'New message from portfolio website');
-      submitData.append('_captcha', 'false'); // Nonaktifkan captcha
-      submitData.append('_template', 'table'); // Format email sebagai tabel
+      submitData.append('_captcha', 'false'); // Disable captcha
+      submitData.append('_template', 'table'); // Format email as a table
 
       await axios.post(formSubmitUrl, submitData, {
         headers: {

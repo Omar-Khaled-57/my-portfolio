@@ -112,7 +112,7 @@ export default function Dashboard() {
   )
 
   return (
-    // Kunci: TIDAK pakai overflow-hidden di sini supaya scrollbar main bisa diklik
+    // Key: DO NOT use overflow-hidden here so the main scrollbar can be interacted with normally
     <div className="flex text-primary bg-primary" style={{ height: '100dvh' }}>
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -172,7 +172,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Hanya main yang overflow-y-auto — scrollbar bisa diklik normal */}
+        {/* Only the main content area has overflow-y-auto so the scrollbar behaves normally */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-primary">
           <Routes>
             <Route index element={<Navigate to="projects" replace />} />
