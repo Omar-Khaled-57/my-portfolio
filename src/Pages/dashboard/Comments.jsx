@@ -10,6 +10,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
 import Swal from "sweetalert2";
@@ -32,6 +34,7 @@ export default function Comments() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [isFrozen, setIsFrozen] = useState(false);
 
   const fetchComments = async () => {
     setLoading(true);
@@ -41,6 +44,18 @@ export default function Comments() {
       .order("is_pinned", { ascending: false })
       .order("created_at", { ascending: false });
     setComments(data || []);
+
+    // Fetch frozen state
+    const { data: settingsData } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "comments_frozen")
+      .single();
+    
+    if (settingsData) {
+      setIsFrozen(settingsData.value === "true");
+    }
+
     setLoading(false);
   };
 
@@ -66,6 +81,42 @@ export default function Comments() {
         icon: 'error',
         title: 'Error',
         text: error.message,
+        background: 'var(--bg-secondary)',
+        color: 'var(--text-primary)'
+      });
+    }
+  };
+
+  const toggleFreeze = async () => {
+    const newValue = !isFrozen;
+    setIsFrozen(newValue); // optimistic update
+    try {
+      const { error } = await supabase
+        .from("app_settings")
+        .update({ value: newValue ? "true" : "false" })
+        .eq("key", "comments_frozen");
+      
+      if (error) {
+          throw error;
+      }
+      
+      Swal.fire({
+        icon: 'success',
+        title: newValue ? 'Comments Frozen' : 'Comments Unfrozen',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        background: 'var(--bg-secondary)',
+        color: 'var(--text-primary)'
+      });
+    } catch (error) {
+      console.error(error);
+      setIsFrozen(!newValue); // revert
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update settings. Did you run the SQL script to create app_settings?',
         background: 'var(--bg-secondary)',
         color: 'var(--text-primary)'
       });
@@ -160,6 +211,21 @@ export default function Comments() {
               {t("dashboard.commentsTotal", { total: comments.length, pinned: pinnedCount })}
             </p>
           </div>
+        </div>
+
+        {/* Freeze comments toggle */}
+        <div className="flex items-center gap-4 ml-auto">
+          <button
+            onClick={toggleFreeze}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
+              isFrozen 
+                ? 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20' 
+                : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20'
+            }`}
+          >
+            {isFrozen ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+            <span className="text-sm font-medium">{isFrozen ? 'Comments Frozen' : 'Freeze Comments'}</span>
+          </button>
         </div>
 
         {/* Filter tabs */}

@@ -93,16 +93,29 @@
 }
 
 [dir="rtl"] * {
-	font-family: 'Cairo', sans-serif;
+	font-family: 'Cairo', sans-serif !important;
 }
 
-html,
-body {
+html {
 	overflow-x: hidden;
+}
+
+body {
+	scrollbar-gutter: stable;
 	background: var(--bg-primary);
     color: var(--text-primary);
 	scroll-behavior: smooth !important;
     transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hide scrollbar for cleaner UI in modals */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+    width: 0px;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 /* Fix Autofill Background */

@@ -3,6 +3,7 @@ import { FileText, Code, Award, Globe, ArrowUpRight, Sparkles, UserCheck, Folder
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { useI18n } from "../i18n"
+import CVModal from "../components/CVModal"
 
 // Memoized Components
 const Header = memo(({ t }) => (
@@ -115,6 +116,7 @@ const StatCard = memo(({ icon: Icon, color, value, label, description, animation
 
 const AboutPage = () => {
   const { t } = useI18n();
+  const [isCVModalOpen, setIsCVModalOpen] = React.useState(false);
   // Memoized calculations
   const { totalProjects, totalCertificates, accessibleProjects } = useMemo(() => {
     const storedProjects = JSON.parse(localStorage.getItem("projects") || "[]");
@@ -122,9 +124,9 @@ const AboutPage = () => {
     
 
     return {
-      totalProjects: storedProjects.length,
+      totalProjects: 26,
       totalCertificates: storedCertificates.length,
-      accessibleProjects: storedProjects.filter(p => p.githubUrl || p.Link).length
+      accessibleProjects: storedProjects.filter(p => p.github || p.link).length
     };
   }, []);
 
@@ -242,15 +244,30 @@ const AboutPage = () => {
       </div>
 
             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-4 lg:px-0 w-full">
-              <a href="https://drive.google.com/drive/folders/1BOm51Grsabb3zj6Xk27K-iRwI1zITcpo" className="w-full lg:w-auto">
               <button 
                 data-aos="fade-up"
                 data-aos-duration="800"
-                className="w-full lg:w-auto sm:px-6 py-2 sm:py-3 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center lg:justify-start gap-2 shadow-lg hover:shadow-xl "
+                onClick={() => setIsCVModalOpen(true)}
+                className="w-full lg:w-auto sm:px-6 py-2 sm:py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 flex items-center justify-center lg:justify-start gap-2 border"
+                style={{
+                  background: 'rgba(99,102,241,0.15)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  borderColor: 'rgba(99,102,241,0.45)',
+                  color: 'var(--accent-primary)',
+                  boxShadow: '0 8px 32px rgba(99,102,241,0.18)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(99,102,241,0.28)';
+                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(99,102,241,0.28)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(99,102,241,0.15)';
+                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.18)';
+                }}
               >
                 <FileText className="w-4 h-4 sm:w-5 sm:h-5" /> {t("about.downloadCv")}
               </button>
-              </a>
               <a href="#Portofolio" className="w-full lg:w-auto">
               <button 
                 data-aos="fade-up"
@@ -274,6 +291,8 @@ const AboutPage = () => {
           </div>
         </a>
       </div>
+
+      <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
 
       <style jsx>{`
         @keyframes float {

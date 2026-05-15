@@ -15,9 +15,8 @@ import { useI18n } from "../../i18n";
 import Swal from "sweetalert2";
 
 const Card = ({ children, className = "" }) => (
-  <div className={`relative group ${className}`}>
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-10 group-hover:opacity-25 transition duration-500" />
-    <div className="relative glass-card rounded-2xl h-full border border-primary strong-shadow">
+  <div className={`relative ${className} h-full transform-gpu`}>
+    <div className="relative glass-card rounded-2xl h-full border border-white/10 shadow-xl overflow-hidden bg-white/5">
       {children}
     </div>
   </div>
@@ -80,44 +79,45 @@ const ProjectCard = ({ project, onDelete, onEdit }) => {
   return (
     <Card>
       <div className="p-4 flex flex-col h-full">
-        {project.Img && (
-          <div className="w-full aspect-[16/8] rounded-xl mb-4 border border-white/8 overflow-hidden bg-white/5">
+        {project.img && (
+          <div className="w-full aspect-[16/8] rounded-xl mb-4 relative overflow-hidden border border-white/10 shadow-[inset_0_2px_15px_rgba(255,255,255,0.05)] bg-black/20 group/img">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-50 z-10 pointer-events-none mix-blend-overlay"></div>
             {!imgLoaded && (
               <div className="w-full h-full animate-pulse bg-white/5" />
             )}
             <img
-              src={project.Img}
-              alt={project.Title}
+              src={project.img}
+              alt={project.title}
               onLoad={() => setImgLoaded(true)}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0 absolute"}`}
+              className={`w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105 ${imgLoaded ? "opacity-100" : "opacity-0 absolute"}`}
             />
           </div>
         )}
         <h3 className="font-semibold text-primary text-sm mb-1">
-          {project.Title}
+          {project.title}
         </h3>
-        {project.Description && (
+        {project.description && (
           <p className="text-secondary text-xs mb-3 line-clamp-2 leading-relaxed">
-            {project.Description}
+            {project.description}
           </p>
         )}
-        {project.TechStack?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {project.TechStack.map((t) => (
+        {project.tech_stack && project.tech_stack.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {project.tech_stack.map((tech, i) => (
               <span
-                key={t}
-                className="px-2 py-0.5 rounded-full bg-accent-primary/15 border border-accent-primary/25 text-accent-primary text-xs font-medium"
+                key={i}
+                className="px-3 py-1 rounded-lg bg-[#1a1a2e] text-white text-[10px] font-bold uppercase tracking-wider border border-white/10 shadow-sm"
               >
-                {t}
+                {tech}
               </span>
             ))}
           </div>
         )}
         <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-primary">
           <div className="flex gap-2">
-            {project.Link && (
+            {project.link && (
               <a
-                href={project.Link}
+                href={project.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-white/20 transition-colors"
@@ -125,9 +125,9 @@ const ProjectCard = ({ project, onDelete, onEdit }) => {
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             )}
-            {project.Github && (
+            {project.github && (
               <a
-                href={project.Github}
+                href={project.github}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-white/20 transition-colors"
@@ -195,19 +195,21 @@ const ProjectForm = ({
 }) => {
   const { t } = useI18n();
   const [form, setForm] = useState({
-    Title: initial?.Title || "",
-    Description: initial?.Description || "",
-    TechStack: Array.isArray(initial?.TechStack)
-      ? initial.TechStack.join(", ")
-      : initial?.TechStack || "",
-    Features: Array.isArray(initial?.Features)
-      ? initial.Features.join(", ")
-      : initial?.Features || "",
-    Link: initial?.Link || "",
-    Github: initial?.Github || "",
+    Title: initial?.title || "",
+    TitleAr: initial?.title_ar || "",
+    Description: initial?.description || "",
+    DescriptionAr: initial?.description_ar || "",
+    TechStack: Array.isArray(initial?.tech_stack)
+      ? initial.tech_stack.join(", ")
+      : initial?.tech_stack || "",
+    Features: Array.isArray(initial?.features)
+      ? initial.features.join(", ")
+      : initial?.features || "",
+    Link: initial?.link || "",
+    Github: initial?.github || "",
   });
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(initial?.Img || null);
+  const [preview, setPreview] = useState(initial?.img || null);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -229,24 +231,47 @@ const ProjectForm = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
           <InputField
-            label={t("dashboard.projectTitle")}
+            label={t("dashboard.projectTitle") || "Project Title"}
             value={form.Title}
             onChange={set("Title")}
-            placeholder={t("dashboard.projectTitlePlaceholder")}
+            placeholder={t("dashboard.projectTitlePlaceholder") || "Enter project title"}
             required
+          />
+        </div>
+        
+        <div className="sm:col-span-2">
+          <InputField
+            label={(t("dashboard.projectTitle") || "Project Title") + " (Arabic)"}
+            value={form.TitleAr}
+            onChange={set("TitleAr")}
+            placeholder="عنوان المشروع بالعربية"
           />
         </div>
 
         <div className="sm:col-span-2 space-y-1.5">
           <label className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
-            {t("dashboard.description")}
+            {t("dashboard.description") || "Description"}
           </label>
           <textarea
             value={form.Description}
             onChange={set("Description")}
-            placeholder={t("dashboard.descriptionPlaceholder")}
+            placeholder={t("dashboard.descriptionPlaceholder") || "Project description"}
             rows={3}
             className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all resize-none"
+          />
+        </div>
+
+        <div className="sm:col-span-2 space-y-1.5">
+          <label className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
+            {(t("dashboard.description") || "Description") + " (Arabic)"}
+          </label>
+          <textarea
+            value={form.DescriptionAr}
+            onChange={set("DescriptionAr")}
+            placeholder="وصف المشروع بالعربية"
+            rows={3}
+            className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all resize-none"
+            dir="rtl"
           />
         </div>
 
@@ -374,17 +399,19 @@ export default function Projects() {
       let imgUrl = "";
       if (file) imgUrl = await uploadImage(file);
       const { error } = await supabase.from("projects").insert({
-        Title: form.Title,
-        Description: form.Description,
-        Img: imgUrl,
-        TechStack: form.TechStack.split(",")
+        title: form.Title,
+        title_ar: form.TitleAr || null,
+        description: form.Description,
+        description_ar: form.DescriptionAr || null,
+        img: imgUrl,
+        tech_stack: form.TechStack.split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-        Features: form.Features.split(",")
+        features: form.Features.split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-        Link: form.Link,
-        Github: form.Github,
+        link: form.Link,
+        github: form.Github,
       });
 
       if (error) throw error;
@@ -418,22 +445,24 @@ export default function Projects() {
   const handleEdit = async (form, file) => {
     try {
       setUploading(true);
-      let imgUrl = editProject.Img || "";
+      let imgUrl = editProject.img || "";
       if (file) imgUrl = await uploadImage(file);
       const { error } = await supabase
         .from("projects")
         .update({
-          Title: form.Title,
-          Description: form.Description,
-          Img: imgUrl,
-          TechStack: form.TechStack.split(",")
+          title: form.Title,
+          title_ar: form.TitleAr || null,
+          description: form.Description,
+          description_ar: form.DescriptionAr || null,
+          img: imgUrl,
+          tech_stack: form.TechStack.split(",")
             .map((s) => s.trim())
             .filter(Boolean),
-          Features: form.Features.split(",")
+          features: form.Features.split(",")
             .map((s) => s.trim())
             .filter(Boolean),
-          Link: form.Link,
-          Github: form.Github,
+          link: form.Link,
+          github: form.Github,
         })
         .eq("id", editProject.id);
 

@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React, { useState, lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import React, { useState, lazy, Suspense, useEffect, useRef } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 import Navbar from "./components/Navbar";
@@ -13,11 +13,12 @@ import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-const Portofolio = lazy(() => import("./Pages/Portofolio"));
-const ContactPage = lazy(() => import("./Pages/Contact"));
-const ProjectDetails = lazy(() => import("./components/ProjectDetail"));
-const WelcomeScreen = lazy(() => import("./Pages/WelcomeScreen"));
-const NotFoundPage = lazy(() => import("./Pages/404"));
+const Portofolio = lazy(() => import('./Pages/Portofolio'));
+const ContactPage = lazy(() => import('./Pages/Contact'));
+const ProjectDetails = lazy(() => import('./components/ProjectDetail'));
+const WelcomeScreen = lazy(() => import('./Pages/WelcomeScreen'));
+const NotFoundPage = lazy(() => import('./Pages/404'));
+const CVPage = lazy(() => import('./Pages/CV'));
 
 const LandingPage = ({ showWelcome, setShowWelcome }) => {
   return (
@@ -56,6 +57,43 @@ const ProjectPageLayout = () => (
   </>
 );
 
+const GlobalKeyHandler = () => {
+  const navigate = useNavigate();
+  const keys = useRef("");
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tagName = e.target.tagName?.toLowerCase();
+      if (
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select" ||
+        e.target.isContentEditable
+      ) {
+        return;
+      }
+
+      if (e.key.length === 1) {
+        let currentKeys = keys.current + e.key.toUpperCase();
+        if (currentKeys.length > 3) {
+          currentKeys = currentKeys.slice(-3);
+        }
+        keys.current = currentKeys;
+
+        if (keys.current === "OMR") {
+          keys.current = "";
+          navigate("/login");
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [navigate]);
+
+  return null;
+};
+
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
 
@@ -66,6 +104,7 @@ function App() {
   <AnimatedBackground />
 </div>
       <BrowserRouter>
+        <GlobalKeyHandler />
         <Routes>
           {/* PUBLIC */}
           <Route
@@ -79,6 +118,16 @@ function App() {
           />
 
           <Route path="/project/:slug" element={<ProjectPageLayout />} />
+
+          {/* CV standalone page */}
+          <Route
+            path="/cv"
+            element={
+              <Suspense fallback={<div className="min-h-screen" />}>
+                <CVPage />
+              </Suspense>
+            }
+          />
 
           {/* AUTH */}
           <Route path="/login" element={<Login />} />

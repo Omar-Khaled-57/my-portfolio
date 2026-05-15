@@ -64,7 +64,7 @@ const Comment = memo(({ comment, formatDate, index, isPinned = false, t }) => (
     </div>
 ));
 
-const CommentForm = memo(({ onSubmit, isSubmitting, error }) => {
+const CommentForm = memo(({ onSubmit, isSubmitting, error, isFrozen }) => {
     const { t } = useI18n();
     const [newComment, setNewComment] = useState('');
     const [userName, setUserName] = useState('');
@@ -76,8 +76,8 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error }) => {
     const handleImageChange = useCallback((e) => {
         const file = e.target.files[0];
         if (file) {
-            // Check file size (5MB limit)
-            if (file.size > 5 * 1024 * 1024) {
+            // Check file size (1MB limit)
+            if (file.size > 1 * 1024 * 1024) {
                 alert(t('comments.fileTooLarge'));
                 // Reset the input
                 if (e.target) e.target.value = '';
@@ -129,10 +129,11 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error }) => {
                     type="text"
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
-                     maxLength={15}
-                    placeholder={t("comments.namePlaceholder")}
-                    className="w-full p-3 rounded-xl bg-secondary border border-primary text-primary placeholder-secondary focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                    maxLength={15}
+                    placeholder={isFrozen ? t("comments.frozenPlaceholder") || "Comments are frozen" : t("comments.namePlaceholder")}
+                    className="w-full p-3 rounded-xl bg-secondary border border-primary text-primary placeholder-secondary focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     required
+                    disabled={isFrozen}
                 />
             </div>
 
@@ -143,12 +144,12 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error }) => {
                 <textarea
                     ref={textareaRef}
                     value={newComment}
-                     maxLength={200}
-
+                    maxLength={200}
                     onChange={handleTextareaChange}
-                    placeholder={t("comments.messagePlaceholder")}
-                    className="w-full p-4 rounded-xl bg-secondary border border-primary text-primary placeholder-secondary focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none min-h-[120px]"
+                    placeholder={isFrozen ? t("comments.frozenPlaceholder") || "Commenting is currently frozen by the admin." : t("comments.messagePlaceholder")}
+                    className="w-full p-4 rounded-xl bg-secondary border border-primary text-primary placeholder-secondary focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none min-h-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
                     required
+                    disabled={isFrozen}
                 />
             </div>
 
@@ -185,11 +186,13 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error }) => {
                                 onChange={handleImageChange}
                                 accept="image/*"
                                 className="hidden"
+                                disabled={isFrozen}
                             />
                             <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 transition-all border border-dashed border-indigo-500/50 hover:border-indigo-500 group"
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 transition-all border border-dashed border-indigo-500/50 hover:border-indigo-500 group disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={isFrozen}
                             >
                                 <ImagePlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
                                 <span>{t("comments.choosePhoto")}</span>
@@ -204,7 +207,7 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error }) => {
 
             <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isFrozen}
                 data-aos="fade-up" data-aos-duration="1000"
                 className="relative w-full h-12 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-xl font-medium text-white overflow-hidden group transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
             >
@@ -233,6 +236,21 @@ const Komentar = () => {
     const [pinnedComment, setPinnedComment] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [isFrozen, setIsFrozen] = useState(false);
+
+    useEffect(() => {
+        const fetchFrozenState = async () => {
+            const { data } = await supabase
+                .from('app_settings')
+                .select('value')
+                .eq('key', 'comments_frozen')
+                .single();
+            if (data) {
+                setIsFrozen(data.value === 'true');
+            }
+        };
+        fetchFrozenState();
+    }, []);
 
     useEffect(() => {
         // Initialize AOS
@@ -404,7 +422,7 @@ const Komentar = () => {
                 )}
                 
                 <div>
-                    <CommentForm onSubmit={handleCommentSubmit} isSubmitting={isSubmitting} error={error} />
+                    <CommentForm onSubmit={handleCommentSubmit} isSubmitting={isSubmitting} error={error} isFrozen={isFrozen} />
                 </div>
 
                 <div className="space-y-4 h-[328px] overflow-y-auto overflow-x-hidden custom-scrollbar pt-1 pe-1 " data-aos="fade-up" data-aos-delay="200">

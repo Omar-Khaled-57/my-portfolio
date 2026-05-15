@@ -286,6 +286,7 @@ export default function FullWidthTabs() {
               "& .MuiTab-root": {
                 fontSize: { xs: "0.9rem", md: "1rem" },
                 fontWeight: "600",
+                fontFamily: "inherit",
                 color: "var(--text-secondary)",
                 textTransform: "none",
                 transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -342,7 +343,7 @@ export default function FullWidthTabs() {
           onChangeIndex={setValue}
         >
           <TabPanel value={value} index={0} dir={theme.direction}>
-            <div className="container mx-auto flex justify-center items-center overflow-hidden">
+            <div className="container mx-auto flex justify-center items-center overflow-visible py-4 sm:py-8 px-2">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-5">
                 {displayedProjects.map((project, index) => (
                   <div
@@ -351,10 +352,13 @@ export default function FullWidthTabs() {
                     data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
                   >
                     <CardProject
-                      Img={project.Img}
-                      Title={project.Title}
-                      Description={project.Description}
-                      Link={project.Link}
+                      img={project.img}
+                      title={project.title}
+                      title_ar={project.title_ar}
+                      description={project.description}
+                      description_ar={project.description_ar}
+                      link={project.link}
+                      github={project.github}
                       id={project.id}
                     />
                   </div>
@@ -372,7 +376,7 @@ export default function FullWidthTabs() {
           </TabPanel>
 
           <TabPanel value={value} index={1} dir={theme.direction}>
-            <div className="container mx-auto flex justify-center items-center overflow-hidden">
+            <div className="container mx-auto flex justify-center items-center overflow-visible py-4 sm:py-8 px-2">
               <div className="grid grid-cols-1 md:grid-cols-3 md:gap-5 gap-4">
                 {displayedCertificates.map((certificate, index) => (
                   <div
@@ -380,7 +384,7 @@ export default function FullWidthTabs() {
                     data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
                     data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
                   >
-                    <Certificate ImgSertif={certificate.Img} />
+                    <Certificate ImgSertif={certificate.img} />
                   </div>
                 ))}
               </div>

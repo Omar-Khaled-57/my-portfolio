@@ -38,7 +38,7 @@ const Certificate = ({ ImgSertif }) => {
 							opacity: 1,
 						},
 						"& .certificate-image": {
-							filter: "contrast(1.05) brightness(1) saturate(1.1)",
+							filter: "contrast(1.05) brightness(0.3) saturate(1.1) blur(2px)",
 						},
 					},
 				}}>
@@ -83,6 +83,7 @@ const Certificate = ({ ImgSertif }) => {
 						insetInlineStart: 0,
 						insetInlineEnd: 0,
 						bottom: 0,
+						backgroundColor: "rgba(0, 0, 0, 0.6)",
 						opacity: 0,
 						transition: "all 0.3s ease",
 						cursor: "pointer",

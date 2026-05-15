@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
+import CVModal from "./CVModal";
 
 const Navbar = () => {
     const { isRtl, language, toggleLanguage, t } = useI18n();
     const { theme, toggleTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
+    const [isCVModalOpen, setIsCVModalOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState("Home");
     
@@ -120,6 +122,13 @@ const Navbar = () => {
                                     />
                                 </a>
                             ))}
+                             <button
+                                type="button"
+                                onClick={() => setIsCVModalOpen(true)}
+                                className="rounded-full border border-primary bg-secondary/50 px-3 py-1.5 text-xs font-bold text-accent-primary hover:bg-accent-primary/10 transition-all duration-300"
+                            >
+                                CV
+                            </button>
                             <button
                                 type="button"
                                 onClick={toggleLanguage}
@@ -194,6 +203,16 @@ const Navbar = () => {
                     </button>
                     <button
                         type="button"
+                        onClick={() => {
+                            setIsCVModalOpen(true);
+                            setIsOpen(false);
+                        }}
+                        className="block px-4 py-3 text-lg font-bold text-accent-primary hover:text-accent-secondary transition-colors"
+                    >
+                        CV
+                    </button>
+                    <button
+                        type="button"
                         onClick={toggleTheme}
                         className="flex items-center gap-2 px-4 py-3 text-lg font-medium text-secondary hover:text-primary transition-colors"
                     >
@@ -202,6 +221,8 @@ const Navbar = () => {
                     </button>
                 </div>
             </div>
+            
+            <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
         </nav>
     );
 };

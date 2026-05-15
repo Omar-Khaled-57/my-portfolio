@@ -35,7 +35,7 @@ const CertCard = ({ cert, onDelete }) => {
           <div className="w-full aspect-[16/11.5] bg-primary/20 animate-pulse" />
         )}
         <img
-          src={cert.Img}
+          src={cert.img}
           alt={t("certificate.alt")}
           onLoad={() => setImgLoaded(true)}
           className={`w-full aspect-[16/11.5] object-cover group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'block' : 'hidden'}`}
@@ -88,7 +88,7 @@ export default function Certificates() {
       if (uploadError) throw uploadError
 
       const { data } = supabase.storage.from('certificate-images').getPublicUrl(fileName)
-      const { error: insertError } = await supabase.from('certificates').insert({ Img: data.publicUrl })
+      const { error: insertError } = await supabase.from('certificates').insert({ img: data.publicUrl })
       if (insertError) throw insertError
 
       Swal.fire({
