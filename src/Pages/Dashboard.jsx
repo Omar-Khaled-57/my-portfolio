@@ -4,8 +4,9 @@ import { supabase } from '../supabase'
 import Projects from './dashboard/Projects'
 import Certificates from './dashboard/Certificates'
 import Comments from './dashboard/Comments'
+import Emails from './dashboard/Emails'
 import { useTheme } from "../context/ThemeContext"
-import { FolderGit2, Award, MessageSquare, LogOut, LayoutDashboard, Menu, Sun, Moon, Languages, Home } from 'lucide-react'
+import { FolderGit2, Award, MessageSquare, LogOut, LayoutDashboard, Menu, Sun, Moon, Languages, Home, Mail } from 'lucide-react'
 import { useI18n } from "../i18n"
 
 export default function Dashboard() {
@@ -25,6 +26,7 @@ export default function Dashboard() {
     { to: 'projects', label: t('portfolio.projects'), icon: FolderGit2 },
     { to: 'certificates', label: t('portfolio.certificates'), icon: Award },
     { to: 'comments', label: t('comments.title'), icon: MessageSquare },
+    { to: 'emails', label: t('dashboard.emailsTitle'), icon: Mail },
   ]
 
   const SidebarContent = () => (
@@ -180,6 +182,7 @@ export default function Dashboard() {
             <Route path="projects" element={<Projects />} />
             <Route path="certificates" element={<Certificates />} />
             <Route path="comments" element={<Comments />} />
+            <Route path="emails" element={<Emails />} />
           </Routes>
         </main>
       </div>

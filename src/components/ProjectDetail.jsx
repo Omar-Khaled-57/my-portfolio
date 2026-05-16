@@ -37,10 +37,20 @@ const TECH_ICONS = {
 const TechBadge = ({ tech }) => {
   const Icon = TECH_ICONS[tech] || TECH_ICONS["default"];
   return (
-    <div className="group relative overflow-hidden px-3 py-2 md:px-4 md:py-2.5 bg-secondary/50 rounded-xl border border-primary hover:border-accent-primary/40 transition-all duration-300 cursor-default shadow-sm hover:shadow-md">
-      <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/0 to-accent-secondary/0 group-hover:from-accent-primary/10 group-hover:to-accent-secondary/10 transition-all duration-500" />
+    <div className="group relative overflow-hidden px-3 py-2 md:px-4 md:py-2.5 rounded-xl cursor-default transition-all duration-300 hover:scale-105 hover:shadow-accent-primary/10 border border-primary"
+      style={{
+        background: 'rgba(var(--color-accent-primary-rgb, 99 102 241) / 0.1)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
+    >
+      {/* Glassmorphic shimmer on hover */}
+      <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/0 to-accent-secondary/0 group-hover:from-accent-primary/15 group-hover:to-accent-secondary/15 transition-all duration-500 rounded-xl" />
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"
+        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.08) 100%)' }}
+      />
       <div className="relative flex items-center gap-1.5 md:gap-2">
-        <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-accent-primary group-hover:text-accent-primary transition-colors" />
+        <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-accent-primary transition-colors" />
         <span className="text-xs md:text-sm font-medium text-secondary group-hover:text-primary transition-colors">
           {tech}
         </span>
@@ -51,12 +61,27 @@ const TechBadge = ({ tech }) => {
 
 const FeatureItem = ({ feature }) => {
   return (
-    <li className="group flex items-start gap-3 p-2.5 md:p-3.5 rounded-xl hover:bg-secondary/50 transition-all duration-300 border border-transparent hover:border-primary shadow-sm hover:shadow-md">
+    <li className="group/feature relative flex items-start gap-3 p-2.5 md:p-3.5 rounded-xl transition-all duration-500 ease-out border border-primary hover:scale-[1.05] hover:shadow-md hover:shadow-accent-primary/10 overflow-hidden"
+      style={{
+        '--hover-bg': 'rgba(99,102,241,0.07)',
+      }}
+    >
+      {/* Glassmorphic background */}
+      <div className="absolute inset-0 rounded-xl transition-opacity duration-300 pointer-events-none"
+        style={{
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.05) 0%, rgba(168,85,247,0.03) 100%)',
+          backdropFilter: 'blur(8px)',
+        }}
+      />
+
+      {/* Sheen Animation - isolated to this feature tag */}
+      <div className="absolute inset-0 translate-x-[-100%] group-hover/feature:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]" />
+
       <div className="relative mt-2">
-        <div className="absolute -inset-1 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 rounded-full blur group-hover:opacity-100 opacity-0 transition-opacity duration-300" />
-        <div className="relative w-1.5 h-1.5 md:w-2 h-2 rounded-full bg-gradient-to-r from-accent-primary to-accent-secondary group-hover:scale-125 transition-transform duration-300" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 rounded-full blur opacity-100 transition-opacity duration-300" />
+        <div className="relative w-1.5 h-1.5 md:w-2 h-2 rounded-full bg-gradient-to-r from-accent-primary to-accent-secondary group-hover/feature:scale-125 transition-transform duration-300" />
       </div>
-      <span className="text-sm md:text-base text-secondary group-hover:text-primary transition-colors">
+      <span className="relative text-sm md:text-base text-primary transition-colors">
         {feature}
       </span>
     </li>
@@ -67,42 +92,63 @@ const ProjectStats = ({ project, t }) => {
   const techStackCount = project?.tech_stack?.length || 0;
   const featuresCount = project?.features?.length || 0;
 
-  return (
-    <div className="grid grid-cols-2 gap-3 md:gap-4 p-3 md:p-4 bg-secondary rounded-xl overflow-hidden relative border border-primary">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-50 blur-2xl z-0" />
-      <div className="relative z-10 flex items-center gap-2 md:gap-3 bg-primary/40 p-2 md:p-3 rounded-lg border border-primary transition-all duration-300 hover:scale-105 hover:border-accent-primary/40 hover:shadow-lg">
-        <div className="bg-accent-primary/20 p-1.5 md:p-2 rounded-full">
-          <Code2
-            className="text-accent-primary w-4 h-4 md:w-6 md:h-6"
-            strokeWidth={1.5}
-          />
-        </div>
-        <div className="flex-grow text-primary">
-          <div className="text-lg md:text-xl font-semibold">
-            {techStackCount}
+  const StatItem = ({ icon: Icon, value, label, color }) => {
+    const glowColor = color.includes('6366f1') ? 'rgba(99,102,241,0.3)' : 'rgba(168,85,247,0.3)';
+    const passiveGlow = color.includes('6366f1') ? 'rgba(99,102,241,0.1)' : 'rgba(168,85,247,0.1)';
+    
+    return (
+      <div className="relative group h-full">
+        <div 
+          className="relative z-10 glass-card rounded-2xl p-3 md:p-4 transition-all duration-300 hover:scale-105 h-full flex flex-col justify-between overflow-hidden shadow-lg border border-primary"
+          style={{
+            '--hover-shadow': glowColor,
+            '--passive-shadow': passiveGlow
+          }}
+        >
+          <div className={`absolute -z-10 inset-0 bg-gradient-to-br ${color} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+          
+          <div className="flex items-center justify-between mb-2 md:mb-3">
+            <div className="w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-primary/10 transition-transform group-hover:rotate-6">
+              <Icon className="w-4 h-4 md:w-6 md:h-6 text-[var(--text-primary)]" />
+            </div>
+            <span className="text-xl md:text-3xl font-bold text-[var(--text-primary)]">
+              {value}
+            </span>
           </div>
-          <div className="text-[10px] md:text-xs text-secondary uppercase tracking-wider font-medium">
-            {t("project.totalTechnologies")}
-          </div>
-        </div>
-      </div>
 
-      <div className="relative z-10 flex items-center gap-2 md:gap-3 bg-primary/40 p-2 md:p-3 rounded-lg border border-primary transition-all duration-300 hover:scale-105 hover:border-accent-secondary/40 hover:shadow-lg">
-        <div className="bg-accent-secondary/20 p-1.5 md:p-2 rounded-full">
-          <Layers
-            className="text-accent-secondary w-4 h-4 md:w-6 md:h-6"
-            strokeWidth={1.5}
-          />
-        </div>
-        <div className="flex-grow text-primary">
-          <div className="text-lg md:text-xl font-semibold">
-            {featuresCount}
-          </div>
-          <div className="text-[10px] md:text-xs text-secondary uppercase tracking-wider font-medium">
-            {t("project.keyFeatureCount")}
+          <div>
+            <p className="text-[10px] md:text-xs uppercase tracking-wider text-[var(--text-secondary)]">
+              {label}
+            </p>
           </div>
         </div>
+
+        <style jsx>{`
+          .glass-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 10px var(--passive-shadow);
+          }
+          .group:hover .glass-card {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 20px var(--hover-shadow);
+          }
+        `}</style>
       </div>
+    );
+  };
+
+  return (
+    <div className="grid grid-cols-2 gap-3 md:gap-4 my-6">
+      <StatItem 
+        icon={Code2} 
+        value={techStackCount} 
+        label={t("project.totalTechnologies")} 
+        color="from-[#6366f1] to-[#a855f7]"
+      />
+      <StatItem 
+        icon={Layers} 
+        value={featuresCount} 
+        label={t("project.keyFeatureCount")} 
+        color="from-[#a855f7] to-[#6366f1]"
+      />
     </div>
   );
 };
@@ -221,7 +267,7 @@ const ProjectDetails = () => {
               <div className="flex items-center gap-2 md:gap-4">
                 <button
                   onClick={() => navigate(-1)}
-                  className="group inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-secondary/50 backdrop-blur-xl rounded-xl text-primary/90 hover:bg-secondary transition-all duration-300 border border-primary hover:border-accent-primary/30 text-sm md:text-base shadow-sm"
+                  className="group inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300 text-sm md:text-base shadow-sm rounded-xl"
                 >
                   <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 rtl:rotate-180 transition-transform" />
                   <span>{t("common.back")}</span>
@@ -236,7 +282,7 @@ const ProjectDetails = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={toggleLanguage}
-                  className="p-2.5 rounded-xl bg-secondary/50 backdrop-blur-xl border border-primary hover:border-accent-primary/40 text-primary transition-all duration-300 shadow-sm"
+                  className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300 shadow-sm"
                   title={t("language.label")}
                 >
                   <Languages className="w-5 h-5" />
@@ -244,7 +290,7 @@ const ProjectDetails = () => {
                 </button>
                 <button
                   onClick={toggleTheme}
-                  className="p-2.5 rounded-xl bg-secondary/50 backdrop-blur-xl border border-primary hover:border-accent-primary/40 text-primary transition-all duration-300 shadow-sm"
+                  className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300 shadow-sm"
                   title="Toggle Theme"
                 >
                   {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -273,27 +319,49 @@ const ProjectDetails = () => {
                 <ProjectStats project={project} t={t} />
 
                 <div className="flex flex-wrap gap-3 md:gap-4">
+                  {/* Live Demo button — glassmorphic */}
                   <a
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative inline-flex items-center gap-1.5 md:gap-2 px-4 md:px-8 py-2.5 md:py-4 bg-gradient-to-r from-accent-primary/10 to-accent-secondary/10 hover:from-accent-primary/20 hover:to-accent-secondary/20 text-accent-primary rounded-xl transition-all duration-300 border border-accent-primary/20 hover:border-accent-primary/40 backdrop-blur-xl overflow-hidden text-sm md:text-base shadow-sm"
+                    className="group relative inline-flex items-center gap-1.5 md:gap-2 px-4 md:px-8 py-2.5 md:py-4 rounded-xl transition-all duration-300 overflow-hidden text-sm md:text-base shadow-lg hover:scale-105 border border-primary"
+                    style={{
+                      background: 'rgba(99, 102, 241, 0.1)',
+                      backdropFilter: 'blur(16px)',
+                      WebkitBackdropFilter: 'blur(16px)',
+                      color: 'var(--accent-primary)',
+                    }}
                   >
-                    <div className="absolute inset-0 translate-y-[100%] bg-gradient-to-r from-accent-primary/10 to-accent-secondary/10 transition-transform duration-300 group-hover:translate-y-[0%]" />
+                    {/* Ambient Glow background */}
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                    
+                    {/* Hover shimmer fill */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/10 to-accent-secondary/10 group-hover:from-accent-primary/20 group-hover:to-accent-secondary/20 transition-all duration-500 rounded-xl" />
                     <ExternalLink className="relative w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" />
                     <span className="relative font-medium">{t("project.liveDemo")}</span>
                   </a>
 
+                  {/* GitHub button — glassmorphic */}
                   <a
                     href={project.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative inline-flex items-center gap-1.5 md:gap-2 px-4 md:px-8 py-2.5 md:py-4 bg-gradient-to-r from-accent-secondary/10 to-accent-primary/10 hover:from-accent-secondary/20 hover:to-accent-primary/20 text-accent-secondary rounded-xl transition-all duration-300 border border-accent-secondary/20 hover:border-accent-secondary/40 backdrop-blur-xl overflow-hidden text-sm md:text-base shadow-sm"
+                    className="group relative inline-flex items-center gap-1.5 md:gap-2 px-4 md:px-8 py-2.5 md:py-4 rounded-xl transition-all duration-300 overflow-hidden text-sm md:text-base shadow-lg hover:scale-105 border border-primary"
+                    style={{
+                      background: 'rgba(168, 85, 247, 0.1)',
+                      backdropFilter: 'blur(16px)',
+                      WebkitBackdropFilter: 'blur(16px)',
+                      color: 'var(--accent-secondary)',
+                    }}
                     onClick={(e) =>
                       !handleGithubClick(project.github, t) && e.preventDefault()
                     }
                   >
-                    <div className="absolute inset-0 translate-y-[100%] bg-gradient-to-r from-accent-secondary/10 to-accent-primary/10 transition-transform duration-300 group-hover:translate-y-[0%]" />
+                    {/* Ambient Glow background */}
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-secondary/20 to-accent-primary/20 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+
+                    {/* Hover shimmer fill */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-accent-secondary/10 to-accent-primary/10 group-hover:from-accent-secondary/20 group-hover:to-accent-primary/20 transition-all duration-500 rounded-xl" />
                     <Github className="relative w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" />
                     <span className="relative font-medium">Github</span>
                   </a>
@@ -319,7 +387,7 @@ const ProjectDetails = () => {
               </div>
 
               <div className="space-y-6 md:space-y-10 animate-slideInRight">
-                <div className="relative rounded-2xl overflow-hidden border border-primary shadow-2xl group transition-all duration-500 hover:shadow-accent-primary/20">
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl group transition-all duration-500 hover:shadow-accent-primary/20">
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <img
                     src={project.img}
@@ -330,13 +398,13 @@ const ProjectDetails = () => {
                   <div className="absolute inset-0 border-2 border-white/0 group-hover:border-accent-primary/20 transition-colors duration-300 rounded-2xl" />
                 </div>
 
-                <div className="bg-secondary/30 backdrop-blur-xl rounded-2xl p-6 md:p-8 border border-primary space-y-6 hover:border-accent-primary/20 transition-all duration-300 group shadow-lg">
+                <div className="bg-secondary/30 backdrop-blur-xl rounded-2xl p-6 md:p-8 space-y-6 transition-all duration-300 group shadow-lg border border-primary">
                   <h3 className="text-xl font-semibold text-primary flex items-center gap-3">
                     <Star className="w-5 h-5 text-yellow-400 group-hover:rotate-[20deg] transition-transform duration-300" />
                     {t("project.keyFeatures")}
                   </h3>
                   {project.features.length > 0 ? (
-                    <ul className="list-none space-y-2">
+                    <ul className="list-none space-y-3">
                       {project.features.map((feature, index) => (
                         <FeatureItem key={index} feature={feature} />
                       ))}

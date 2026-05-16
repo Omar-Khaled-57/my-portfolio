@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Share2, User, Mail, MessageSquare, Send } from "lucide-react";
+import { Share2, User, Mail, MessageSquare, Send, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import SocialLinks from "../components/SocialLinks";
 import Komentar from "../components/Commentar";
@@ -8,6 +8,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import axios from "axios";
 import { useI18n } from "../i18n";
+import { supabase } from "../supabase";
 
 const ContactPage = () => {
   const { t } = useI18n();
@@ -17,6 +18,19 @@ const ContactPage = () => {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailsFrozen, setEmailsFrozen] = useState(false);
+
+  // Fetch freeze state once on mount
+  useEffect(() => {
+    supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "emails_frozen")
+      .single()
+      .then(({ data }) => {
+        if (data) setEmailsFrozen(data.value === "true");
+      });
+  }, []);
 
   useEffect(() => {
     AOS.init({
@@ -34,6 +48,20 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Block submission if emails are frozen
+    if (emailsFrozen) {
+      Swal.fire({
+        icon: 'error',
+        title: t('contact.errorTitle'),
+        text: t('dashboard.emailsFrozenNotice'),
+        confirmButtonColor: '#6366f1',
+        background: 'var(--bg-secondary)',
+        color: 'var(--text-primary)',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     Swal.fire({
@@ -214,11 +242,18 @@ const ContactPage = () => {
                   required
                 />
               </div>
+              {/* Frozen notice */}
+              {emailsFrozen && (
+                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-sm">
+                  <Lock className="w-4 h-4 shrink-0" />
+                  <span>{t('dashboard.emailsFrozenNotice')}</span>
+                </div>
+              )}
               <button
                 data-aos="fade-up"
                 data-aos-delay="400"
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || emailsFrozen}
                 className="w-full bg-gradient-to-r from-[#6366f1] to-[#a855f7] text-white py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[#6366f1]/20 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 <Send className="w-5 h-5" />

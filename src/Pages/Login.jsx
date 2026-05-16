@@ -72,10 +72,23 @@ export default function Login() {
 
             {/* Header */}
             <div className="text-center space-y-3">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-primary/10 border border-accent-primary/20">
-                <Sparkles className="w-3.5 h-3.5 text-accent-primary" />
-                <span className="text-accent-primary text-xs font-medium">{t("login.adminPortal")}</span>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-primary/20 backdrop-blur-md shadow-[0_10px_20px_rgba(0,0,0,0.4)] mb-2 relative overflow-hidden group">
+                {/* Automated Sheen */}
+                <div className="absolute inset-0 translate-x-[-100%] animate-sheen bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]" />
+                
+                <Sparkles className="w-3.5 h-3.5 text-accent-primary animate-pulse relative z-10" />
+                <span className="text-accent-primary text-xs font-medium tracking-wide relative z-10">{t("login.adminPortal")}</span>
               </div>
+
+              <style jsx>{`
+                @keyframes sheen {
+                  0% { transform: translateX(-100%) skewX(-20deg); }
+                  20%, 100% { transform: translateX(200%) skewX(-20deg); }
+                }
+                .animate-sheen {
+                  animation: sheen 5s infinite;
+                }
+              `}</style>
               <h1 className="text-3xl font-bold text-primary">{t("login.welcome")}</h1>
               <p className="text-secondary text-sm">{t("login.subtitle")}</p>
             </div>

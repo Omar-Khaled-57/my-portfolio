@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X, Download, Mail, MapPin, Phone,
@@ -418,13 +419,21 @@ const CVModal = ({ isOpen, onClose }) => {
         return () => document.removeEventListener('keydown', handleKey);
     }, [handleKey]);
 
-    return (
+    return ReactDOM.createPortal(
         <AnimatePresence>
             {isOpen && (
                 <motion.div
                     key="cv-backdrop"
                     className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
-                    style={{ backdropFilter: 'blur(8px)' }}
+                    style={{
+                        backdropFilter: 'blur(8px)',
+                        /* Explicit coordinates ensure fixed always anchors to viewport,
+                           not to a transformed ancestor. */
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                    }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -509,7 +518,8 @@ const CVModal = ({ isOpen, onClose }) => {
                     </motion.div>
                 </motion.div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 };
 

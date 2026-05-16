@@ -1,4 +1,4 @@
-import React, { useEffect, memo, useMemo } from "react"
+import React, { useEffect, useState, memo, useMemo } from "react"
 import { FileText, Code, Award, Globe, ArrowUpRight, Sparkles, UserCheck, FolderGit2 } from "lucide-react"
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -117,18 +117,42 @@ const StatCard = memo(({ icon: Icon, color, value, label, description, animation
 const AboutPage = () => {
   const { t } = useI18n();
   const [isCVModalOpen, setIsCVModalOpen] = React.useState(false);
-  // Memoized calculations
-  const { totalProjects, totalCertificates, accessibleProjects } = useMemo(() => {
-    const storedProjects = JSON.parse(localStorage.getItem("projects") || "[]");
-    const storedCertificates = JSON.parse(localStorage.getItem("certificates") || "[]");
-    
+  // Dynamic stats calculation
+  const [stats, setStats] = useState({
+    totalProjects: 26,
+    totalCertificates: 0,
+    accessibleProjects: 0
+  });
 
-    return {
-      totalProjects: 26,
-      totalCertificates: storedCertificates.length,
-      accessibleProjects: storedProjects.filter(p => p.github || p.link).length
+  useEffect(() => {
+    const updateStats = () => {
+      try {
+        const storedProjects = JSON.parse(localStorage.getItem("projects") || "[]");
+        const storedCertificates = JSON.parse(localStorage.getItem("certificates") || "[]");
+        setStats({
+          totalProjects: 26,
+          totalCertificates: storedCertificates.length,
+          accessibleProjects: storedProjects.filter(p => p.github || p.link).length
+        });
+      } catch (e) {
+        console.error("Error parsing stats", e);
+      }
+    };
+
+    updateStats();
+    
+    // Listen for custom event from Portfolio.jsx
+    window.addEventListener('portfolioDataLoaded', updateStats);
+    // Listen for cross-tab updates
+    window.addEventListener('storage', updateStats);
+    
+    return () => {
+      window.removeEventListener('portfolioDataLoaded', updateStats);
+      window.removeEventListener('storage', updateStats);
     };
   }, []);
+
+  const { totalProjects, totalCertificates, accessibleProjects } = stats;
 
   // Optimized AOS initialization
   useEffect(() => {
