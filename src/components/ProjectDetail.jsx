@@ -61,27 +61,22 @@ const TechBadge = ({ tech }) => {
 
 const FeatureItem = ({ feature }) => {
   return (
-    <li className="group/feature relative flex items-start gap-3 p-2.5 md:p-3.5 rounded-xl transition-all duration-500 ease-out border border-primary hover:scale-[1.05] hover:shadow-md hover:shadow-accent-primary/10 overflow-hidden"
-      style={{
-        '--hover-bg': 'rgba(99,102,241,0.07)',
-      }}
-    >
-      {/* Glassmorphic background */}
-      <div className="absolute inset-0 rounded-xl transition-opacity duration-300 pointer-events-none"
+    <li className="group/feature relative flex items-center p-3 md:p-4 rounded-xl transition-all duration-500 ease-out border border-primary hover:scale-[1.02] shadow-lg shadow-accent-primary/20 hover:shadow-2xl hover:shadow-accent-primary/40 overflow-hidden">
+      {/* Colorful Glassmorphic background */}
+      <div className="absolute inset-0 rounded-xl transition-all duration-300 pointer-events-none group-hover/feature:opacity-80"
         style={{
-          background: 'linear-gradient(135deg, rgba(99,102,241,0.05) 0%, rgba(168,85,247,0.03) 100%)',
-          backdropFilter: 'blur(8px)',
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(168,85,247,0.15) 100%)',
+          backdropFilter: 'blur(12px)',
         }}
       />
+      
+      {/* Extra glow on hover */}
+      <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 opacity-0 group-hover/feature:opacity-100 transition-opacity duration-500 rounded-xl" />
 
       {/* Sheen Animation - isolated to this feature tag */}
       <div className="absolute inset-0 translate-x-[-100%] group-hover/feature:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]" />
 
-      <div className="relative mt-2">
-        <div className="absolute -inset-1 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 rounded-full blur opacity-100 transition-opacity duration-300" />
-        <div className="relative w-1.5 h-1.5 md:w-2 h-2 rounded-full bg-gradient-to-r from-accent-primary to-accent-secondary group-hover/feature:scale-125 transition-transform duration-300" />
-      </div>
-      <span className="relative text-sm md:text-base text-primary transition-colors">
+      <span className="relative text-sm md:text-base font-medium text-[var(--text-primary)] transition-colors">
         {feature}
       </span>
     </li>
@@ -398,7 +393,7 @@ const ProjectDetails = () => {
                   <div className="absolute inset-0 border-2 border-white/0 group-hover:border-accent-primary/20 transition-colors duration-300 rounded-2xl" />
                 </div>
 
-                <div className="bg-secondary/30 backdrop-blur-xl rounded-2xl p-6 md:p-8 space-y-6 transition-all duration-300 group shadow-lg border border-primary">
+                <div className="bg-secondary/30 backdrop-blur-xl rounded-2xl p-6 md:p-8 space-y-6 transition-all duration-300 group shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-primary hover:shadow-[0_20px_60px_rgba(99,102,241,0.15)] portrait:shadow-[0_20px_60px_rgba(99,102,241,0.15)]">
                   <h3 className="text-xl font-semibold text-primary flex items-center gap-3">
                     <Star className="w-5 h-5 text-yellow-400 group-hover:rotate-[20deg] transition-transform duration-300" />
                     {t("project.keyFeatures")}

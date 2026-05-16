@@ -197,7 +197,12 @@ const Navbar = () => {
                     <button
                         type="button"
                         onClick={toggleLanguage}
-                        className="block px-4 py-3 text-lg font-medium text-secondary hover:text-primary transition-colors"
+                        className="block w-full text-start px-4 py-3 text-lg font-medium text-secondary hover:text-primary transition-all duration-300 ease"
+                        style={{
+                            transitionDelay: `${navItems.length * 100}ms`,
+                            transform: isOpen ? "translateX(0)" : `translateX(${isRtl ? "-50px" : "50px"})`,
+                            opacity: isOpen ? 1 : 0,
+                        }}
                     >
                         {language === "en" ? t("language.arabic") : t("language.english")}
                     </button>
@@ -207,14 +212,24 @@ const Navbar = () => {
                             setIsCVModalOpen(true);
                             setIsOpen(false);
                         }}
-                        className="block px-4 py-3 text-lg font-bold text-accent-primary hover:text-accent-secondary transition-colors"
+                        className="block w-full text-start px-4 py-3 text-lg font-bold text-accent-primary hover:text-accent-secondary transition-all duration-300 ease"
+                        style={{
+                            transitionDelay: `${(navItems.length + 1) * 100}ms`,
+                            transform: isOpen ? "translateX(0)" : `translateX(${isRtl ? "-50px" : "50px"})`,
+                            opacity: isOpen ? 1 : 0,
+                        }}
                     >
                         CV
                     </button>
                     <button
                         type="button"
                         onClick={toggleTheme}
-                        className="flex items-center gap-2 px-4 py-3 text-lg font-medium text-secondary hover:text-primary transition-colors"
+                        className="flex w-full items-center gap-2 px-4 py-3 text-lg font-medium text-secondary hover:text-primary transition-all duration-300 ease"
+                        style={{
+                            transitionDelay: `${(navItems.length + 2) * 100}ms`,
+                            transform: isOpen ? "translateX(0)" : `translateX(${isRtl ? "-50px" : "50px"})`,
+                            opacity: isOpen ? 1 : 0,
+                        }}
                     >
                         {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         {theme === "dark" ? "Light Mode" : "Dark Mode"}
