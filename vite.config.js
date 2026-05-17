@@ -10,9 +10,7 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'framer-motion': ['framer-motion'],
-          'mui': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
-          'three-spline': ['@splinetool/react-spline', '@splinetool/runtime'],
-          'firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage']
+          'mui': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled']
         }
       }
     }
