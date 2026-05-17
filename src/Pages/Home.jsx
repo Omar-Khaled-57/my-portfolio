@@ -152,10 +152,10 @@ const Home = () => {
         <title>{t("home.metaTitle")}</title>
         <meta name="description" content={t("home.metaDescription")} />
      <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://ekizr.com" />
+        <link rel="canonical" href="https://omar-el-khouly.vercel.app/" />
         <meta property="og:title" content={t("home.metaTitle")} />
      <meta property="og:description" content={t("home.metaDescription")} />
-        <meta property="og:url" content="https://ekizr.com" />
+        <meta property="og:url" content="https://omar-el-khouly.vercel.app/" />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{`
           {
