@@ -122,10 +122,13 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error, isFrozen }) => {
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2" data-aos="fade-up" data-aos-duration="1000">
-                <label className="block text-sm font-medium text-primary">
+                <label htmlFor="userName" className="block text-sm font-medium text-primary">
                     {t("comments.name")} <span className="text-red-400">*</span>
                 </label>
                 <input
+                    id="userName"
+                    name="userName"
+                    autoComplete="name"
                     type="text"
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
@@ -138,10 +141,13 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error, isFrozen }) => {
             </div>
 
             <div className="space-y-2" data-aos="fade-up" data-aos-duration="1200">
-                <label className="block text-sm font-medium text-primary">
+                <label htmlFor="newComment" className="block text-sm font-medium text-primary">
                     {t("comments.message")} <span className="text-red-400">*</span>
                 </label>
                 <textarea
+                    id="newComment"
+                    name="newComment"
+                    autoComplete="off"
                     ref={textareaRef}
                     value={newComment}
                     maxLength={200}
@@ -154,7 +160,7 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error, isFrozen }) => {
             </div>
 
             <div className="space-y-2" data-aos="fade-up" data-aos-duration="1400">
-                <label className="block text-sm font-medium text-primary">
+                <label htmlFor="profilePhoto" className="block text-sm font-medium text-primary">
                     {t("comments.profilePhoto")} <span className="text-secondary">({t("comments.optional")})</span>
                 </label>
                 <div className="flex items-center gap-4 p-4 bg-secondary border border-primary rounded-xl">
@@ -181,6 +187,8 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error, isFrozen }) => {
                     ) : (
                         <div className="w-full">
                             <input
+                                id="profilePhoto"
+                                name="profilePhoto"
                                 type="file"
                                 ref={fileInputRef}
                                 onChange={handleImageChange}

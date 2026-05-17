@@ -197,10 +197,13 @@ const ContactPage = () => {
                 data-aos-delay="100"
                 className="relative group"
               >
+                <label htmlFor="name" className="sr-only">{t("contact.namePlaceholder")}</label>
                 <User className="absolute start-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-[#6366f1] transition-colors" />
                 <input
                   type="text"
                   name="name"
+                  id="name"
+                  autoComplete="name"
                   placeholder={t("contact.namePlaceholder")}
                   value={formData.name}
                   onChange={handleChange}
@@ -214,10 +217,13 @@ const ContactPage = () => {
                 data-aos-delay="200"
                 className="relative group"
               >
+                <label htmlFor="email" className="sr-only">{t("contact.emailPlaceholder")}</label>
                 <Mail className="absolute start-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-[#6366f1] transition-colors" />
                 <input
                   type="email"
                   name="email"
+                  id="email"
+                  autoComplete="email"
                   placeholder={t("contact.emailPlaceholder")}
                   value={formData.email}
                   onChange={handleChange}
@@ -231,9 +237,12 @@ const ContactPage = () => {
                 data-aos-delay="300"
                 className="relative group"
               >
+                <label htmlFor="message" className="sr-only">{t("contact.messagePlaceholder")}</label>
                 <MessageSquare className="absolute start-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-[#6366f1] transition-colors" />
                 <textarea
                   name="message"
+                  id="message"
+                  autoComplete="off"
                   placeholder={t("contact.messagePlaceholder")}
                   value={formData.message}
                   onChange={handleChange}

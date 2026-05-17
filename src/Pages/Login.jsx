@@ -96,10 +96,13 @@ export default function Login() {
             {/* Form */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs text-secondary uppercase tracking-wider font-semibold">{t("login.email")}</label>
+                <label htmlFor="email" className="text-xs text-secondary uppercase tracking-wider font-semibold">{t("login.email")}</label>
                 <div className="flex items-center bg-secondary border border-primary rounded-xl overflow-hidden focus-within:border-accent-primary/60 transition-colors">
                   <Mail className="w-4 h-4 text-secondary ms-4 shrink-0" />
                   <input
+                    id="email"
+                    name="email"
+                    autoComplete="email"
                     type="email"
                     placeholder="admin@example.com"
                     value={email}
@@ -111,10 +114,13 @@ export default function Login() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs text-secondary uppercase tracking-wider font-semibold">{t("login.password")}</label>
+                <label htmlFor="password" className="text-xs text-secondary uppercase tracking-wider font-semibold">{t("login.password")}</label>
                 <div className="flex items-center bg-secondary border border-primary rounded-xl overflow-hidden focus-within:border-accent-primary/60 transition-colors">
                   <Lock className="w-4 h-4 text-secondary ms-4 shrink-0" />
                   <input
+                    id="password"
+                    name="password"
+                    autoComplete="current-password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     value={password}
