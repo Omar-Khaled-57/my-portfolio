@@ -236,10 +236,12 @@ const Home = () => {
                   <div className={`relative lg:start-12 z-10 w-full opacity-90 transform transition-transform duration-500 ${
                     isHovering ? "scale-105" : "scale-100"
                   }`}>
-                    <img
-                      src="Animation1.webp"
-                      alt="Developer Animation"
-                      fetchpriority="high"
+                    <video
+                      src="Animation1.webm"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
                       className={`w-full h-full object-contain transition-all duration-500 drop-shadow-[0_15px_50px_rgba(0,0,0,0.2)] drop-shadow-[0_5px_15px_rgba(99,102,241,0.6)] ${
                         isHovering 
                           ? "scale-[95%] sm:scale-[90%] md:scale-[90%] lg:scale-[90%] rotate-2" 
