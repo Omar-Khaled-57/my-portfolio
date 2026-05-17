@@ -14,7 +14,7 @@
   --card-bg: rgba(255, 255, 255, 0.05);
   --nav-bg: rgba(3, 0, 20, 0.5);
   --glass-bg: rgba(255, 255, 255, 0.02);
-  --blob-opacity: 0.2;
+  --blob-opacity: 0.3;
   --blob-mix-blend: multiply;
   --text-gradient-start: #f3f4f6;
   --text-gradient-end: #d1d5db;
@@ -31,7 +31,7 @@
   --card-bg: rgba(255, 255, 255, 0.8);
   --nav-bg: rgba(248, 250, 252, 0.8);
   --glass-bg: rgba(255, 255, 255, 0.5);
-  --blob-opacity: 0.15;
+  --blob-opacity: 0.5;
   --blob-mix-blend: multiply;
   --text-gradient-start: #0f172a;
   --text-gradient-end: #334155;
