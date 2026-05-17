@@ -80,7 +80,7 @@ export default function Login() {
                 <span className="text-accent-primary text-xs font-medium tracking-wide relative z-10">{t("login.adminPortal")}</span>
               </div>
 
-              <style jsx>{`
+              <style>{`
                 @keyframes sheen {
                   0% { transform: translateX(-100%) skewX(-20deg); }
                   20%, 100% { transform: translateX(200%) skewX(-20deg); }

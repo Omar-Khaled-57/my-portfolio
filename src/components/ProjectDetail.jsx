@@ -118,7 +118,7 @@ const ProjectStats = ({ project, t }) => {
           </div>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .glass-card {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 10px var(--passive-shadow);
           }
@@ -415,7 +415,7 @@ const ProjectDetails = () => {
           </div>
         </div>
 
-        <style jsx>{`
+        <style>{`
           @keyframes blob {
             0% {
               transform: translate(0px, 0px) scale(1);

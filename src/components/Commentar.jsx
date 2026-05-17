@@ -244,7 +244,8 @@ const Komentar = () => {
                 .from('app_settings')
                 .select('value')
                 .eq('key', 'comments_frozen')
-                .single();
+                .limit(1)
+                .maybeSingle();
             if (data) {
                 setIsFrozen(data.value === 'true');
             }
@@ -268,7 +269,8 @@ const Komentar = () => {
                     .from('portfolio_comments')
                     .select('*')
                     .eq('is_pinned', true)
-                    .single();
+                    .limit(1)
+                    .maybeSingle();
                 
                 if (error && error.code !== 'PGRST116') {
                     console.error('Error fetching pinned comment:', error);
@@ -459,7 +461,7 @@ const Komentar = () => {
                     )}
                 </div>
             </div>
-            <style jsx>{`
+            <style>{`
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 6px;
                 }

@@ -50,7 +50,8 @@ export default function Comments() {
       .from("app_settings")
       .select("value")
       .eq("key", "comments_frozen")
-      .single();
+      .limit(1)
+      .maybeSingle();
     
     if (settingsData) {
       setIsFrozen(settingsData.value === "true");
