@@ -12,11 +12,11 @@ import Footer from "./components/Footer";
 import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import WelcomeScreen from "./Pages/WelcomeScreen";
 
 const Portfolio = lazy(() => import('./Pages/Portfolio'));
 const ContactPage = lazy(() => import('./Pages/Contact'));
 const ProjectDetails = lazy(() => import('./components/ProjectDetail'));
-const WelcomeScreen = lazy(() => import('./Pages/WelcomeScreen'));
 const NotFoundPage = lazy(() => import('./Pages/404'));
 const CVPage = lazy(() => import('./Pages/CV'));
 
@@ -25,9 +25,7 @@ const LandingPage = ({ showWelcome, setShowWelcome }) => {
     <>
       <AnimatePresence mode="wait">
         {showWelcome && (
-          <Suspense fallback={null}>
-            <WelcomeScreen onLoadingComplete={() => setShowWelcome(false)} />
-          </Suspense>
+          <WelcomeScreen onLoadingComplete={() => setShowWelcome(false)} />
         )}
       </AnimatePresence>
 
