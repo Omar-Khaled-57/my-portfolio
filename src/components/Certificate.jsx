@@ -61,6 +61,8 @@ const Certificate = ({ ImgSertif }) => {
 						className="certificate-image"
 						src={ImgSertif}
 						alt={t("certificate.alt")}
+						loading="lazy"
+						decoding="async"
 						style={{
 							width: "100%",
 							height: "auto",
@@ -184,6 +186,7 @@ const Certificate = ({ ImgSertif }) => {
 					<img
 						src={ImgSertif}
 						alt={t("certificate.fullAlt")}
+						decoding="async"
 						style={{
 							display: "block",
 							maxWidth: "100%",

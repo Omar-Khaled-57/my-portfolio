@@ -263,7 +263,7 @@ const AboutPage = () => {
         </div>
         
         <blockquote className="text-[var(--text-secondary)] text-center lg:text-start italic font-medium text-sm relative z-10 ps-6">
-          "{t("about.quote")}"
+          {`"${t("about.quote")}"`}
         </blockquote>
       </div>
 
