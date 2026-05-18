@@ -9,10 +9,11 @@ import AnimatedBackground from "./components/Background";
 import { AnimatePresence } from "framer-motion";
 import Footer from "./components/Footer";
 
-import Login from "./Pages/Login";
-import Dashboard from "./Pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import WelcomeScreen from "./Pages/WelcomeScreen";
+
+const Login = lazy(() => import("./Pages/Login"));
+const Dashboard = lazy(() => import("./Pages/Dashboard"));
 
 const Portfolio = lazy(() => import('./Pages/Portfolio'));
 const ContactPage = lazy(() => import('./Pages/Contact'));
@@ -130,14 +131,23 @@ function App() {
           />
 
           {/* AUTH */}
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={
+              <Suspense fallback={<div className="min-h-screen" />}>
+                <Login />
+              </Suspense>
+            }
+          />
 
           {/* ADMIN (PROTECTED) */}
           <Route
             path="/dashboard/*"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Suspense fallback={<div className="min-h-screen" />}>
+                  <Dashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           />
