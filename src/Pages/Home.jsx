@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, memo } from "react"
 import { Helmet } from "react-helmet-async"
 import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, MessageCircle } from "lucide-react"
-import AOS from 'aos'
-import 'aos/dist/aos.css'
+import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 
 const StatusBadge = memo(({ text }) => (
@@ -94,17 +93,15 @@ const Home = () => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
 
+  useAOS({ once: true, offset: 10 });
+
   useEffect(() => {
-    const initAOS = () => {
-      AOS.init({
-        once: true,
-        offset: 10,
-      });
+    const handleResize = () => {
+      refreshAOS();
     };
 
-    initAOS();
-    window.addEventListener('resize', initAOS);
-    return () => window.removeEventListener('resize', initAOS);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {

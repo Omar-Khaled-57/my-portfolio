@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Code2, Github, Globe, User } from 'lucide-react';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import useAOS from '../hooks/useAOS';
 import { useI18n } from "../i18n";
 
 const TypewriterEffect = ({ text }) => {
@@ -50,13 +49,9 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
   const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: false,
-      mirror: false,
-    });
+  useAOS({ duration: 1000, once: false, mirror: false });
 
+  useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
       setTimeout(() => {

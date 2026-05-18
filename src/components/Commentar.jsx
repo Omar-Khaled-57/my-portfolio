@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { MessageCircle, UserCircle2, Loader2, AlertCircle, Send, ImagePlus, X, Pin } from 'lucide-react';
-import AOS from "aos";
-import "aos/dist/aos.css";
+import useAOS from "../hooks/useAOS";
 import { supabase } from '../supabase';
 import { useI18n } from "../i18n";
 
@@ -246,6 +245,8 @@ const Komentar = () => {
     const [error, setError] = useState('');
     const [isFrozen, setIsFrozen] = useState(false);
 
+    useAOS({ once: false, duration: 1000 });
+
     useEffect(() => {
         const fetchFrozenState = async () => {
             const { data } = await supabase
@@ -259,14 +260,6 @@ const Komentar = () => {
             }
         };
         fetchFrozenState();
-    }, []);
-
-    useEffect(() => {
-        // Initialize AOS
-        AOS.init({
-            once: false,
-            duration: 1000,
-        });
     }, []);
 
     // Fetch pinned comment

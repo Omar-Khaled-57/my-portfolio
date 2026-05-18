@@ -7,8 +7,7 @@ import {
   ExternalLink,
   MessageCircle,
 } from "lucide-react";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import useAOS from "../hooks/useAOS";
 import PresenceWidget from "./PresenceWidget";
 import { useI18n } from "../i18n";
 
@@ -48,12 +47,7 @@ const SocialLinks = () => {
   const linkedIn = socialLinks.find((link) => link.isPrimary);
   const otherLinks = socialLinks.filter((link) => !link.isPrimary);
 
-  useEffect(() => {
-    AOS.init({
-      offset: 10,
-     
-    });
-  }, []);
+  useAOS({ offset: 10 });
 
   return (
     <div className="w-full glass-card rounded-2xl p-6 py-8">

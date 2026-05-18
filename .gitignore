@@ -29,3 +29,4 @@ dist/
 
 # Extra
 /dev
+*.py

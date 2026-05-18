@@ -1,7 +1,6 @@
 import React, { useEffect, useState, memo, useMemo } from "react"
 import { FileText, Code, Award, Globe, ArrowUpRight, Sparkles, UserCheck, FolderGit2 } from "lucide-react"
-import AOS from 'aos'
-import 'aos/dist/aos.css'
+import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import CVModal from "../components/CVModal"
 
@@ -154,21 +153,13 @@ const AboutPage = () => {
 
   const { totalProjects, totalCertificates, accessibleProjects } = stats;
 
-  // Optimized AOS initialization
-  useEffect(() => {
-    const initAOS = () => {
-      AOS.init({
-        once: false, 
-      });
-    };
+  useAOS({ once: false });
 
-    initAOS();
-    
-    // Debounced resize handler
+  useEffect(() => {
     let resizeTimer;
     const handleResize = () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(initAOS, 250);
+      resizeTimer = setTimeout(refreshAOS, 250);
     };
 
     window.addEventListener('resize', handleResize);

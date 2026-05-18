@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import SocialLinks from "../components/SocialLinks";
 import Komentar from "../components/Commentar";
 import Swal from "sweetalert2";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import useAOS from "../hooks/useAOS";
 import axios from "axios";
 import { useI18n } from "../i18n";
 import { supabase } from "../supabase";
@@ -32,11 +31,7 @@ const ContactPage = () => {
       });
   }, []);
 
-  useEffect(() => {
-    AOS.init({
-      once: false,
-    });
-  }, []);
+  useAOS({ once: false });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
