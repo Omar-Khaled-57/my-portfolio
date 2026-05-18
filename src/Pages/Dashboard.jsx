@@ -23,10 +23,10 @@ export default function Dashboard() {
 
   const NAV_ITEMS = [
     { to: '/', label: 'Home', icon: Home, external: true },
-    { to: 'projects', label: t('portfolio.projects'), icon: FolderGit2 },
-    { to: 'certificates', label: t('portfolio.certificates'), icon: Award },
-    { to: 'comments', label: t('comments.title'), icon: MessageSquare },
-    { to: 'emails', label: t('dashboard.emailsTitle'), icon: Mail },
+    { to: '/dashboard/projects', label: t('portfolio.projects'), icon: FolderGit2 },
+    { to: '/dashboard/certificates', label: t('portfolio.certificates'), icon: Award },
+    { to: '/dashboard/comments', label: t('comments.title'), icon: MessageSquare },
+    { to: '/dashboard/emails', label: t('dashboard.emailsTitle'), icon: Mail },
   ]
 
   const SidebarContent = () => (
@@ -178,7 +178,7 @@ export default function Dashboard() {
         {/* Only the main content area has overflow-y-auto so the scrollbar behaves normally */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-primary">
           <Routes>
-            <Route index element={<Navigate to="projects" replace />} />
+            <Route index element={<Navigate to="/dashboard/projects" replace />} />
             <Route path="projects" element={<Projects />} />
             <Route path="certificates" element={<Certificates />} />
             <Route path="comments" element={<Comments />} />
