@@ -17,7 +17,7 @@ const TypewriterEffect = ({ text }) => {
       } else {
         clearInterval(timer);
       }
-    }, 50);
+    }, 260);
     
     return () => clearInterval(timer);
   }, [text]);
@@ -61,8 +61,8 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
       setIsLoading(false);
       setTimeout(() => {
         onLoadingComplete?.();
-      }, 400);
-    }, 1400);
+      }, 1000);
+    }, 3400);
     
     return () => clearTimeout(timer);
   }, [onLoadingComplete]);
@@ -96,7 +96,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          className="fixed inset-0 bg-primary z-[9999]"
+          className="fixed inset-0 bg-primary"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit="exit"

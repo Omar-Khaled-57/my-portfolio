@@ -238,8 +238,6 @@ const Home = () => {
                   }`}>
                     <video
                       src="Animation1.webm"
-                      preload="auto"
-                      crossOrigin="anonymous"
                       autoPlay
                       loop
                       muted
