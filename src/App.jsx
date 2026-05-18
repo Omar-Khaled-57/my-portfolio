@@ -24,23 +24,27 @@ const CVPage = lazy(() => import('./Pages/CV'));
 const LandingPage = ({ showWelcome, setShowWelcome }) => {
   return (
     <>
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showWelcome && (
           <WelcomeScreen onLoadingComplete={() => setShowWelcome(false)} />
         )}
       </AnimatePresence>
 
-      <Navbar />
-  
-      <main>
-        <Home />
-        <About />
-        <Suspense fallback={<div className="h-20" />}>
-          <Portfolio />
-          <ContactPage />
-        </Suspense>
-      </main>
-      <Footer />
+      {!showWelcome && (
+        <>
+          <Navbar />
+      
+          <main>
+            <Home />
+            <About />
+            <Suspense fallback={<div className="h-20" />}>
+              <Portfolio />
+              <ContactPage />
+            </Suspense>
+          </main>
+          <Footer />
+        </>
+      )}
     </>
   );
 };
@@ -93,17 +97,6 @@ const GlobalKeyHandler = () => {
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
-
-  useEffect(() => {
-    if (showWelcome) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [showWelcome]);
 
   return (
     
