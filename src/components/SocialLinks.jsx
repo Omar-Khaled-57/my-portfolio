@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Linkedin,
   Github,
@@ -6,46 +6,62 @@ import {
   Youtube,
   ExternalLink,
   MessageCircle,
+  Globe,
 } from "lucide-react";
 import useAOS from "../hooks/useAOS";
 import PresenceWidget from "./PresenceWidget";
 import { useI18n } from "../i18n";
+import { supabase } from "../supabase";
 
-const socialLinks = [
-  {
-    name: "LinkedIn",
-    displayName: "Let's Connect",
-    subText: "on LinkedIn",
-    icon: Linkedin,
-    url: "https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/",
-    color: "#0A66C2",
-    gradient: "from-[#0A66C2] to-[#0077B5]",
-    isPrimary: true,
-  },
-  {
-    name: "GitHub",
-    displayName: "Github",
-    subText: "@Omar-Khaled-57",
-    icon: Github,
-    url: "https://github.com/Omar-Khaled-57",
-    color: "#ffffff",
-    gradient: "from-[#333] to-[#24292e]",
-  },
-  {
-    name: "WhatsApp",
-    displayName: "WhatsApp",
-    subText: "+20 112 302 9406",
-    icon: MessageCircle,
-    url: "https://wa.me/201123029406",
-    color: "#25D366",
-    gradient: "from-[#25D366] to-[#128C7E]",
-  },
+const platformMeta = {
+  LinkedIn: { icon: Linkedin, color: "#0A66C2", gradient: "from-[#0A66C2] to-[#0077B5]", isPrimary: true },
+  GitHub: { icon: Github, color: "#333", gradient: "from-[#333] to-[#24292e]" },
+  WhatsApp: { icon: MessageCircle, color: "#25D366", gradient: "from-[#25D366] to-[#128C7E]" },
+  Instagram: { icon: Instagram, color: "#E4405F", gradient: "from-[#E4405F] to-[#833AB4]" },
+  YouTube: { icon: Youtube, color: "#FF0000", gradient: "from-[#FF0000] to-[#cc0000]" },
+};
+
+const defaults = [
+  { platform: "LinkedIn", url: "https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/" },
+  { platform: "GitHub", url: "https://github.com/Omar-Khaled-57" },
+  { platform: "WhatsApp", url: "https://wa.me/201123029406" },
 ];
+
+const platformShortLabel = {
+  LinkedIn: "linkedin.com/in/omar...",
+  GitHub: "github.com/Omar-Khaled-57",
+  WhatsApp: "wa.me/201123029406",
+};
 
 const SocialLinks = () => {
   const { t } = useI18n();
-  const linkedIn = socialLinks.find((link) => link.isPrimary);
-  const otherLinks = socialLinks.filter((link) => !link.isPrimary);
+  const [socialLinks, setSocialLinks] = useState(defaults);
+
+  useEffect(() => {
+    const fetchLinks = async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "personalInfo_socialLinks")
+        .single();
+
+      if (data?.value) {
+        try {
+          const parsed = JSON.parse(data.value);
+          if (parsed.length > 0) setSocialLinks(parsed);
+        } catch {}
+      }
+    };
+    fetchLinks();
+  }, []);
+
+  const linksWithMeta = socialLinks.map((link) => {
+    const meta = platformMeta[link.platform] || { icon: Globe, color: "#888", gradient: "from-[#666] to-[#444]" };
+    return { ...link, ...meta };
+  });
+
+  const linkedIn = linksWithMeta.find((link) => link.isPrimary);
+  const otherLinks = linksWithMeta.filter((link) => !link.isPrimary);
 
   useAOS({ offset: 10 });
 
@@ -60,7 +76,6 @@ const SocialLinks = () => {
       </h3>
 
       <div className="flex flex-col gap-4">
-        {/* LinkedIn - Primary Row */}
         {linkedIn && (
           <a
             href={linkedIn.url}
@@ -72,15 +87,12 @@ const SocialLinks = () => {
             data-aos="fade-up"
             data-aos-delay="100" 
           >
-            {/* Hover Gradient Background */}
             <div
               className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500
                          bg-gradient-to-r ${linkedIn.gradient}`}
             />
 
-            {/* Content Container */}
             <div className="relative flex items-center gap-4">
-              {/* Icon Container */}
               <div className="relative flex items-center justify-center">
                 <div
                   className="absolute inset-0 opacity-20 rounded-md transition-all duration-500
@@ -95,7 +107,6 @@ const SocialLinks = () => {
                 </div>
               </div>
 
-              {/* Text Container */}
               <div className="flex flex-col">
                 <span className="text-lg font-bold pt-[0.2rem] text-primary tracking-tight leading-none group-hover:text-primary transition-colors duration-300">
                   {t("social.linkedinCta")}
@@ -106,14 +117,10 @@ const SocialLinks = () => {
               </div>
             </div>
 
-            {/* External Link */}
             <ExternalLink
-              className="relative w-5 h-5 text-gray-500 group-hover:text-white
-                         opacity-0 group-hover:opacity-100 transition-all duration-300
-                         transform group-hover:translate-x-0 -translate-x-1 rtl:translate-x-1"
+              className="relative w-5 h-5 text-gray-500 shrink-0 transition-colors duration-300"
             />
 
-            {/* Shine Effect */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none overflow-hidden">
               <div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent
@@ -123,11 +130,10 @@ const SocialLinks = () => {
           </a>
         )}
 
-        {/* Other Links Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
           {otherLinks.map((link, index) => (
             <a
-              key={link.name}
+              key={link.platform}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
@@ -142,7 +148,7 @@ const SocialLinks = () => {
                                      bg-gradient-to-r ${link.gradient}`}
               />
 
-              <div className="relative flex items-center justify-center">
+              <div className="relative flex items-center justify-center shrink-0">
                 <div
                   className="absolute inset-0 opacity-20 rounded-lg transition-all duration-500
                                        group-hover:scale-125 group-hover:opacity-30"
@@ -156,20 +162,17 @@ const SocialLinks = () => {
                 </div>
               </div>
 
-              {/* Text Container */}
-              <div className="flex flex-col min-w-0">
+              <div className="flex flex-col min-w-0 flex-1">
                 <span className="text-sm font-bold text-primary group-hover:text-primary transition-colors duration-300">
-                  {link.displayName}
+                  {link.platform}
                 </span>
                 <span className="text-xs text-secondary truncate group-hover:text-secondary transition-colors duration-300">
-                  {link.subText}
+                  {platformShortLabel[link.platform] || link.url}
                 </span>
               </div>
 
               <ExternalLink
-            className="w-4 h-4 text-gray-500 group-hover:text-white ms-auto
-                                       opacity-0 group-hover:opacity-100 transition-all duration-300
-                                       transform group-hover:translate-x-0 -translate-x-2 rtl:translate-x-2"
+            className="w-5 h-5 text-gray-500 shrink-0 transition-colors duration-300"
               />
 
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none overflow-hidden">

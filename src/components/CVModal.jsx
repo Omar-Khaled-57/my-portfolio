@@ -8,6 +8,25 @@ import {
 import { useI18n } from '../i18n';
 import { useTheme } from '../context/ThemeContext';
 
+const findSocialUrl = (links, platform) => {
+    const match = links?.find(l => l.platform?.toLowerCase() === platform.toLowerCase());
+    return match?.url || '';
+};
+
+const loadDBString = (key, fallback) => {
+    try {
+        const val = localStorage.getItem("personalInfo_" + key);
+        return val !== null ? JSON.parse(val) : fallback;
+    } catch { return fallback; }
+};
+
+const loadDBLinks = () => {
+    try {
+        const val = localStorage.getItem("personalInfo_socialLinks");
+        return val ? JSON.parse(val) : [];
+    } catch { return []; }
+};
+
 /* ─────────────────────────────────────────────
    Scroll-lock: compensates scrollbar width
 ───────────────────────────────────────────── */
@@ -26,6 +45,28 @@ function unlockScroll() {
 /* ─────────────────────────────────────────────
    Bilingual CV data
 ───────────────────────────────────────────── */
+const getContact = () => {
+    const links = loadDBLinks();
+    return {
+        location: loadDBString("address", '6th of October, Giza'),
+        email: loadDBString("email", 'khaledelkhly57@gmail.com'),
+        phone: loadDBString("phone", '+20 112 302 9406'),
+        github: findSocialUrl(links, 'github') || 'https://github.com/Omar-Khaled-57',
+        linkedin: findSocialUrl(links, 'linkedin') || 'https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/',
+    };
+};
+
+const getContactAr = () => {
+    const links = loadDBLinks();
+    return {
+        location: loadDBString("addressAr", 'السادس من أكتوبر، الجيزة'),
+        email: loadDBString("email", 'khaledelkhly57@gmail.com'),
+        phone: loadDBString("phone", '+20 112 302 9406'),
+        github: findSocialUrl(links, 'github') || 'https://github.com/Omar-Khaled-57',
+        linkedin: findSocialUrl(links, 'linkedin') || 'https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/',
+    };
+};
+
 const cvData = {
     en: {
         name: 'Omar Khaled El-Khouly',
@@ -41,11 +82,7 @@ const cvData = {
             achievements: 'Achievements',
             projects: 'Projects',
         },
-        contact: {
-            location: '6th of October, Giza',
-            email: 'khaledelkhly57@gmail.com',
-            phone: '+20 112 302 9406',
-        },
+        contact: getContact(),
         skills: {
             frontend: { label: 'Frontend', items: ['HTML5, CSS3, JavaScript', 'TypeScript, React, Next.js', 'Tailwind CSS, Vite'] },
             backend: { label: 'Backend & Tools', items: ['Node.js, REST APIs', 'PostgreSQL, Git', 'Vue.js, Django'] },
@@ -124,11 +161,7 @@ const cvData = {
             achievements: 'الإنجازات',
             projects: 'المشاريع',
         },
-        contact: {
-            location: 'السادس من أكتوبر، الجيزة',
-            email: 'khaledelkhly57@gmail.com',
-            phone: '+20 112 302 9406',
-        },
+        contact: getContactAr(),
         skills: {
             frontend: { label: 'الواجهة الأمامية', items: ['HTML5, CSS3, JavaScript', 'TypeScript, React, Next.js', 'Tailwind CSS, Vite'] },
             backend: { label: 'الخلفية والأدوات', items: ['Node.js, REST APIs', 'PostgreSQL, Git', 'Vue.js, Django'] },
@@ -217,6 +250,7 @@ const sidebarVariants = {
 export const CVContent = () => {
     const { language } = useI18n();
     const isAr = language === 'ar';
+    const contact = isAr ? getContactAr() : getContact();
     const d = cvData[language] || cvData.en;
 
     return (
@@ -253,9 +287,9 @@ export const CVContent = () => {
                             </h2>
                             <div className="space-y-3 text-[13px] text-secondary">
                                 {[
-                                    { Icon: MapPin, content: d.contact.location },
-                                    { Icon: Mail, content: d.contact.email, cls: 'break-all', dir: 'ltr' },
-                                    { Icon: Phone, content: d.contact.phone, dir: 'ltr' },
+                                    { Icon: MapPin, content: contact.location },
+                                    { Icon: Mail, content: contact.email, cls: 'break-all', dir: 'ltr' },
+                                    { Icon: Phone, content: contact.phone, dir: 'ltr' },
                                 ].map(({ Icon, content, cls, dir }) => (
                                     <div key={content} className="flex items-start gap-2.5">
                                         <Icon className="w-4 h-4 text-accent-primary mt-0.5 flex-shrink-0" />
@@ -264,12 +298,12 @@ export const CVContent = () => {
                                 ))}
                                 <div className="flex items-start gap-2.5">
                                     <Github className="w-4 h-4 text-accent-primary mt-0.5 flex-shrink-0" />
-                                    <a href="https://github.com/Omar-Khaled-57" target="_blank" rel="noopener noreferrer"
+                                    <a href={contact.github} target="_blank" rel="noopener noreferrer"
                                         className="hover:text-accent-primary transition-colors duration-200">GitHub</a>
                                 </div>
                                 <div className="flex items-start gap-2.5">
                                     <Linkedin className="w-4 h-4 text-accent-primary mt-0.5 flex-shrink-0" />
-                                    <a href="https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/" target="_blank" rel="noopener noreferrer"
+                                    <a href={contact.linkedin} target="_blank" rel="noopener noreferrer"
                                         className="hover:text-accent-primary transition-colors duration-200">LinkedIn</a>
                                 </div>
                             </div>

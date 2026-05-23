@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async"
 import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, MessageCircle } from "lucide-react"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
+import { supabase } from "../supabase"
 
 const StatusBadge = memo(({ text }) => (
   <div className="hidden animate-float lg:mx-0" data-aos="zoom-in" data-aos-delay="400">
@@ -77,11 +78,13 @@ const TYPING_SPEED = 100;
 const ERASING_SPEED = 50;
 const PAUSE_DURATION = 2000;
 const TECH_STACK = ["Web Development", "AI", "Mobile Development", "UI/UX"];
-const SOCIAL_LINKS = [
-  { icon: Github, link: "https://github.com/Omar-Khaled-57", label: "GitHub Profile" },
-  { icon: Linkedin, link: "https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/", label: "LinkedIn Profile" },
-  { icon: MessageCircle, link: "https://wa.me/201123029406", label: "WhatsApp" }
-];
+
+const platformIconMap = {
+  GitHub: Github,
+  Linkedin: Linkedin,
+  WhatsApp: MessageCircle,
+  Instagram: Instagram,
+};
 
 const Home = () => {
   const { t } = useI18n();
@@ -92,6 +95,39 @@ const Home = () => {
   const [charIndex, setCharIndex] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
+  const [socialLinks, setSocialLinks] = useState([
+    { icon: Github, link: "https://github.com/Omar-Khaled-57", label: "GitHub Profile" },
+    { icon: Linkedin, link: "https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/", label: "LinkedIn Profile" },
+    { icon: MessageCircle, link: "https://wa.me/201123029406", label: "WhatsApp" },
+  ]);
+
+  useEffect(() => {
+    const fetchLinks = async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "personalInfo_socialLinks")
+        .single();
+
+      let links = [];
+      if (data?.value) {
+        try { links = JSON.parse(data.value); } catch {}
+      }
+      if (links.length === 0) {
+        try { links = JSON.parse(localStorage.getItem("personalInfo_socialLinks") || "[]"); } catch {}
+      }
+      if (links.length > 0) {
+        setSocialLinks(
+          links.map(({ platform, url }) => ({
+            icon: platformIconMap[platform] || ExternalLink,
+            link: url,
+            label: platform,
+          }))
+        );
+      }
+    };
+    fetchLinks();
+  }, []);
 
   useAOS({ once: true, offset: 10 });
 
@@ -162,8 +198,8 @@ const Home = () => {
             "jobTitle": "Software Developer",
             "url": "https://github.com/Omar-Khaled-57",
             "sameAs": [
-              "https://github.com/Omar-Khaled-57",
-              "https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/"
+              "${socialLinks.find(l => l.label?.toLowerCase() === 'github')?.link || 'https://github.com/Omar-Khaled-57'}",
+              "${socialLinks.find(l => l.label?.toLowerCase() === 'linkedin')?.link || 'https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/'}"
             ]
           }
         `}</script>
@@ -211,7 +247,7 @@ const Home = () => {
 
                   {/* Social Links */}
                   <div className="hidden sm:flex gap-4 justify-start" data-aos="fade-up" data-aos-delay="1600">
-                    {SOCIAL_LINKS.map((social, index) => (
+                    {socialLinks.map((social, index) => (
                       <SocialLink key={index} {...social} />
                     ))}
                   </div>

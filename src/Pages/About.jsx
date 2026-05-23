@@ -1,8 +1,9 @@
 import React, { useEffect, useState, memo, useMemo } from "react"
-import { FileText, Code, Award, Globe, ArrowUpRight, Sparkles, UserCheck, FolderGit2 } from "lucide-react"
+import { FileText, Code, Award, Globe, ArrowUpRight, Sparkles, UserCheck, FolderGit2, Briefcase } from "lucide-react"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import CVModal from "../components/CVModal"
+import { supabase } from "../supabase"
 
 // Memoized Components
 const Header = memo(({ t }) => (
@@ -116,42 +117,99 @@ const StatCard = memo(({ icon: Icon, color, value, label, description, animation
 const AboutPage = () => {
   const { t } = useI18n();
   const [isCVModalOpen, setIsCVModalOpen] = React.useState(false);
+  const [showYearsExp, setShowYearsExp] = useState(false);
+  const [yearsExpValue, setYearsExpValue] = useState(0);
+  const [manualTotalProjects, setManualTotalProjects] = useState(26);
   // Dynamic stats calculation
-  const [stats, setStats] = useState({
-    totalProjects: 26,
-    totalCertificates: 0,
-    accessibleProjects: 0
+  const countAccessible = (projects) =>
+    projects.filter(p => (p.github && p.github.trim()) || (p.link && p.link.trim())).length;
+
+  const [stats, setStats] = useState(() => {
+    try {
+      const cached = localStorage.getItem("projects");
+      if (cached) {
+        const projects = JSON.parse(cached);
+        return { totalCertificates: 0, accessibleProjects: countAccessible(projects) };
+      }
+    } catch {}
+    return { totalCertificates: 0, accessibleProjects: 0 };
   });
 
+  const cacheLocally = () => {
+    try {
+      localStorage.setItem("personalInfo_totalProjects", JSON.stringify(manualTotalProjects));
+      localStorage.setItem("personalInfo_yearsExperience", JSON.stringify(yearsExpValue));
+      localStorage.setItem("personalInfo_showYearsExperience", JSON.stringify(showYearsExp));
+    } catch {}
+  };
+
   useEffect(() => {
-    const updateStats = () => {
-      try {
-        const storedProjects = JSON.parse(localStorage.getItem("projects") || "[]");
-        const storedCertificates = JSON.parse(localStorage.getItem("certificates") || "[]");
-        setStats({
-          totalProjects: 26,
-          totalCertificates: storedCertificates.length,
-          accessibleProjects: storedProjects.filter(p => p.github || p.link).length
-        });
-      } catch (e) {
-        console.error("Error parsing stats", e);
+    const fetchAll = async () => {
+      const [projectsRes, certsRes, settingsRes] = await Promise.all([
+        supabase.from("projects").select("*").order("id", { ascending: false }),
+        supabase.from("certificates").select("*").order("id", { ascending: false }),
+        supabase.from("app_settings").select("key, value").in("key", [
+          "personalInfo_totalProjects",
+          "personalInfo_yearsExperience",
+          "personalInfo_showYearsExperience",
+        ]),
+      ]);
+
+      const projects = projectsRes.error ? [] : (projectsRes.data || []);
+
+      if (projects.length > 0) {
+        localStorage.setItem("projects", JSON.stringify(projects));
       }
+
+      const certs = certsRes.error ? [] : (certsRes.data || []);
+
+      setStats({
+        totalCertificates: certs.length,
+        accessibleProjects: countAccessible(projects),
+      });
+
+      if (settingsRes.data) {
+        const map = {};
+        settingsRes.data.forEach(({ key, value }) => {
+          map[key.replace("personalInfo_", "")] = value;
+        });
+        if (map.totalProjects !== undefined) {
+          try { setManualTotalProjects(JSON.parse(map.totalProjects)); } catch { setManualTotalProjects(map.totalProjects); }
+        }
+        if (map.yearsExperience !== undefined) {
+          try { setYearsExpValue(JSON.parse(map.yearsExperience)); } catch { setYearsExpValue(map.yearsExperience); }
+        }
+        if (map.showYearsExperience !== undefined) {
+          setShowYearsExp(map.showYearsExperience === "true");
+        }
+      }
+
+      cacheLocally();
     };
 
-    updateStats();
-    
-    // Listen for custom event from Portfolio.jsx
-    window.addEventListener('portfolioDataLoaded', updateStats);
-    // Listen for cross-tab updates
-    window.addEventListener('storage', updateStats);
-    
+    fetchAll();
+
+    window.addEventListener('portfolioDataLoaded', fetchAll);
+    window.addEventListener('storage', (e) => {
+      if (e.key === "projects") {
+        try { setStats(prev => ({ ...prev, accessibleProjects: countAccessible(JSON.parse(e.newValue)) })); } catch {}
+      }
+      if (e.key?.startsWith("personalInfo_")) {
+        try {
+          const key = e.key.replace("personalInfo_", "");
+          if (key === "totalProjects") setManualTotalProjects(JSON.parse(e.newValue));
+          if (key === "yearsExperience") setYearsExpValue(JSON.parse(e.newValue));
+          if (key === "showYearsExperience") setShowYearsExp(e.newValue === "true");
+        } catch {}
+      }
+    });
+
     return () => {
-      window.removeEventListener('portfolioDataLoaded', updateStats);
-      window.removeEventListener('storage', updateStats);
+      window.removeEventListener('portfolioDataLoaded', fetchAll);
     };
   }, []);
 
-  const { totalProjects, totalCertificates, accessibleProjects } = stats;
+  const { totalCertificates, accessibleProjects } = stats;
 
   useAOS({ once: false });
 
@@ -170,32 +228,45 @@ const AboutPage = () => {
   }, []);
 
   // Memoized stats data
-  const statsData = useMemo(() => [
-    {
-      icon: Code,
-      color: "from-[#6366f1] to-[#a855f7]",
-      value: totalProjects,
-      label: t("about.totalProjects"),
-      description: t("about.totalProjectsDescription"),
-      animation: "fade-right",
-    },
-    {
-      icon: Award,
-      color: "from-[#a855f7] to-[#6366f1]",
-      value: totalCertificates,
-      label: t("about.certificates"),
-      description: t("about.certificatesDescription"),
-      animation: "fade-up",
-    },
-    {
-      icon: FolderGit2,
-      color: "from-[#6366f1] to-[#a855f7]",
-      value: accessibleProjects,
-      label: t("about.accessibleProjects"),
-      description: t("about.accessibleProjectsDescription"),
-      animation: "fade-left",
-    },
-  ], [totalProjects, totalCertificates, accessibleProjects, t]);
+  const statsData = useMemo(() => {
+    const base = [
+      {
+        icon: Code,
+        color: "from-[#6366f1] to-[#a855f7]",
+        value: manualTotalProjects,
+        label: t("about.totalProjects"),
+        description: t("about.totalProjectsDescription"),
+        animation: "fade-right",
+      },
+      {
+        icon: Award,
+        color: "from-[#a855f7] to-[#6366f1]",
+        value: totalCertificates,
+        label: t("about.certificates"),
+        description: t("about.certificatesDescription"),
+        animation: "fade-up",
+      },
+      {
+        icon: FolderGit2,
+        color: "from-[#6366f1] to-[#a855f7]",
+        value: accessibleProjects,
+        label: t("about.accessibleProjects"),
+        description: t("about.accessibleProjectsDescription"),
+        animation: "fade-left",
+      },
+    ];
+    if (showYearsExp) {
+      base.splice(1, 0, {
+        icon: Briefcase,
+        color: "from-[#a855f7] to-[#6366f1]",
+        value: yearsExpValue,
+        label: t("about.yearsExperience"),
+        description: t("about.yearsExperienceDescription"),
+        animation: "fade-up",
+      });
+    }
+    return base;
+  }, [manualTotalProjects, totalCertificates, accessibleProjects, showYearsExp, yearsExpValue, t]);
 
   return (
     <div
@@ -299,7 +370,7 @@ const AboutPage = () => {
         </div>
 
         <a href="#Portfolio">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 cursor-pointer">
+          <div className={`grid grid-cols-1 ${showYearsExp ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-6 mt-16 cursor-pointer`}>
             {statsData.map((stat) => (
               <StatCard key={stat.label} {...stat} />
             ))}

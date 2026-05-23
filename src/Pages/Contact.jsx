@@ -69,8 +69,8 @@ const ContactPage = () => {
     });
 
     try {
-      // Replace with your email in FormSubmit
-      const formSubmitUrl = 'https://formsubmit.co/khaledelkhly57@gmail.com';
+      const email = (() => { try { return JSON.parse(localStorage.getItem("personalInfo_email")); } catch { return null; } })() || 'khaledelkhly57@gmail.com';
+      const formSubmitUrl = `https://formsubmit.co/${email}`;
       
       // Prepare form data for FormSubmit
       const submitData = new FormData();

@@ -1,112 +1,30 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import React, { useState, lazy, Suspense, useEffect, useRef } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useState, lazy, Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
-import Navbar from "./components/Navbar";
-import Home from "./Pages/Home";
-import About from "./Pages/About";
 import AnimatedBackground from "./components/Background";
-import { AnimatePresence } from "framer-motion";
-import Footer from "./components/Footer";
+import LandingPage from "./components/LandingPage";
+import ProjectPageLayout from "./components/ProjectPageLayout";
+import GlobalKeyHandler from "./components/GlobalKeyHandler";
 
 import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
-import WelcomeScreen from "./Pages/WelcomeScreen";
 
-const Portfolio = lazy(() => import('./Pages/Portfolio'));
-const ContactPage = lazy(() => import('./Pages/Contact'));
-const ProjectDetails = lazy(() => import('./components/ProjectDetail'));
-const NotFoundPage = lazy(() => import('./Pages/404'));
 const CVPage = lazy(() => import('./Pages/CV'));
-
-const LandingPage = ({ showWelcome, setShowWelcome }) => {
-  return (
-    <>
-      <AnimatePresence mode="wait">
-        {showWelcome && (
-          <WelcomeScreen onLoadingComplete={() => setShowWelcome(false)} />
-        )}
-      </AnimatePresence>
-
-      {!showWelcome && (
-        <>
-          <Navbar />
-      
-          <main>
-            <Home />
-            <About />
-            <Suspense fallback={<div className="h-20" />}>
-              <Portfolio />
-              <ContactPage />
-            </Suspense>
-          </main>
-          <Footer />
-        </>
-      )}
-    </>
-  );
-};
-
-const ProjectPageLayout = () => (
-  <>
-    <Suspense fallback={<div className="min-h-screen" />}>
-      <ProjectDetails />
-    </Suspense>
-    <Footer />
-  </>
-);
-
-const GlobalKeyHandler = () => {
-  const navigate = useNavigate();
-  const keys = useRef("");
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const tagName = e.target.tagName?.toLowerCase();
-      if (
-        tagName === "input" ||
-        tagName === "textarea" ||
-        tagName === "select" ||
-        e.target.isContentEditable
-      ) {
-        return;
-      }
-
-      if (e.key.length === 1) {
-        let currentKeys = keys.current + e.key.toUpperCase();
-        if (currentKeys.length > 3) {
-          currentKeys = currentKeys.slice(-3);
-        }
-        keys.current = currentKeys;
-
-        if (keys.current === "OMR") {
-          keys.current = "";
-          navigate("/login");
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [navigate]);
-
-  return null;
-};
+const NotFoundPage = lazy(() => import('./Pages/404'));
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
 
   return (
-    
     <HelmetProvider>
-      <div className="pointer-events-none">
-  <AnimatedBackground />
-</div>
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <AnimatedBackground />
+      </div>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <GlobalKeyHandler />
         <Routes>
-          {/* PUBLIC */}
           <Route
             path="/"
             element={
@@ -119,7 +37,6 @@ function App() {
 
           <Route path="/project/:slug" element={<ProjectPageLayout />} />
 
-          {/* CV standalone page */}
           <Route
             path="/cv"
             element={
@@ -129,10 +46,8 @@ function App() {
             }
           />
 
-          {/* AUTH */}
           <Route path="/login" element={<Login />} />
 
-          {/* ADMIN (PROTECTED) */}
           <Route
             path="/dashboard/*"
             element={
@@ -142,7 +57,6 @@ function App() {
             }
           />
 
-          {/* 404 */}
           <Route
             path="*"
             element={
