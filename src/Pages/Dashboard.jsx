@@ -60,7 +60,7 @@ export default function Dashboard() {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Mobile topbar */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-primary/10 bg-secondary/50 backdrop-blur-xl shrink-0">
+        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-secondary/50 backdrop-blur-xl shrink-0 shadow-[0_1px_0_0_rgba(99,102,241,0.12)]">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 rounded-lg border border-primary text-secondary hover:text-primary transition-colors"
