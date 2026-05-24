@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FolderGit2, Award, MessageSquare, LogOut, LayoutDashboard,
   Sun, Moon, Languages, Home, Mail, User,
@@ -18,6 +18,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const { t, language, toggleLanguage } = useI18n();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const NAV_ITEMS = useMemo(() => [
     { to: '/', label: 'Home', icon: Home, external: true },
@@ -30,6 +31,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    navigate('/');
   };
 
   return (
