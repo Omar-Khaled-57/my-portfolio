@@ -190,19 +190,17 @@ const Home = () => {
      <meta property="og:description" content={t("home.metaDescription")} />
         <meta property="og:url" content="https://omar-el-khouly.vercel.app/" />
         <meta property="og:type" content="website" />
-        <script type="application/ld+json">{`
-          {
-            "@context": "https://schema.org",
-            "@type": "Person",
-            "name": "Omar Khaled El-Khouly",
-            "jobTitle": "Software Developer",
-            "url": "https://github.com/Omar-Khaled-57",
-            "sameAs": [
-              "${socialLinks.find(l => l.label?.toLowerCase() === 'github')?.link || 'https://github.com/Omar-Khaled-57'}",
-              "${socialLinks.find(l => l.label?.toLowerCase() === 'linkedin')?.link || 'https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/'}"
-            ]
-          }
-        `}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "name": "Omar Khaled El-Khouly",
+          "jobTitle": "Software Developer",
+          "url": "https://github.com/Omar-Khaled-57",
+          "sameAs": [
+            socialLinks.find(l => l.label?.toLowerCase() === 'github')?.link || "https://github.com/Omar-Khaled-57",
+            socialLinks.find(l => l.label?.toLowerCase() === 'linkedin')?.link || "https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/"
+          ]
+        })}</script>
       </Helmet>
 
       <div className="min-h-screen bg-[var(--bg-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%]" id="Home">

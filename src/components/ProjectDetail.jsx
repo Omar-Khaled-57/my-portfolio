@@ -23,63 +23,7 @@ import { toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
 
-const TECH_ICON_MAP = {
-  react: 'react',
-  tailwind: 'tailwind',
-  express: 'express2',
-  python: 'python',
-  javascript: 'js',
-  js: 'js',
-  html: 'html',
-  css: 'css',
-  typescript: 'ts',
-  ts: 'ts',
-  nodejs: 'nodejs',
-  'node.js': 'nodejs',
-  vite: 'vite',
-  nextjs: 'next',
-  'next.js': 'next',
-  vue: 'vue',
-  supabase: 'supabase',
-  postgresql: 'postgres',
-  postgres: 'postgres',
-  firebase: 'firebase',
-  mui: 'MUI',
-  'material-ui': 'MUI',
-  materialui: 'MUI',
-  framer: 'framer',
-  framermotion: 'framer',
-  'framer motion': 'framer',
-  git: 'git',
-  mysql: 'mysql',
-  php: 'php',
-  electron: 'electron',
-  tauri: 'tauri',
-  kotlin: 'kotlin',
-  rust: 'rust-light',
-  'c++': 'cpp',
-  cpp: 'cpp',
-  arduino: 'arduino',
-  tensorflow: 'tensorflow',
-  keras: 'keras',
-  vercel: 'vercel',
-  sonner: 'sonner',
-  sweetalert: 'SweetAlert',
-  sweetalert2: 'SweetAlert',
-  jwt: 'jwt',
-  i18n: 'i18n',
-  animejs: 'animejs',
-  'anime.js': 'animejs',
-  anime: 'animejs',
-};
-
-const getTechIconPath = (tech) => {
-  const key = tech?.toLowerCase() || '';
-  const file = TECH_ICON_MAP[key];
-  return file ? `/tools/${file}.svg` : null;
-};
-
-const FALLBACK_ICONS = {
+const TECH_ICONS = {
   React: Globe,
   Tailwind: Layout,
   Express: Cpu,
@@ -91,12 +35,7 @@ const FALLBACK_ICONS = {
 };
 
 const TechBadge = ({ tech }) => {
-  const [usePng, setUsePng] = useState(false);
-  const [imgError, setImgError] = useState(false);
-  const iconPath = getTechIconPath(tech);
-  const FallbackIcon = FALLBACK_ICONS[tech] || FALLBACK_ICONS["default"];
-  const src = iconPath ? (usePng ? iconPath.replace('.svg', '.png') : iconPath) : null;
-
+  const Icon = TECH_ICONS[tech] || TECH_ICONS["default"];
   return (
     <div className="group relative overflow-hidden px-3 py-2 md:px-4 md:py-2.5 rounded-xl cursor-default transition-all duration-300 hover:scale-105 hover:shadow-accent-primary/10 border border-primary"
       style={{
@@ -111,22 +50,7 @@ const TechBadge = ({ tech }) => {
         style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.08) 100%)' }}
       />
       <div className="relative flex items-center gap-1.5 md:gap-2">
-        {src && !imgError ? (
-          <img
-            src={src}
-            alt={tech}
-            className="w-3.5 h-3.5 md:w-4 md:h-4 object-contain"
-            onError={() => {
-              if (!usePng) {
-                setUsePng(true);
-              } else {
-                setImgError(true);
-              }
-            }}
-          />
-        ) : (
-          <FallbackIcon className="w-3.5 h-3.5 md:w-4 md:h-4 text-accent-primary transition-colors" />
-        )}
+        <Icon className="w-3.5 h-3.5 md:w-4 md:h-4 text-accent-primary transition-colors" />
         <span className="text-xs md:text-sm font-medium text-secondary group-hover:text-primary transition-colors">
           {tech}
         </span>
@@ -306,20 +230,18 @@ const ProjectDetails = () => {
         <meta property="og:url" content={projectUrl} />
         <meta property="og:type" content="website" />
         {project.img && <meta property="og:image" content={project.img} />}
-        <script type="application/ld+json">{`
-          {
-            "@context": "https://schema.org",
-            "@type": "CreativeWork",
-            "name": "${project.title}",
-            "description": "${project.description?.replace(/"/g, '\\"')}",
-            "url": "${projectUrl}",
-            "author": {
-              "@type": "Person",
-              "name": "Omar Khaled El-Khouly",
-              "url": "https://github.com/Omar-Khaled-57"
-            }
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CreativeWork",
+          "name": project.title,
+          "description": project.description,
+          "url": projectUrl,
+          "author": {
+            "@type": "Person",
+            "name": "Omar Khaled El-Khouly",
+            "url": "https://github.com/Omar-Khaled-57"
           }
-        `}</script>
+        })}</script>
       </Helmet>
 
       <div className="min-h-screen bg-primary px-[2%] sm:px-0 relative overflow-hidden transition-colors duration-300">

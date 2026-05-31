@@ -72,9 +72,9 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
                     <Github className="w-5 h-5" />
                   </a>
                 )}
-                {ProjectLink ? (
+                {ProjectLink && (
                   <a
-                    href={ProjectLink || "#"}
+                    href={ProjectLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={handleLiveDemo}
@@ -83,10 +83,6 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
                     <span>{t("project.liveDemo")}</span>
                     <ExternalLink className="w-4 h-4 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                   </a>
-                ) : (
-                  <span className="text-secondary/50 text-xs italic">
-                    {t("project.demoUnavailable")}
-                  </span>
                 )}
               </div>
 
