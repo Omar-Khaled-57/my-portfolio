@@ -1,6 +1,5 @@
-import { useState, useMemo } from 'react'
-import { Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { supabase } from '../supabase'
+import { useState } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Projects from './dashboard/Projects'
 import Certificates from './dashboard/Certificates'
 import Comments from './dashboard/Comments'
@@ -12,16 +11,9 @@ import { Menu, Sun, Moon, Languages } from 'lucide-react'
 import { useI18n } from "../i18n"
 
 export default function Dashboard() {
-  const { t, language, toggleLanguage } = useI18n()
+  const { t, toggleLanguage } = useI18n()
   const { theme, toggleTheme } = useTheme()
-  const location = useLocation()
-  const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
 
   return (
     // Key: DO NOT use overflow-hidden here so the main scrollbar can be interacted with normally

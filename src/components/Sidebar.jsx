@@ -14,7 +14,7 @@ import { useI18n } from "../i18n";
  * @param {boolean} props.sidebarOpen - Whether the mobile drawer is open
  * @param {(v: boolean) => void} props.setSidebarOpen - Mobile drawer toggle
  */
-const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
   const { t, language, toggleLanguage } = useI18n();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();

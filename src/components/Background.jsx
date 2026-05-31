@@ -1,23 +1,21 @@
 import React, { useEffect, useRef } from "react"
 
+const initialPositions = [
+	{ x: -4, y: 0 },
+	{ x: -4, y: 0 },
+	{ x: 20, y: -8 },
+	{ x: 20, y: -8 },
+]
+
 const AnimatedBackground = () => {
 	const blobRefs = useRef([])
-	const initialPositions = [
-		{ x: -4, y: 0 },
-		{ x: -4, y: 0 },
-		{ x: 20, y: -8 },
-		{ x: 20, y: -8 },
-	]
 
 	useEffect(() => {
-		let currentScroll = 0
-		let requestId
-		let ticking = false
+	let requestId
+	let ticking = false
 
-		const updatePositions = () => {
-			const newScroll = window.pageYOffset
-			const scrollDelta = newScroll - currentScroll
-			currentScroll = newScroll
+	const updatePositions = () => {
+		const newScroll = window.scrollY
 
 			blobRefs.current.forEach((blob, index) => {
 				if (!blob) return;

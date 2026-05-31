@@ -6,7 +6,7 @@ import { Mail, Lock, LogIn, Sparkles, Eye, EyeOff, Sun, Moon, Languages, ArrowLe
 import { useI18n } from "../i18n"
 
 export default function Login() {
-  const { t, language, toggleLanguage } = useI18n()
+  const { t, toggleLanguage } = useI18n()
   const { theme, toggleTheme } = useTheme()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

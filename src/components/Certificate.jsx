@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Modal, IconButton, Box, Fade, Backdrop, Zoom, Typography } from "@mui/material"
+import { Modal, IconButton, Box, Backdrop, Typography } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
 import { useI18n } from "../i18n"
@@ -131,12 +131,14 @@ const Certificate = ({ ImgSertif }) => {
 				onClose={handleClose}
 				aria-labelledby="modal-modal-title"
 				aria-describedby="modal-modal-description"
-				BackdropComponent={Backdrop}
-				BackdropProps={{
-					timeout: 300,
-					sx: {
-						backgroundColor: "rgba(0, 0, 0, 0.9)",
-						backdropFilter: "blur(5px)",
+				slots={{ backdrop: Backdrop }}
+				slotProps={{
+					backdrop: {
+						timeout: 300,
+						sx: {
+							backgroundColor: "rgba(0, 0, 0, 0.9)",
+							backdropFilter: "blur(5px)",
+						},
 					},
 				}}
 				sx={{
@@ -145,9 +147,6 @@ const Certificate = ({ ImgSertif }) => {
 					justifyContent: "center",
 					margin: 0,
 					padding: 0,
-					"& .MuiBackdrop-root": {
-						backgroundColor: "rgba(0, 0, 0, 0.9)",
-					},
 				}}>
 				<Box
 					sx={{

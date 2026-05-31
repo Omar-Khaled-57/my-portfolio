@@ -9,7 +9,6 @@ import {
   Globe,
 } from "lucide-react";
 import useAOS from "../hooks/useAOS";
-import PresenceWidget from "./PresenceWidget";
 import { useI18n } from "../i18n";
 import { supabase } from "../supabase";
 

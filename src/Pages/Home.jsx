@@ -177,7 +177,7 @@ const Home = () => {
       isTyping ? TYPING_SPEED : ERASING_SPEED
     );
     return () => clearTimeout(timeout);
-  }, [handleTyping]);
+  }, [handleTyping, isTyping]);
 
   return (
     <>
@@ -276,7 +276,7 @@ const Home = () => {
                       muted
                       playsInline
                       poster="/Animation1.webp"
-                      fetchpriority="high"
+                      fetchPriority="high"
                       preload="auto"
                       width="600"
                       height="600"

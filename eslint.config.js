@@ -5,7 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist', 'dev'] },
+  { ignores: ['dist', 'dev', 'src/db.js'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -31,6 +31,7 @@ export default [
       'react/jsx-no-target-blank': 'off',
       'react/prop-types': 'off',
       'react/display-name': 'off',
+      'no-empty': ['error', { allowEmptyCatch: true }],
       'no-unused-vars': ['warn', { 
         varsIgnorePattern: '^(React)$', 
         argsIgnorePattern: '^_' 

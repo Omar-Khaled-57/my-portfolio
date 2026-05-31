@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
@@ -12,12 +12,12 @@ const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState("Home");
     
-    const navItems = [
+    const navItems = useMemo(() => [
         { href: "#Home", label: t("nav.home") },
         { href: "#About", label: t("nav.about") },
         { href: "#Portfolio", label: t("nav.portfolio") },
         { href: "#Contact", label: t("nav.contact") },
-    ];
+    ], [t]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -48,7 +48,7 @@ const Navbar = () => {
         window.addEventListener("scroll", handleScroll);
         handleScroll();
         return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    }, [navItems]);
 
     useEffect(() => {
         if (isOpen) {

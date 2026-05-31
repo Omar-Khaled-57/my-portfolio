@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { MessageCircle, UserCircle2, Loader2, AlertCircle, Send, ImagePlus, X, Pin } from 'lucide-react';
 import useAOS from "../hooks/useAOS";
 import { supabase } from '../supabase';
 import { useI18n } from "../i18n";
 
 
-const Comment = memo(({ comment, formatDate, index, isPinned = false, t }) => (
+const Comment = memo(({ comment, formatDate, index: _index, isPinned = false, t }) => (
     <div 
         className={`px-4 pt-4 pb-2 rounded-xl border transition-all group hover:shadow-lg hover:-translate-y-0.5 ${
             isPinned 
@@ -63,7 +62,7 @@ const Comment = memo(({ comment, formatDate, index, isPinned = false, t }) => (
     </div>
 ));
 
-const CommentForm = memo(({ onSubmit, isSubmitting, error, isFrozen }) => {
+const CommentForm = memo(({ onSubmit, isSubmitting, error: _error, isFrozen }) => {
     const { t } = useI18n();
     const [newComment, setNewComment] = useState('');
     const [userName, setUserName] = useState('');
@@ -95,7 +94,7 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error, isFrozen }) => {
             reader.onloadend = () => setImagePreview(reader.result);
             reader.readAsDataURL(file);
         }
-    }, []);
+    }, [t]);
 
     const handleTextareaChange = useCallback((e) => {
         setNewComment(e.target.value);

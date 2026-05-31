@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../../supabase";
 import {
   User,
@@ -19,6 +19,8 @@ import {
   Hash,
   Loader2,
   ExternalLink,
+  Camera,
+  ImagePlus,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
 import Swal from "sweetalert2";
@@ -47,10 +49,21 @@ const SETTINGS_KEYS = [
   "phone",
   "email",
   "socialLinks",
+  "profileImage",
+  "fullName",
+  "quote",
 ];
 
 const parseJSON = (val, fallback) => {
   try { return JSON.parse(val); } catch { return fallback; }
+};
+
+const leadingEllipsis = (url) => {
+  if (!url) return url;
+  const cleaned = url.endsWith("/") ? url.slice(0, -1) : url;
+  const segments = cleaned.split("/");
+  const last = segments.filter(Boolean).pop();
+  return last ? `.../${last}` : url;
 };
 
 const Card = ({ children, className = "" }) => (
@@ -92,6 +105,11 @@ export default function PersonalInfo() {
     return saved && saved.length > 0 ? saved : hardcodedDefaults.socialLinks;
   });
 
+  const [profileImage, setProfileImage] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [quote, setQuote] = useState("");
+  const fileInputRef = useRef(null);
+
   const [newPlatform, setNewPlatform] = useState("");
   const [newUrl, setNewUrl] = useState("");
 
@@ -103,6 +121,10 @@ export default function PersonalInfo() {
   const [editPhone, setEditPhone] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editSocialLinks, setEditSocialLinks] = useState([]);
+  const [editProfileImage, setEditProfileImage] = useState("");
+  const [editFullName, setEditFullName] = useState("");
+  const [editQuote, setEditQuote] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
 
   const startEditing = () => {
     setEditTotalProjects(totalProjects);
@@ -113,6 +135,9 @@ export default function PersonalInfo() {
     setEditPhone(phone);
     setEditEmail(email);
     setEditSocialLinks([...socialLinks]);
+    setEditProfileImage(profileImage);
+    setEditFullName(fullName);
+    setEditQuote(quote);
     setIsEditing(true);
   };
 
@@ -120,6 +145,7 @@ export default function PersonalInfo() {
     setIsEditing(false);
     setNewPlatform("");
     setNewUrl("");
+    setEditProfileImage(profileImage);
   };
 
   useEffect(() => {
@@ -147,6 +173,9 @@ export default function PersonalInfo() {
             const parsed = parseJSON(map.socialLinks, []);
             if (parsed.length > 0) setSocialLinks(parsed);
           }
+          if (map.profileImage) setProfileImage(map.profileImage);
+          if (map.fullName) setFullName(map.fullName);
+          if (map.quote) setQuote(map.quote);
         }
       } catch (err) {
         console.error("Failed to load personal info from DB", err);
@@ -157,6 +186,39 @@ export default function PersonalInfo() {
 
     loadFromDb();
   }, []);
+
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `profile-${Date.now()}.${fileExt}`;
+      const filePath = `profile-images/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(filePath);
+
+      setEditProfileImage(data.publicUrl);
+    } catch (err) {
+      console.error("Failed to upload profile image", err);
+      Swal.fire({
+        icon: "error",
+        title: "Upload Failed",
+        text: err.message,
+        background: "var(--bg-secondary)",
+        color: "var(--text-primary)",
+      });
+    } finally {
+      setImageUploading(false);
+    }
+  };
 
   const addLink = () => {
     const platform = newPlatform.trim();
@@ -181,6 +243,9 @@ export default function PersonalInfo() {
     const finalPhone = editPhone;
     const finalEmail = editEmail;
     const finalSocialLinks = editSocialLinks;
+    const finalProfileImage = editProfileImage;
+    const finalFullName = editFullName;
+    const finalQuote = editQuote;
     try {
       const entries = [
         { key: STORAGE_PREFIX + "totalProjects", value: JSON.stringify(finalTotal) },
@@ -191,6 +256,9 @@ export default function PersonalInfo() {
         { key: STORAGE_PREFIX + "phone", value: finalPhone },
         { key: STORAGE_PREFIX + "email", value: finalEmail },
         { key: STORAGE_PREFIX + "socialLinks", value: JSON.stringify(finalSocialLinks) },
+        { key: STORAGE_PREFIX + "profileImage", value: finalProfileImage },
+        { key: STORAGE_PREFIX + "fullName", value: finalFullName },
+        { key: STORAGE_PREFIX + "quote", value: finalQuote },
       ];
 
       const { error } = await supabase
@@ -212,6 +280,9 @@ export default function PersonalInfo() {
       setPhone(finalPhone);
       setEmail(finalEmail);
       setSocialLinks(finalSocialLinks);
+      setProfileImage(finalProfileImage);
+      setFullName(finalFullName);
+      setQuote(finalQuote);
       setIsEditing(false);
 
       Swal.fire({
@@ -306,6 +377,91 @@ export default function PersonalInfo() {
           )}
         </div>
       </div>
+
+      {/* Profile Image, Full Name & Quote */}
+      <Card>
+        <div className="p-6">
+          <div className="flex items-start gap-5">
+            {/* Profile Picture */}
+            <div className="shrink-0">
+              {isEditing ? (
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-accent-primary/30 bg-secondary">
+                    {editProfileImage ? (
+                      <img src={editProfileImage} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-secondary">
+                        <Camera className="w-6 h-6" />
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files[0]) handleImageUpload(e.target.files[0]);
+                    }}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={imageUploading}
+                    className="absolute -bottom-1 -end-1 w-7 h-7 rounded-full bg-accent-primary border-2 border-primary flex items-center justify-center hover:scale-110 transition-transform disabled:opacity-50"
+                  >
+                    {imageUploading ? (
+                      <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                    ) : (
+                      <ImagePlus className="w-3.5 h-3.5 text-white" />
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-accent-primary/30 bg-secondary">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-secondary">
+                      <User className="w-6 h-6" />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Name & Quote */}
+            <div className="flex-1 min-w-0 space-y-3">
+              {isEditing ? (
+                <>
+                  <input
+                    type="text"
+                    value={editFullName}
+                    onChange={(e) => setEditFullName(e.target.value)}
+                    placeholder="Your full name"
+                    className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-lg font-semibold outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all"
+                  />
+                  <textarea
+                    value={editQuote}
+                    onChange={(e) => setEditQuote(e.target.value)}
+                    placeholder="Your quote or bio..."
+                    rows={2}
+                    className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all resize-none"
+                  />
+                </>
+              ) : (
+                <>
+                  <h2 className="text-lg font-semibold text-primary whitespace-nowrap">
+                    {fullName || "—"}
+                  </h2>
+                  <p className="text-sm text-secondary italic leading-relaxed whitespace-pre-wrap">
+                    {quote || "—"}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Total Projects */}
@@ -539,7 +695,7 @@ export default function PersonalInfo() {
                           setEditSocialLinks(next);
                         }}
                         placeholder={t("dashboard.urlPlaceholder")}
-                        className="flex-1 bg-primary rounded-lg px-3 py-1.5 text-primary text-sm outline-none focus:ring-1 focus:ring-accent-primary/20 transition-all"
+                        className="min-w-0 flex-1 bg-primary rounded-lg px-3 py-1.5 text-primary text-sm outline-none focus:ring-1 focus:ring-accent-primary/20 transition-all"
                       />
                       <button
                         onClick={() => removeLink(index)}
@@ -594,8 +750,9 @@ export default function PersonalInfo() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm text-secondary truncate flex-1 hover:text-accent-primary transition-colors"
+                        title={link.url}
                       >
-                        {link.url}
+                        {leadingEllipsis(link.url)}
                       </a>
                       <ExternalLink className="w-3.5 h-3.5 text-secondary shrink-0" />
                     </div>

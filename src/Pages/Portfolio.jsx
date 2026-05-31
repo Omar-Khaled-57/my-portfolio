@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 
 import { supabase } from "../supabase"; 
 
-import PropTypes from "prop-types";
 import SwipeableViews from "react-swipeable-views";
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
@@ -93,12 +92,6 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
 function a11yProps(index) {
   return {
     id: `full-width-tab-${index}`,
@@ -133,7 +126,7 @@ export default function FullWidthTabs() {
     { icon: "/tools/git.svg", language: "Git" },
     { icon: "/tools/vercel.svg", language: "Vercel" },
     { icon: "/tools/SweetAlert.svg", language: "SweetAlert" },
-    { icon: "/tools/sonner.svg", language: "Sonner)" },
+    { icon: "/tools/sonner.svg", language: "Sonner" },
     { icon: "/tools/framer.svg", language: "Framer Motion", needsInvert: true },
     { icon: "/tools/animejs.png", language: "Anime.js" },
     { icon: "/tools/i18n.png", language: "i18next" },

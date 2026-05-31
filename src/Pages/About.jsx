@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo, useMemo } from "react"
-import { FileText, Code, Award, Globe, ArrowUpRight, Sparkles, UserCheck, FolderGit2, Briefcase } from "lucide-react"
+import { FileText, Code, Award, ArrowUpRight, Sparkles, FolderGit2, Briefcase } from "lucide-react"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import CVModal from "../components/CVModal"
@@ -29,7 +29,7 @@ const Header = memo(({ t }) => (
   </div>
 ));
 
-const ProfileImage = memo(() => (
+const ProfileImage = memo(({ imageUrl }) => (
   <div className="flex justify-end items-center sm:p-12 sm:py-0 sm:pb-0 p-0 py-2 pb-2">
     <div 
       className="relative group" 
@@ -52,7 +52,7 @@ const ProfileImage = memo(() => (
           <div className="absolute inset-0 bg-gradient-to-t from-purple-500/20 via-transparent to-blue-500/20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 hidden sm:block" />
           
           <img
-            src="/ME.jpg"
+            src={imageUrl || "/Photo.png"}
             alt="Profile"
             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-2"
             loading="lazy"
@@ -124,6 +124,10 @@ const AboutPage = () => {
   const countAccessible = (projects) =>
     projects.filter(p => (p.github && p.github.trim()) || (p.link && p.link.trim())).length;
 
+  const [profileImage, setProfileImage] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [quote, setQuote] = useState("");
+
   const [stats, setStats] = useState(() => {
     try {
       const cached = localStorage.getItem("projects");
@@ -135,11 +139,14 @@ const AboutPage = () => {
     return { totalCertificates: 0, accessibleProjects: 0 };
   });
 
-  const cacheLocally = () => {
+  const cacheLocally = (fields) => {
     try {
       localStorage.setItem("personalInfo_totalProjects", JSON.stringify(manualTotalProjects));
       localStorage.setItem("personalInfo_yearsExperience", JSON.stringify(yearsExpValue));
       localStorage.setItem("personalInfo_showYearsExperience", JSON.stringify(showYearsExp));
+      if (fields?.profileImage) localStorage.setItem("personalInfo_profileImage", fields.profileImage);
+      if (fields?.fullName) localStorage.setItem("personalInfo_fullName", fields.fullName);
+      if (fields?.quote) localStorage.setItem("personalInfo_quote", fields.quote);
     } catch {}
   };
 
@@ -152,6 +159,9 @@ const AboutPage = () => {
           "personalInfo_totalProjects",
           "personalInfo_yearsExperience",
           "personalInfo_showYearsExperience",
+          "personalInfo_profileImage",
+          "personalInfo_fullName",
+          "personalInfo_quote",
         ]),
       ]);
 
@@ -182,9 +192,13 @@ const AboutPage = () => {
         if (map.showYearsExperience !== undefined) {
           setShowYearsExp(map.showYearsExperience === "true");
         }
+        if (map.profileImage) setProfileImage(map.profileImage);
+        if (map.fullName) setFullName(map.fullName);
+        if (map.quote) setQuote(map.quote);
+        cacheLocally({ profileImage: map.profileImage, fullName: map.fullName, quote: map.quote });
+      } else {
+        cacheLocally({});
       }
-
-      cacheLocally();
     };
 
     fetchAll();
@@ -200,6 +214,9 @@ const AboutPage = () => {
           if (key === "totalProjects") setManualTotalProjects(JSON.parse(e.newValue));
           if (key === "yearsExperience") setYearsExpValue(JSON.parse(e.newValue));
           if (key === "showYearsExperience") setShowYearsExp(e.newValue === "true");
+          if (key === "profileImage") setProfileImage(e.newValue);
+          if (key === "fullName") setFullName(e.newValue);
+          if (key === "quote") setQuote(e.newValue);
         } catch {}
       }
     });
@@ -207,7 +224,7 @@ const AboutPage = () => {
     return () => {
       window.removeEventListener('portfolioDataLoaded', fetchAll);
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { totalCertificates, accessibleProjects } = stats;
 
@@ -290,12 +307,12 @@ const AboutPage = () => {
                 {t("about.greeting")}
               </span>
               <span 
-                className="block mt-2 text-[var(--text-primary)]"
+                className="block mt-2 text-[var(--text-primary)] whitespace-nowrap"
                 data-aos="fade-right"
                 data-aos-duration="1300"
                 itemProp="name"
               >
-                {t("about.name")}
+                {fullName || t("about.name")}
               </span>
             </h2>
             
@@ -324,8 +341,8 @@ const AboutPage = () => {
           </svg>
         </div>
         
-        <blockquote className="text-[var(--text-secondary)] text-center lg:text-start italic font-medium text-sm relative z-10 ps-6">
-          {`"${t("about.quote")}"`}
+        <blockquote className="text-[var(--text-secondary)] text-center lg:text-start italic font-medium text-sm relative z-10 ps-6 whitespace-pre-wrap">
+          {quote ? `"${quote}"` : `"${t("about.quote")}"`}
         </blockquote>
       </div>
 
@@ -366,7 +383,7 @@ const AboutPage = () => {
             </div>
           </div>
 
-          <ProfileImage />
+          <ProfileImage imageUrl={profileImage} />
         </div>
 
         <a href="#Portfolio">
