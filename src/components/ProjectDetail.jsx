@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   ExternalLink,
@@ -169,15 +169,23 @@ const ProjectDetails = () => {
   const { theme, toggleTheme } = useTheme();
   const { slug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [project, setProject] = useState(null);
+  const projectId = location.state?.projectId;
 
   useEffect(() => {
     window.scrollTo(0, 0);
     const storedProjects = JSON.parse(localStorage.getItem("projects")) || [];
-    // Cari project berdasarkan slug yang di-generate dari title
-    const selectedProject = storedProjects.find(
-      (p) => toSlug(p.title) === slug,
-    );
+
+    let selectedProject = null;
+    if (projectId) {
+      selectedProject = storedProjects.find((p) => p.id === projectId);
+    }
+    if (!selectedProject) {
+      selectedProject = storedProjects.find(
+        (p) => toSlug(p.title) === slug,
+      );
+    }
 
     if (selectedProject) {
       const enhancedProject = {
@@ -188,7 +196,7 @@ const ProjectDetails = () => {
       };
       setProject(enhancedProject);
     }
-  }, [slug]);
+  }, [slug, projectId]);
 
   if (!project) {
     return (

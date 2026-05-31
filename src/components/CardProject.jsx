@@ -89,6 +89,7 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
               {id ? (
                 <Link
                   to={`/project/${toSlug(title)}`}
+                  state={{ projectId: id }}
                   onClick={handleDetails}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-primary hover:bg-accent-primary hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none shadow-sm hover:shadow-md"
                 >

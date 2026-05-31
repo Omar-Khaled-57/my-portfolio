@@ -11,10 +11,13 @@ const AnimatedBackground = () => {
 	const blobRefs = useRef([])
 
 	useEffect(() => {
+	blobRefs.current.forEach((blob) => {
+		if (blob) blob.style.transition = "transform 1.4s ease-out"
+	})
 	let requestId
 	let ticking = false
 
-	const updatePositions = () => {
+		const updatePositions = () => {
 		const newScroll = window.scrollY
 
 			blobRefs.current.forEach((blob, index) => {
@@ -28,9 +31,7 @@ const AnimatedBackground = () => {
 				const x = initialPos.x + xOffset
 				const y = initialPos.y + yOffset
 
-				// Apply transformation with smooth transition
 				blob.style.transform = `translate(${x}px, ${y}px)`
-				blob.style.transition = "transform 1.4s ease-out"
 			})
 
 			ticking = false

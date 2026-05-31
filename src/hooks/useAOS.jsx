@@ -1,14 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
 export default function useAOS(options = {}) {
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
   useEffect(() => {
-    AOS.init(options);
+    AOS.init(optionsRef.current);
     AOS.refresh();
-  }, [options]);
+    return () => {
+      AOS.refreshHard();
+    };
+  }, []);
 }
 
 export function refreshAOS() {
-  AOS.refresh();
+  requestAnimationFrame(() => AOS.refresh());
 }

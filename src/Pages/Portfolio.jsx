@@ -97,79 +97,16 @@ function a11yProps(index) {
     "aria-controls": `full-width-tabpanel-${index}`,
   };
 }
-function SwipeableViews({ index, onChangeIndex, axis, children }) {
-  const containerRef = useRef(null);
-  const startX = useRef(0);
-  const isSwiping = useRef(false);
-
-  const handleTouchStart = (e) => {
-    startX.current = e.touches[0].clientX;
-    isSwiping.current = true;
-  };
-
-  const handleTouchEnd = (e) => {
-    if (!isSwiping.current) return;
-    isSwiping.current = false;
-    const diff = e.changedTouches[0].clientX - startX.current;
-    const threshold = 50;
-    const isRtl = axis === "x-reverse";
-    if (Math.abs(diff) > threshold) {
-      const forward = isRtl ? diff < 0 : diff > 0;
-      if (forward && index < React.Children.count(children) - 1) {
-        onChangeIndex(index + 1);
-      } else if (!forward && index > 0) {
-        onChangeIndex(index - 1);
-      }
-    }
-  };
-
-  const handleMouseDown = (e) => {
-    startX.current = e.clientX;
-    isSwiping.current = true;
-  };
-
-  const handleMouseUp = (e) => {
-    if (!isSwiping.current) return;
-    isSwiping.current = false;
-    const diff = e.clientX - startX.current;
-    const threshold = 50;
-    const isRtl = axis === "x-reverse";
-    if (Math.abs(diff) > threshold) {
-      const forward = isRtl ? diff < 0 : diff > 0;
-      if (forward && index < React.Children.count(children) - 1) {
-        onChangeIndex(index + 1);
-      } else if (!forward && index > 0) {
-        onChangeIndex(index - 1);
-      }
-    }
-  };
-
+function SwipeableViews({ index, children }) {
   return (
-    <div
-      ref={containerRef}
-      className="overflow-hidden select-none"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={() => { isSwiping.current = false; }}
-    >
-      <div
-        className="flex transition-transform duration-300 ease-out"
-        style={{ transform: `translateX(-${index * 100}%)` }}
-      >
-        {React.Children.map(children, (child, i) => (
-          <div className="w-full shrink-0" key={i}>
-            {child}
-          </div>
-        ))}
-      </div>
+    <div className="overflow-hidden">
+      {React.Children.toArray(children)[index]}
     </div>
   );
 }
 
 export default function FullWidthTabs() {
-  const { t, direction } = useI18n();
+  const { t } = useI18n();
   const theme = useTheme();
   const { theme: currentTheme } = useCustomTheme();
   const [value, setValue] = useState(0);
@@ -219,10 +156,22 @@ export default function FullWidthTabs() {
   const [certificates, setCertificates] = useState([]);
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [showAllCertificates, setShowAllCertificates] = useState(false);
-  const isMobile = window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const initialItems = isMobile ? 4 : 6;
+  const tabsRef = useRef(value);
+  tabsRef.current = value;
 
-  useAOS({ once: false });
+  useAOS();
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    refreshAOS();
+  }, [value]);
 
 
   const fetchData = useCallback(async () => {
@@ -396,11 +345,7 @@ export default function FullWidthTabs() {
           </Tabs>
         </AppBar>
 
-        <SwipeableViews
-          axis={direction === "rtl" ? "x-reverse" : "x"}
-          index={value}
-          onChangeIndex={setValue}
-        >
+        <SwipeableViews index={value}>
           <TabPanel value={value} index={0} dir={theme.direction}>
             <div className="container mx-auto flex justify-center items-center overflow-visible py-4 sm:py-8 px-2">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-5">
