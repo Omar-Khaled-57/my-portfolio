@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import useAOS from "../hooks/useAOS";
 import { useI18n } from "../i18n";
+import { useTheme } from "../context/ThemeContext";
 import { supabase } from "../supabase";
 
 const platformMeta = {
@@ -34,7 +35,10 @@ const platformShortLabel = {
 
 const SocialLinks = () => {
   const { t } = useI18n();
+  const { theme: currentTheme } = useTheme();
   const [socialLinks, setSocialLinks] = useState(defaults);
+
+  const ghColor = currentTheme === "dark" ? "#f0f0f0" : "#333";
 
   useEffect(() => {
     const fetchLinks = async () => {
@@ -56,6 +60,7 @@ const SocialLinks = () => {
 
   const linksWithMeta = socialLinks.map((link) => {
     const meta = platformMeta[link.platform] || { icon: Globe, color: "#888", gradient: "from-[#666] to-[#444]" };
+    if (link.platform === "GitHub") meta.color = ghColor;
     return { ...link, ...meta };
   });
 

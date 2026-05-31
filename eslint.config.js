@@ -36,6 +36,7 @@ export default [
         varsIgnorePattern: '^(React)$', 
         argsIgnorePattern: '^_' 
       }],
+      'react/no-unknown-property': ['error', { ignore: ['fetchpriority'] }],
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },

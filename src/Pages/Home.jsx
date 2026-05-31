@@ -93,7 +93,6 @@ const Home = () => {
   const [isTyping, setIsTyping] = useState(true)
   const [wordIndex, setWordIndex] = useState(0)
   const [charIndex, setCharIndex] = useState(0)
-  const [isLoaded, setIsLoaded] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
   const [socialLinks, setSocialLinks] = useState([
     { icon: Github, link: "https://github.com/Omar-Khaled-57", label: "GitHub Profile" },
@@ -138,11 +137,6 @@ const Home = () => {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    setIsLoaded(true);
-    return () => setIsLoaded(false);
   }, []);
 
   const handleTyping = useCallback(() => {
@@ -204,7 +198,7 @@ const Home = () => {
       </Helmet>
 
       <div className="min-h-screen bg-[var(--bg-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%]" id="Home">
-        <div className={`relative z-10 transition-all duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
+        <div className="relative z-10">
           <div className="container mx-auto min-h-screen">
             <div className="flex flex-col lg:flex-row items-center justify-center h-screen md:justify-between gap-0 sm:gap-12 lg:gap-20">
               {/* Left Column */}
@@ -274,7 +268,7 @@ const Home = () => {
                       muted
                       playsInline
                       poster="/Animation1.webp"
-                      fetchPriority="high"
+                      fetchpriority="high"
                       preload="auto"
                       width="600"
                       height="600"

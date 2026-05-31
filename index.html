@@ -55,9 +55,6 @@
   <meta name="twitter:description" content="Official website and portfolio of Omar Khaled El-Khouly." />
   <meta name="twitter:image" content="https://omar-el-khouly.vercel.app/Meta.png" />
 
-  <!-- Security -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co https://api.formsubmit.co https://vercel.live; frame-src 'self' https://vercel.live; manifest-src 'self';">
-
   <!-- Canonical -->
   <link rel="canonical" href="https://omar-el-khouly.vercel.app/" />
 
@@ -78,6 +75,8 @@
     ]
   }
   </script>
+  <!-- CSP is set at the server level (vercel.json) for production.
+       Dev mode uses Vite's default which allows blob: and ws: connections. -->
 </head>
 
 <body>

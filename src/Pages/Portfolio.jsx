@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
 import { supabase } from "../supabase"; 
 
-import SwipeableViews from "react-swipeable-views";
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
@@ -98,8 +97,76 @@ function a11yProps(index) {
     "aria-controls": `full-width-tabpanel-${index}`,
   };
 }
+function SwipeableViews({ index, onChangeIndex, axis, children }) {
+  const containerRef = useRef(null);
+  const startX = useRef(0);
+  const isSwiping = useRef(false);
 
+  const handleTouchStart = (e) => {
+    startX.current = e.touches[0].clientX;
+    isSwiping.current = true;
+  };
 
+  const handleTouchEnd = (e) => {
+    if (!isSwiping.current) return;
+    isSwiping.current = false;
+    const diff = e.changedTouches[0].clientX - startX.current;
+    const threshold = 50;
+    const isRtl = axis === "x-reverse";
+    if (Math.abs(diff) > threshold) {
+      const forward = isRtl ? diff < 0 : diff > 0;
+      if (forward && index < React.Children.count(children) - 1) {
+        onChangeIndex(index + 1);
+      } else if (!forward && index > 0) {
+        onChangeIndex(index - 1);
+      }
+    }
+  };
+
+  const handleMouseDown = (e) => {
+    startX.current = e.clientX;
+    isSwiping.current = true;
+  };
+
+  const handleMouseUp = (e) => {
+    if (!isSwiping.current) return;
+    isSwiping.current = false;
+    const diff = e.clientX - startX.current;
+    const threshold = 50;
+    const isRtl = axis === "x-reverse";
+    if (Math.abs(diff) > threshold) {
+      const forward = isRtl ? diff < 0 : diff > 0;
+      if (forward && index < React.Children.count(children) - 1) {
+        onChangeIndex(index + 1);
+      } else if (!forward && index > 0) {
+        onChangeIndex(index - 1);
+      }
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="overflow-hidden select-none"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={() => { isSwiping.current = false; }}
+    >
+      <div
+        className="flex transition-transform duration-300 ease-out"
+        style={{ transform: `translateX(-${index * 100}%)` }}
+      >
+        {React.Children.map(children, (child, i) => (
+          <div className="w-full shrink-0" key={i}>
+            {child}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function FullWidthTabs() {
   const { t, direction } = useI18n();
