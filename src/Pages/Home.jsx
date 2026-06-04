@@ -4,6 +4,7 @@ import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, MessageCircl
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import { supabase } from "../supabase"
+import LottieAnimation from "../components/LottieAnimation"
 
 const StatusBadge = memo(({ text }) => (
   <div className="hidden animate-float lg:mx-0" data-aos="zoom-in" data-aos-delay="400">
@@ -267,17 +268,10 @@ const Home = () => {
                   }`}>
                   </div>
 
-                  <div className="relative lg:start-12 z-10 w-full h-full flex items-center justify-center">
-                    <video
-                      src="Animation1.webm"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      poster="/Animation1.webp"
-                      fetchpriority="high"
-                      preload="auto"
-                      className={`object-cover sm:object-contain transition-all duration-700 ease-in-out drop-shadow-[0_15px_50px_rgba(0,0,0,0.2)] drop-shadow-[0_5px_15px_rgba(99,102,241,0.6)] ${
+                  <div className="relative lg:start-12 z-10 w-full h-full">
+                    <LottieAnimation
+                      animationPath="/Lottie.json"
+                      className={`w-full h-full transition-all duration-700 ease-in-out drop-shadow-[0_15px_50px_rgba(0,0,0,0.2)] drop-shadow-[0_5px_15px_rgba(99,102,241,0.6)] ${
                         isHovering 
                           ? "scale-[95%] sm:scale-[90%] rotate-2" 
                           : "scale-[85%] sm:scale-[80%]"
