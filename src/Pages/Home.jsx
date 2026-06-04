@@ -184,6 +184,13 @@ const Home = () => {
      <meta property="og:description" content={t("home.metaDescription")} />
         <meta property="og:url" content="https://omar-el-khouly.vercel.app/" />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://omar-el-khouly.vercel.app/Meta.png" />
+        <meta property="og:image:secure_url" content="https://omar-el-khouly.vercel.app/Meta.png" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://omar-el-khouly.vercel.app/Meta.png" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Person",
@@ -247,20 +254,20 @@ const Home = () => {
               </div>
 
               {/* Right Column - WebM Video */}
-              <div className="w-full py-0 md:py-[10%] sm:py-0 lg:w-1/2 h-[260px] sm:h-[400px] lg:h-[600px] xl:h-[750px] relative flex items-center justify-center order-2 lg:order-2  mt-5 sm:mt-0"
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
+              <div className="w-full py-0 md:py-[10%] sm:py-0 lg:w-1/2 h-[260px] sm:h-[400px] lg:h-[600px] xl:h-[750px] relative flex items-center justify-center order-2 lg:order-2 mt-5 sm:mt-0"
                 data-aos="fade-left"
                 data-aos-delay="600">
-                <div className="relative w-full opacity-90">
+                <div
+                  className="relative w-full h-full flex items-center justify-center opacity-90"
+                  onMouseEnter={() => setIsHovering(true)}
+                  onMouseLeave={() => setIsHovering(false)}
+                >
                   <div className={`absolute inset-0 bg-gradient-to-r from-[#6366f1]/10 to-[#a855f7]/10 rounded-3xl blur-3xl transition-all duration-700 ease-in-out ${
                     isHovering ? "opacity-50 scale-105" : "opacity-20 scale-100"
                   }`}>
                   </div>
 
-                  <div className={`relative lg:start-12 z-10 w-full opacity-90 transform transition-transform duration-500 ${
-                    isHovering ? "scale-105" : "scale-100"
-                  }`}>
+                  <div className="relative lg:start-12 z-10 w-full h-full flex items-center justify-center">
                     <video
                       src="Animation1.webm"
                       autoPlay
@@ -270,12 +277,10 @@ const Home = () => {
                       poster="/Animation1.webp"
                       fetchpriority="high"
                       preload="auto"
-                      width="600"
-                      height="600"
-                      className={`w-full h-full object-contain transition-all duration-500 drop-shadow-[0_15px_50px_rgba(0,0,0,0.2)] drop-shadow-[0_5px_15px_rgba(99,102,241,0.6)] ${
+                      className={`object-cover sm:object-contain transition-all duration-700 ease-in-out drop-shadow-[0_15px_50px_rgba(0,0,0,0.2)] drop-shadow-[0_5px_15px_rgba(99,102,241,0.6)] ${
                         isHovering 
-                          ? "scale-[95%] sm:scale-[90%] md:scale-[90%] lg:scale-[90%] rotate-2" 
-                          : "scale-[90%] sm:scale-[80%] md:scale-[80%] lg:scale-[80%]"
+                          ? "scale-[95%] sm:scale-[90%] rotate-2" 
+                          : "scale-[85%] sm:scale-[80%]"
                       }`}
                     />
                   </div>
