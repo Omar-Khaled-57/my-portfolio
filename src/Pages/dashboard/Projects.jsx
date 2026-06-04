@@ -10,6 +10,8 @@ import {
   ExternalLink,
   Github,
   Pencil,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
 import Swal from "sweetalert2";
@@ -72,9 +74,10 @@ const SkeletonCard = () => (
   </div>
 );
 
-const ProjectCard = ({ project, onDelete, onEdit }) => {
+const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
   const { t } = useI18n();
   const [imgLoaded, setImgLoaded] = useState(false);
+  const isHidden = project.is_published === false;
 
   return (
     <Card>
@@ -93,9 +96,16 @@ const ProjectCard = ({ project, onDelete, onEdit }) => {
             />
           </div>
         )}
-        <h3 className="font-semibold text-primary text-sm mb-1">
-          {project.title}
-        </h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-semibold text-primary text-sm">
+            {project.title}
+          </h3>
+          {isHidden && (
+            <span className="px-2 py-0.5 rounded-md bg-yellow-500/15 text-yellow-400 text-[10px] font-bold uppercase tracking-wider border border-yellow-500/20">
+              Hidden
+            </span>
+          )}
+        </div>
         {project.description && (
           <p className="text-secondary text-xs mb-3 line-clamp-2 leading-relaxed">
             {project.description}
@@ -137,6 +147,21 @@ const ProjectCard = ({ project, onDelete, onEdit }) => {
             )}
           </div>
           <div className="flex gap-2">
+            <button
+              onClick={() => onTogglePublish(project)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs transition-colors ${
+                isHidden
+                  ? "border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/10"
+                  : "border-amber-500/25 text-amber-400 hover:bg-amber-500/10"
+              }`}
+              aria-label={isHidden ? "Reveal project" : "Hide project"}
+            >
+              {isHidden ? (
+                <><Eye className="w-3 h-3" /> Reveal</>
+              ) : (
+                <><EyeOff className="w-3 h-3" /> Hide</>
+              )}
+            </button>
             <button
               onClick={() => onEdit(project)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo-500/25 text-indigo-400 hover:bg-indigo-500/10 text-xs transition-colors"
@@ -367,6 +392,7 @@ export default function Projects() {
   const [showCreate, setShowCreate] = useState(false);
   const [editProject, setEditProject] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [filter, setFilter] = useState("all");
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -533,6 +559,65 @@ export default function Projects() {
     }
   };
 
+  const handleTogglePublish = async (project) => {
+    const newPublished = project.is_published === false ? true : false;
+
+    const result = await Swal.fire({
+      title: newPublished ? "Reveal this project?" : "Hide this project?",
+      text: newPublished
+        ? "This project will become visible on your public portfolio."
+        : "This project will be hidden from your public portfolio. All data is preserved.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: newPublished ? '#10b981' : '#f59e0b',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: newPublished ? "Yes, reveal" : "Yes, hide",
+      cancelButtonText: t("common.cancel"),
+      background: 'var(--bg-secondary)',
+      color: 'var(--text-primary)'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const { error } = await supabase
+          .from("projects")
+          .update({ is_published: newPublished })
+          .eq("id", project.id);
+
+        if (error) throw error;
+
+        Swal.fire({
+          icon: 'success',
+          title: newPublished ? 'Project revealed!' : 'Project hidden',
+          timer: 1500,
+          showConfirmButton: false,
+          background: 'var(--bg-secondary)',
+          color: 'var(--text-primary)'
+        });
+
+        fetchProjects();
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message,
+          background: 'var(--bg-secondary)',
+          color: 'var(--text-primary)'
+        });
+      }
+    }
+  };
+
+  const visibleProjects = projects.filter((p) => p.is_published !== false);
+  const hiddenProjects = projects.filter((p) => p.is_published === false);
+  const filteredProjects = filter === "all" ? projects : filter === "visible" ? visibleProjects : hiddenProjects;
+
+  const filterOptions = [
+    { key: "all", label: `All (${projects.length})` },
+    { key: "visible", label: `Visible (${visibleProjects.length})` },
+    { key: "hidden", label: `Hidden (${hiddenProjects.length})` },
+  ];
+
   return (
     <div className="space-y-6z ">
       {/* Header */}
@@ -549,21 +634,39 @@ export default function Projects() {
               {t("portfolio.projects")}
             </h1>
             <p className="text-secondary text-xs">
-              {loading ? t("common.loading") : t("dashboard.projectsTotal", { count: projects.length })}
+              {loading ? t("common.loading") : `${filteredProjects.length} of ${projects.length} projects`}
             </p>
           </div>
         </div>
 
-        <button
-          onClick={() => setShowCreate(true)}
-          className="relative group shrink-0"
-        >
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl opacity-50 blur group-hover:opacity-80 transition duration-300" />
-          <div className="relative flex items-center gap-2 px-4 py-2.5 bg-primary rounded-xl border border-primary">
-            <Plus className="w-4 h-4 text-accent-primary" />
-            <span className="text-sm text-primary">{t("dashboard.newProject")}</span>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1 bg-secondary border border-primary rounded-xl p-1">
+            {filterOptions.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setFilter(opt.key)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 border ${
+                  filter === opt.key
+                    ? "glass-card text-primary strong-shadow shadow-accent-primary/10"
+                    : "text-secondary hover:text-primary border-transparent"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
-        </button>
+
+          <button
+            onClick={() => setShowCreate(true)}
+            className="relative group shrink-0"
+          >
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl opacity-50 blur group-hover:opacity-80 transition duration-300" />
+            <div className="relative flex items-center gap-2 px-4 py-2.5 bg-primary rounded-xl border border-primary">
+              <Plus className="w-4 h-4 text-accent-primary" />
+              <span className="text-sm text-primary">{t("dashboard.newProject")}</span>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Create Modal */}
@@ -598,23 +701,24 @@ export default function Projects() {
             <SkeletonCard key={i} />
           ))}
         </div>
-      ) : projects.length === 0 ? (
+      ) : filteredProjects.length === 0 ? (
         <Card>
           <div className="p-16 text-center">
             <FolderGit2 className="w-10 h-10 text-gray-700 mx-auto mb-3" />
             <p className="text-gray-500 text-sm">
-              {t("dashboard.noProjects")}
+              {filter === "hidden" ? "No hidden projects" : filter === "visible" ? "No visible projects" : t("dashboard.noProjects")}
             </p>
           </div>
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
               onDelete={deleteProject}
               onEdit={setEditProject}
+              onTogglePublish={handleTogglePublish}
             />
           ))}
         </div>

@@ -145,6 +145,10 @@ export default function FullWidthTabs() {
       icon: currentTheme === "dark" ? "/tools/rust-dark.svg" : "/tools/rust-light.svg", 
       language: "Rust" 
     },
+    {
+      icon: currentTheme === "dark" ? "/tools/railway-dark.svg" : "/tools/railway-light.svg",
+      language: "Railway"
+    },
     { icon: "/tools/tauri.svg", language: "Tauri" },
     { icon: "/tools/kotlin.svg", language: "Kotlin" },
     { icon: "/tools/python.svg", language: "Python" },
@@ -178,7 +182,7 @@ export default function FullWidthTabs() {
     try {
       // Fetch data from Supabase in parallel
       const [projectsResponse, certificatesResponse] = await Promise.all([
-        supabase.from("projects").select("*").order('id', { ascending: false }),
+        supabase.from("projects").select("*").eq('is_published', true).order('id', { ascending: false }),
         supabase.from("certificates").select("*").order('id', { ascending: false }), 
       ]);
 
@@ -213,7 +217,8 @@ export default function FullWidthTabs() {
     const cachedCertificates = localStorage.getItem('certificates');
 
     if (cachedProjects && cachedCertificates) {
-        setProjects(JSON.parse(cachedProjects));
+        const parsed = JSON.parse(cachedProjects);
+        setProjects(parsed.filter((p) => p.is_published !== false));
         setCertificates(JSON.parse(cachedCertificates));
     }
     

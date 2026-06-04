@@ -122,7 +122,7 @@ const AboutPage = () => {
   const [manualTotalProjects, setManualTotalProjects] = useState(26);
   // Dynamic stats calculation
   const countAccessible = (projects) =>
-    projects.filter(p => (p.github && p.github.trim()) || (p.link && p.link.trim())).length;
+    projects.filter(p => p.is_published !== false && ((p.github && p.github.trim()) || (p.link && p.link.trim()))).length;
 
   const [profileImage, setProfileImage] = useState("");
   const [fullName, setFullName] = useState("");

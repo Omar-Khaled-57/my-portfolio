@@ -44,7 +44,6 @@ const TechBadge = ({ tech }) => {
         WebkitBackdropFilter: 'blur(12px)',
       }}
     >
-      {/* Glassmorphic shimmer on hover */}
       <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/0 to-accent-secondary/0 group-hover:from-accent-primary/15 group-hover:to-accent-secondary/15 transition-all duration-500 rounded-xl" />
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"
         style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.08) 100%)' }}
@@ -61,19 +60,20 @@ const TechBadge = ({ tech }) => {
 
 const FeatureItem = ({ feature }) => {
   return (
-    <li className="group/feature relative flex items-center p-3 md:p-4 rounded-xl transition-all duration-500 ease-out border border-primary hover:scale-[1.02] shadow-lg shadow-accent-primary/20 hover:shadow-2xl hover:shadow-accent-primary/40 overflow-hidden">
-      {/* Colorful Glassmorphic background */}
+    <li className="group/feature relative flex items-center p-3 md:p-4 rounded-xl transition-all duration-500 ease-out border border-primary hover:scale-[1.02] shadow-lg shadow-accent-primary/20 hover:shadow-2xl hover:shadow-accent-primary/40 overflow-hidden"
+      style={{
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
+    >
       <div className="absolute inset-0 rounded-xl transition-all duration-300 pointer-events-none group-hover/feature:opacity-80"
         style={{
           background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(168,85,247,0.15) 100%)',
-          backdropFilter: 'blur(12px)',
         }}
       />
       
-      {/* Extra glow on hover */}
       <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 opacity-0 group-hover/feature:opacity-100 transition-opacity duration-500 rounded-xl" />
 
-      {/* Sheen Animation - isolated to this feature tag */}
       <div className="absolute inset-0 translate-x-[-100%] group-hover/feature:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]" />
 
       <span className="relative text-sm md:text-base font-medium text-[var(--text-primary)] transition-colors">
@@ -94,10 +94,10 @@ const ProjectStats = ({ project, t }) => {
     return (
       <div className="relative group h-full">
         <div 
-          className="relative z-10 glass-card rounded-2xl p-3 md:p-4 transition-all duration-300 hover:scale-105 h-full flex flex-col justify-between overflow-hidden shadow-lg border border-primary"
+          className="relative z-10 stats-glass-card rounded-2xl p-3 md:p-4 transition-all duration-300 hover:scale-105 h-full flex flex-col justify-between overflow-hidden shadow-lg border border-primary"
           style={{
             '--hover-shadow': glowColor,
-            '--passive-shadow': passiveGlow
+            '--passive-shadow': passiveGlow,
           }}
         >
           <div className={`absolute -z-10 inset-0 bg-gradient-to-br ${color} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
@@ -117,15 +117,6 @@ const ProjectStats = ({ project, t }) => {
             </p>
           </div>
         </div>
-
-        <style>{`
-          .glass-card {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 10px var(--passive-shadow);
-          }
-          .group:hover .glass-card {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 20px var(--hover-shadow);
-          }
-        `}</style>
       </div>
     );
   };
@@ -175,7 +166,9 @@ const ProjectDetails = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const storedProjects = JSON.parse(localStorage.getItem("projects")) || [];
+    const storedProjects = (JSON.parse(localStorage.getItem("projects")) || []).filter(
+      (p) => p.is_published !== false
+    );
 
     let selectedProject = null;
     if (projectId) {
@@ -255,8 +248,8 @@ const ProjectDetails = () => {
       <div className="min-h-screen bg-primary px-[2%] sm:px-0 relative overflow-hidden transition-colors duration-300">
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute -inset-[10px] opacity-[var(--blob-opacity)]">
-            <div className="absolute top-0 -start-4 w-72 md:w-96 h-72 md:h-96 bg-accent-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" />
-            <div className="absolute top-0 -end-4 w-72 md:w-96 h-72 md:h-96 bg-accent-primary rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000" />
+            <div className="absolute top-0 -start-4 w-72 md:w-96 h-72 md:h-96 bg-accent-secondary rounded-full blur-3xl opacity-25 animate-blob will-change-transform" />
+            <div className="absolute top-0 -end-4 w-72 md:w-96 h-72 md:h-96 bg-accent-primary rounded-full blur-3xl opacity-25 animate-blob animation-delay-2000 will-change-transform" />
           </div>
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.02]" />
         </div>
@@ -332,10 +325,8 @@ const ProjectDetails = () => {
                       color: 'var(--accent-primary)',
                     }}
                   >
-                    {/* Ambient Glow background */}
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
                     
-                    {/* Hover shimmer fill */}
                     <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/10 to-accent-secondary/10 group-hover:from-accent-primary/20 group-hover:to-accent-secondary/20 transition-all duration-500 rounded-xl" />
                     <ExternalLink className="relative w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" />
                     <span className="relative font-medium">{t("project.liveDemo")}</span>
@@ -353,14 +344,9 @@ const ProjectDetails = () => {
                       WebkitBackdropFilter: 'blur(16px)',
                       color: 'var(--accent-secondary)',
                     }}
-                    onClick={(e) =>
-                      !handleGithubClick(project.github, t) && e.preventDefault()
-                    }
                   >
-                    {/* Ambient Glow background */}
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-secondary/20 to-accent-primary/20 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
 
-                    {/* Hover shimmer fill */}
                     <div className="absolute inset-0 bg-gradient-to-r from-accent-secondary/10 to-accent-primary/10 group-hover:from-accent-secondary/20 group-hover:to-accent-primary/20 transition-all duration-500 rounded-xl" />
                     <Github className="relative w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" />
                     <span className="relative font-medium">Github</span>
@@ -479,6 +465,12 @@ const ProjectDetails = () => {
               opacity: 1;
               transform: translateX(0);
             }
+          }
+          .stats-glass-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 10px var(--passive-shadow, transparent);
+          }
+          .group:hover .stats-glass-card {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 20px var(--hover-shadow, transparent);
           }
         `}</style>
       </div>
