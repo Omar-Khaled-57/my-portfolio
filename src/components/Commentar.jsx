@@ -131,7 +131,7 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error: _error, isFrozen }) =
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     maxLength={15}
-                    placeholder={isFrozen ? t("comments.frozenPlaceholder") || "Comments are frozen" : t("comments.namePlaceholder")}
+                    placeholder={isFrozen ? t("comments.frozenPlaceholder") : t("comments.namePlaceholder")}
                     className="w-full p-3 rounded-xl bg-secondary border border-primary text-primary placeholder-secondary focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     required
                     disabled={isFrozen}
@@ -150,7 +150,7 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error: _error, isFrozen }) =
                     value={newComment}
                     maxLength={200}
                     onChange={handleTextareaChange}
-                    placeholder={isFrozen ? t("comments.frozenPlaceholder") || "Commenting is currently frozen by the admin." : t("comments.messagePlaceholder")}
+                    placeholder={isFrozen ? t("comments.frozenPlaceholder") : t("comments.messagePlaceholder")}
                     className="w-full p-4 rounded-xl bg-secondary border border-primary text-primary placeholder-secondary focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none min-h-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
                     required
                     disabled={isFrozen}

@@ -90,7 +90,7 @@ const Navbar = () => {
                             onClick={(e) => scrollToSection(e, "#Home")}
                             className="text-xl font-bold bg-gradient-to-r from-[#a855f7] to-[#6366f1] bg-clip-text text-transparent"
                         >
-                            OMAR
+                            {t("nav.logo")}
                         </a>
                     </div>
         
@@ -127,7 +127,7 @@ const Navbar = () => {
                                 onClick={() => setIsCVModalOpen(true)}
                                 className="rounded-full border border-primary bg-secondary/50 px-3 py-1.5 text-xs font-bold text-accent-primary hover:bg-accent-primary/10 transition-all duration-300"
                             >
-                                CV
+                                {t("about.downloadCv")}
                             </button>
                             <button
                                 type="button"
@@ -141,7 +141,7 @@ const Navbar = () => {
                                 type="button"
                                 onClick={toggleTheme}
                                 className="rounded-full border border-primary bg-secondary/50 p-1.5 text-secondary hover:border-accent-primary/50 hover:text-primary transition-colors"
-                                aria-label="Toggle Theme"
+                                aria-label={t("theme.toggle")}
                             >
                                 {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                             </button>
@@ -152,7 +152,7 @@ const Navbar = () => {
                     <div className="md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            aria-label="Toggle Menu"
+                            aria-label={t("nav.toggleMenu")}
                             className={`relative p-2 text-secondary hover:text-primary transition-transform duration-300 ease-in-out transform ${
                                 isOpen ? "rotate-90 scale-125" : "rotate-0 scale-100"
                             }`}
@@ -220,7 +220,7 @@ const Navbar = () => {
                             opacity: isOpen ? 1 : 0,
                         }}
                     >
-                        CV
+                        {t("about.downloadCv")}
                     </button>
                     <button
                         type="button"
@@ -233,7 +233,7 @@ const Navbar = () => {
                         }}
                     >
                         {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                        {theme === "dark" ? t("theme.lightMode") : t("theme.darkMode")}
                     </button>
                 </div>
             </div>

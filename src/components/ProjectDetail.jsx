@@ -209,20 +209,20 @@ const ProjectDetails = () => {
   return (
     <>
       <Helmet>
-        <title>{project.title} — Omar Khaled El-Khouly</title>
+        <title>{project.title} — {t("about.name")}</title>
         <meta
           name="description"
           content={
             project.description
               ? project.description.slice(0, 155)
-              : `Project ${project.title} oleh Omar Khaled El-Khouly — Frontend Web Developer.`
+              : t("project.metaDescriptionFallback", { title: project.title, name: t("about.name") })
           }
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={projectUrl} />
         <meta
           property="og:title"
-          content={`${project.title} — Omar Khaled El-Khouly`}
+          content={`${project.title} — ${t("about.name")}`}
         />
         <meta
           property="og:description"
@@ -239,7 +239,7 @@ const ProjectDetails = () => {
           "url": projectUrl,
           "author": {
             "@type": "Person",
-            "name": "Omar Khaled El-Khouly",
+              "name": t("about.name"),
             "url": "https://github.com/Omar-Khaled-57"
           }
         })}</script>
@@ -284,7 +284,7 @@ const ProjectDetails = () => {
                 <button
                   onClick={toggleTheme}
                   className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300 shadow-sm"
-                  title="Toggle Theme"
+                  title={t("theme.toggle")}
                 >
                   {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
@@ -349,7 +349,7 @@ const ProjectDetails = () => {
 
                     <div className="absolute inset-0 bg-gradient-to-r from-accent-secondary/10 to-accent-primary/10 group-hover:from-accent-secondary/20 group-hover:to-accent-primary/20 transition-all duration-500 rounded-xl" />
                     <Github className="relative w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" />
-                    <span className="relative font-medium">Github</span>
+                    <span className="relative font-medium">{t("project.github")}</span>
                   </a>
                 </div>
 

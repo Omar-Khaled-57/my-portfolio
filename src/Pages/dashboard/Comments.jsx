@@ -80,7 +80,7 @@ export default function Comments() {
     } catch (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Error',
+        title: t("common.errorTitle"),
         text: error.message,
         background: 'var(--bg-secondary)',
         color: 'var(--text-primary)'
@@ -116,8 +116,8 @@ export default function Comments() {
       setIsFrozen(!newValue); // revert
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: 'Failed to update settings. Did you run the SQL script to create app_settings?',
+        title: t("common.errorTitle"),
+        text: t("dashboard.updateSettingsFailed"),
         background: 'var(--bg-secondary)',
         color: 'var(--text-primary)'
       });
@@ -144,7 +144,7 @@ export default function Comments() {
         
         Swal.fire({
           icon: 'success',
-          title: 'Deleted!',
+          title: t("common.deleted"),
           timer: 1500,
           showConfirmButton: false,
           background: 'var(--bg-secondary)',
@@ -154,7 +154,7 @@ export default function Comments() {
       } catch (error) {
         Swal.fire({
           icon: 'error',
-          title: 'Error',
+          title: t("common.errorTitle"),
           text: error.message,
           background: 'var(--bg-secondary)',
           color: 'var(--text-primary)'
@@ -354,7 +354,7 @@ export default function Comments() {
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 border border-primary flex items-center justify-center shrink-0">
                     <img
                       src={comment.profile_image || "/default-avatar.jpg"}
-                      alt="Avatar"
+                      alt={t("comments.avatarAlt")}
                       className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover"
                     />
                   </div>
@@ -364,7 +364,7 @@ export default function Comments() {
                       <span className="text-sm font-semibold text-primary">
                         {/* Highlight search match in name */}
                         {highlightMatch(
-                          comment.user_name || "Anonymous",
+                          comment.user_name || t("comments.anonymous"),
                           search,
                         )}
                       </span>

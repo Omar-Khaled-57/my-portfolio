@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from "react"
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react"
 import { Helmet } from "react-helmet-async"
 import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, MessageCircle } from "lucide-react"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
@@ -46,7 +46,7 @@ const TechStack = memo(({ tech }) => (
   </div>
 ));
 
-const CTAButton = memo(({ href, text, icon: Icon }) => (
+const CTAButton = memo(({ href, text, icon: Icon, contact }) => (
   <a href={href}>
     <button className="group relative w-[160px]">
       <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-xl blur-md opacity-20 group-hover:opacity-40 transition-all duration-300"></div>
@@ -56,7 +56,7 @@ const CTAButton = memo(({ href, text, icon: Icon }) => (
           <span className="bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent font-medium z-10">
             {text}
           </span>
-          <Icon className={`w-4 h-4 text-[var(--text-gradient-start)] ${text === 'Contact' ? 'group-hover:translate-x-1 rtl:group-hover:-translate-x-1' : 'group-hover:rotate-45'} transform transition-all duration-300 z-10`} />
+          <Icon className={`w-4 h-4 text-[var(--text-gradient-start)] ${contact ? 'group-hover:translate-x-1 rtl:group-hover:-translate-x-1' : 'group-hover:rotate-45'} transform transition-all duration-300 z-10`} />
         </span>
       </div>
     </button>
@@ -78,7 +78,6 @@ const SocialLink = memo(({ icon: Icon, link, label }) => (
 const TYPING_SPEED = 100;
 const ERASING_SPEED = 50;
 const PAUSE_DURATION = 2000;
-const TECH_STACK = ["Web Development", "AI", "Mobile Development", "UI/UX"];
 
 const platformIconMap = {
   GitHub: Github,
@@ -90,6 +89,12 @@ const platformIconMap = {
 const Home = () => {
   const { t } = useI18n();
   const words = t("home.words");
+  const techStack = useMemo(() => [
+    t("home.techStack.webDev"),
+    t("home.techStack.ai"),
+    t("home.techStack.mobileDev"),
+    t("home.techStack.uiUx"),
+  ], [t]);
   const [text, setText] = useState("")
   const [isTyping, setIsTyping] = useState(true)
   const [wordIndex, setWordIndex] = useState(0)
@@ -234,7 +239,7 @@ const Home = () => {
 
                   {/* Tech Stack */}
                   <div className="flex flex-wrap gap-3 justify-start" data-aos="fade-up" data-aos-delay="1200">
-                    {TECH_STACK.map((tech, index) => (
+                    {techStack.map((tech, index) => (
                       <TechStack key={index} tech={tech} />
                     ))}
                   </div>
@@ -242,7 +247,7 @@ const Home = () => {
                   {/* CTA Buttons */}
                   <div className="flex flex-row gap-3 w-full justify-start" data-aos="fade-up" data-aos-delay="1400">
                     <CTAButton href="#Portfolio" text={t("home.projects")} icon={ExternalLink} />
-                    <CTAButton href="#Contact" text={t("home.contact")} icon={Mail} />
+                    <CTAButton href="#Contact" text={t("home.contact")} icon={Mail} contact />
                   </div>
 
                   {/* Social Links */}

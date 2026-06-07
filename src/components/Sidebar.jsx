@@ -21,7 +21,7 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
 
   const NAV_ITEMS = useMemo(() => [
-    { to: '/', label: 'Home', icon: Home, external: true },
+    { to: '/', label: t('nav.home'), icon: Home, external: true },
     { to: '/dashboard/personal-info', label: t('dashboard.personalInfo'), icon: User },
     { to: '/dashboard/projects', label: t('portfolio.projects'), icon: FolderGit2 },
     { to: '/dashboard/certificates', label: t('portfolio.certificates'), icon: Award },
@@ -77,9 +77,9 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
               <span className="relative z-10">{label}</span>
               {active && (
                 <div className="ms-auto relative flex items-center justify-center w-4 h-4">
-                  <div className="absolute inset-0 bg-accent-primary rounded-full blur-[6px] animate-pulse opacity-70" />
-                  <div className="absolute inset-0 bg-accent-primary rounded-full animate-ping opacity-20" />
-                  <div className="relative w-2 h-2 rounded-full bg-accent-primary shadow-[0_0_12px_rgba(99,102,241,0.8)]" />
+                  <div className="absolute inset-0 bg-[#8685f7] rounded-full blur-[6px] animate-pulse opacity-70" />
+                  <div className="absolute inset-0 bg-[#8685f7] rounded-full animate-ping opacity-20" />
+                  <div className="relative w-2 h-2 rounded-full bg-[#8685f7] shadow-[0_0_12px_rgba(134,133,247,0.8)]" />
                 </div>
               )}
             </Link>
@@ -101,7 +101,7 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
             className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-secondary hover:text-primary hover:bg-secondary border border-primary transition-all duration-200 text-xs font-medium"
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            {theme === "dark" ? "Light" : "Dark"}
+            {theme === "dark" ? t("theme.light") : t("theme.dark")}
           </button>
         </div>
         <button

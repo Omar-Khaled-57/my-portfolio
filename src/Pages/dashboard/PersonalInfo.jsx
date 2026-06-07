@@ -51,7 +51,9 @@ const SETTINGS_KEYS = [
   "socialLinks",
   "profileImage",
   "fullName",
+  "fullNameAr",
   "quote",
+  "quoteAr",
 ];
 
 const parseJSON = (val, fallback) => {
@@ -107,7 +109,9 @@ export default function PersonalInfo() {
 
   const [profileImage, setProfileImage] = useState("");
   const [fullName, setFullName] = useState("");
+  const [fullNameAr, setFullNameAr] = useState("");
   const [quote, setQuote] = useState("");
+  const [quoteAr, setQuoteAr] = useState("");
   const fileInputRef = useRef(null);
 
   const [newPlatform, setNewPlatform] = useState("");
@@ -123,7 +127,9 @@ export default function PersonalInfo() {
   const [editSocialLinks, setEditSocialLinks] = useState([]);
   const [editProfileImage, setEditProfileImage] = useState("");
   const [editFullName, setEditFullName] = useState("");
+  const [editFullNameAr, setEditFullNameAr] = useState("");
   const [editQuote, setEditQuote] = useState("");
+  const [editQuoteAr, setEditQuoteAr] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
 
   const startEditing = () => {
@@ -137,7 +143,9 @@ export default function PersonalInfo() {
     setEditSocialLinks([...socialLinks]);
     setEditProfileImage(profileImage);
     setEditFullName(fullName);
+    setEditFullNameAr(fullNameAr);
     setEditQuote(quote);
+    setEditQuoteAr(quoteAr);
     setIsEditing(true);
   };
 
@@ -175,7 +183,9 @@ export default function PersonalInfo() {
           }
           if (map.profileImage) setProfileImage(map.profileImage);
           if (map.fullName) setFullName(map.fullName);
+          if (map.fullNameAr) setFullNameAr(map.fullNameAr);
           if (map.quote) setQuote(map.quote);
+          if (map.quoteAr) setQuoteAr(map.quoteAr);
         }
       } catch (err) {
         console.error("Failed to load personal info from DB", err);
@@ -210,7 +220,7 @@ export default function PersonalInfo() {
       console.error("Failed to upload profile image", err);
       Swal.fire({
         icon: "error",
-        title: "Upload Failed",
+        title: t("common.uploadFailed"),
         text: err.message,
         background: "var(--bg-secondary)",
         color: "var(--text-primary)",
@@ -245,7 +255,9 @@ export default function PersonalInfo() {
     const finalSocialLinks = editSocialLinks;
     const finalProfileImage = editProfileImage;
     const finalFullName = editFullName;
+    const finalFullNameAr = editFullNameAr;
     const finalQuote = editQuote;
+    const finalQuoteAr = editQuoteAr;
     try {
       const entries = [
         { key: STORAGE_PREFIX + "totalProjects", value: JSON.stringify(finalTotal) },
@@ -258,7 +270,9 @@ export default function PersonalInfo() {
         { key: STORAGE_PREFIX + "socialLinks", value: JSON.stringify(finalSocialLinks) },
         { key: STORAGE_PREFIX + "profileImage", value: finalProfileImage },
         { key: STORAGE_PREFIX + "fullName", value: finalFullName },
+        { key: STORAGE_PREFIX + "fullNameAr", value: finalFullNameAr },
         { key: STORAGE_PREFIX + "quote", value: finalQuote },
+        { key: STORAGE_PREFIX + "quoteAr", value: finalQuoteAr },
       ];
 
       const { error } = await supabase
@@ -282,13 +296,15 @@ export default function PersonalInfo() {
       setSocialLinks(finalSocialLinks);
       setProfileImage(finalProfileImage);
       setFullName(finalFullName);
+      setFullNameAr(finalFullNameAr);
       setQuote(finalQuote);
+      setQuoteAr(finalQuoteAr);
       setIsEditing(false);
 
       Swal.fire({
         icon: "success",
         title: t("common.successTitle"),
-        text: "Personal information saved successfully",
+        text: t("dashboard.personalInfoSaved"),
         toast: true,
         position: "top-end",
         showConfirmButton: false,
@@ -388,7 +404,7 @@ export default function PersonalInfo() {
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-accent-primary/30 bg-secondary">
                     {editProfileImage ? (
-                      <img src={editProfileImage} alt="Profile" className="w-full h-full object-cover" />
+                      <img src={editProfileImage} alt={t("dashboard.logoAlt")} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-secondary">
                         <Camera className="w-6 h-6" />
@@ -419,7 +435,7 @@ export default function PersonalInfo() {
               ) : (
                 <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-accent-primary/30 bg-secondary">
                   {profileImage ? (
-                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                    <img src={profileImage} alt={t("dashboard.logoAlt")} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-secondary">
                       <User className="w-6 h-6" />
@@ -437,13 +453,29 @@ export default function PersonalInfo() {
                     type="text"
                     value={editFullName}
                     onChange={(e) => setEditFullName(e.target.value)}
-                    placeholder="Your full name"
+                    placeholder={t("dashboard.fullNamePlaceholder")}
+                    className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-lg font-semibold outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all"
+                  />
+                  <input
+                    type="text"
+                    value={editFullNameAr}
+                    onChange={(e) => setEditFullNameAr(e.target.value)}
+                    placeholder={t("dashboard.fullNameArPlaceholder")}
+                    dir="rtl"
                     className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-lg font-semibold outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all"
                   />
                   <textarea
                     value={editQuote}
                     onChange={(e) => setEditQuote(e.target.value)}
-                    placeholder="Your quote or bio..."
+                    placeholder={t("dashboard.quotePlaceholder")}
+                    rows={2}
+                    className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all resize-none"
+                  />
+                  <textarea
+                    value={editQuoteAr}
+                    onChange={(e) => setEditQuoteAr(e.target.value)}
+                    placeholder={t("dashboard.quoteArPlaceholder")}
+                    dir="rtl"
                     rows={2}
                     className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all resize-none"
                   />
@@ -453,8 +485,14 @@ export default function PersonalInfo() {
                   <h2 className="text-lg font-semibold text-primary whitespace-nowrap">
                     {fullName || "—"}
                   </h2>
+                  <h2 className="text-lg font-semibold text-primary whitespace-nowrap" dir="rtl">
+                    {fullNameAr || "—"}
+                  </h2>
                   <p className="text-sm text-secondary italic leading-relaxed whitespace-pre-wrap">
                     {quote || "—"}
+                  </p>
+                  <p className="text-sm text-secondary leading-relaxed whitespace-pre-wrap" dir="rtl">
+                    {quoteAr || "—"}
                   </p>
                 </>
               )}
@@ -514,7 +552,7 @@ export default function PersonalInfo() {
                   }`}
                 >
                   {editShowYearsExp ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                  {editShowYearsExp ? "Visible" : "Hidden"}
+                  {editShowYearsExp ? t("common.visible") : t("common.hidden")}
                 </button>
               )}
               {!isEditing && (
@@ -524,7 +562,7 @@ export default function PersonalInfo() {
                     : "bg-gray-500/10 border-gray-500/30 text-gray-400"
                 }`}>
                   {showYearsExp ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                  {showYearsExp ? "Visible" : "Hidden"}
+                  {showYearsExp ? t("common.visible") : t("common.hidden")}
                 </span>
               )}
             </div>

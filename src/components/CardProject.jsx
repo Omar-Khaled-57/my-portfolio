@@ -67,7 +67,7 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-secondary hover:text-primary transition-colors"
-                    aria-label="GitHub Repository"
+                    aria-label={t("project.githubRepoLabel")}
                   >
                     <Github className="w-5 h-5" />
                   </a>

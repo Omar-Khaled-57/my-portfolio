@@ -19,12 +19,12 @@ const CVPage = () => {
                     <button
                         onClick={() => navigate(-1)}
                         className="p-2 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:border-accent-primary/50 transition-all duration-300"
-                        title="Go back"
+                        title={t("common.goBack")}
                     >
                         <ArrowLeft className="w-4 h-4" />
                     </button>
                     <span className="text-sm font-bold text-accent-primary uppercase tracking-widest hidden sm:inline">
-                        {language === 'ar' ? 'عمر خالد الخولي — السيرة الذاتية' : 'Omar Khaled El-Khouly — CV'}
+                        {t("cv.pageTitle", { name: t("about.name") })}
                     </span>
                 </div>
 
@@ -46,25 +46,25 @@ const CVPage = () => {
                     >
                         <Download className="w-3.5 h-3.5" />
                         <span className="hidden sm:inline">{t('about.actualDownload')}</span>
-                        <span className="sm:hidden">PDF</span>
+                        <span className="sm:hidden">{t("cv.pdfLabel")}</span>
                     </a>
 
                     <button
                         onClick={toggleLanguage}
                         className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300"
-                        title="Toggle Language"
+                        title={t("language.toggle")}
                     >
                         <Languages className="w-5 h-5" />
-                        <span className="sr-only">Toggle Language</span>
+                        <span className="sr-only">{t("language.toggle")}</span>
                     </button>
 
                     <button
                         onClick={toggleTheme}
                         className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300"
-                        title="Toggle Theme"
+                        title={t("theme.toggle")}
                     >
                         {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                        <span className="sr-only">Toggle Theme</span>
+                        <span className="sr-only">{t("theme.toggle")}</span>
                     </button>
                 </div>
             </header>
@@ -86,7 +86,7 @@ const CVPage = () => {
 
             {/* ── FOOTER ── */}
             <footer className="text-center py-4 text-xs text-secondary border-t border-primary transition-colors duration-300">
-                Omar Khaled El-Khouly · {new Date().getFullYear()}
+                {t("cv.footerCredit", { name: t("about.name"), year: new Date().getFullYear() })}
             </footer>
         </div>
     );

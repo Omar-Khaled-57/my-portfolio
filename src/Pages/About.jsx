@@ -2,12 +2,11 @@ import React, { useEffect, useState, memo, useMemo } from "react"
 import { FileText, Code, Award, ArrowUpRight, Sparkles, FolderGit2, Briefcase } from "lucide-react"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
-import CVModal from "../components/CVModal"
 import { supabase } from "../supabase"
-
+import CVModal from "../components/CVModal"
 // Memoized Components
 const Header = memo(({ t }) => (
-  <div className="text-center lg:mb-8 mb-2 px-[5%]">
+  <div className="text-center lg:mb-8 mb-2 px-[5%] lg:px-[10%]">
     <div className="inline-block relative group">
       <h2 
         className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a855f7] py-2" 
@@ -29,46 +28,46 @@ const Header = memo(({ t }) => (
   </div>
 ));
 
-const ProfileImage = memo(({ imageUrl }) => (
-  <div className="flex justify-end items-center sm:p-12 sm:py-0 sm:pb-0 p-0 py-2 pb-2">
-    <div 
-      className="relative group" 
-      data-aos="fade-up"
-      data-aos-duration="1000"
-    >
-      {/* Optimized gradient backgrounds with reduced complexity for mobile */}
-      <div className="absolute -inset-6 opacity-[25%] z-0 hidden sm:block">
-        <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-indigo-500 to-purple-600 rounded-full blur-2xl animate-spin-slower" />
-        <div className="absolute inset-0 bg-gradient-to-l from-fuchsia-500 via-rose-500 to-pink-600 rounded-full blur-2xl animate-pulse-slow opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-t from-blue-600 via-cyan-500 to-teal-400 rounded-full blur-2xl animate-float opacity-50" />
-      </div>
+const ProfileImage = memo(({ imageUrl }) => {
+  const { t } = useI18n();
+  return (
+    <div className="flex justify-end items-center sm:p-12 sm:py-0 sm:pb-0 p-0 py-2 pb-2">
+      <div 
+        className="relative group" 
+        data-aos="fade-up"
+        data-aos-duration="1000"
+      >
+        <div className="absolute -inset-6 opacity-[25%] z-0 hidden sm:block">
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-indigo-500 to-purple-600 rounded-full blur-2xl animate-spin-slower" />
+          <div className="absolute inset-0 bg-gradient-to-l from-fuchsia-500 via-rose-500 to-pink-600 rounded-full blur-2xl animate-pulse-slow opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-600 via-cyan-500 to-teal-400 rounded-full blur-2xl animate-float opacity-50" />
+        </div>
 
-      <div className="relative">
-        <div className="w-72 h-72 sm:w-80 sm:h-80 rounded-full overflow-hidden shadow-[0_0_40px_rgba(120,119,198,0.3)] transform transition-all duration-700 group-hover:scale-105">
-          <div className="absolute inset-0 border-4 border-white/20 rounded-full z-20 transition-all duration-700 group-hover:border-white/40 group-hover:scale-105" />
-          
-          {/* Optimized overlay effects - disabled on mobile */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 z-10 transition-opacity duration-700 group-hover:opacity-0 hidden sm:block" />
-          <div className="absolute inset-0 bg-gradient-to-t from-purple-500/20 via-transparent to-blue-500/20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 hidden sm:block" />
-          
-          <img
-            src={imageUrl || "/Photo.png"}
-            alt="Profile"
-            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-2"
-            loading="lazy"
-          />
+        <div className="relative">
+          <div className="w-72 h-72 sm:w-80 sm:h-80 rounded-full overflow-hidden shadow-[0_0_40px_rgba(120,119,198,0.3)] transform transition-all duration-700 group-hover:scale-105">
+            <div className="absolute inset-0 border-4 border-white/20 rounded-full z-20 transition-all duration-700 group-hover:border-white/40 group-hover:scale-105" />
+            
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 z-10 transition-opacity duration-700 group-hover:opacity-0 hidden sm:block" />
+            <div className="absolute inset-0 bg-gradient-to-t from-purple-500/20 via-transparent to-blue-500/20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 hidden sm:block" />
+            
+            <img
+              src={imageUrl || "/Photo.png"}
+              alt={t("about.profileAlt")}
+              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-2"
+              loading="lazy"
+            />
 
-          {/* Advanced hover effects - desktop only */}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 z-20 hidden sm:block">
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-white/10 to-transparent transform translate-y-full group-hover:-translate-y-full transition-transform duration-1000 delay-100" />
-            <div className="absolute inset-0 rounded-full border-8 border-white/10 scale-0 group-hover:scale-100 transition-transform duration-700 animate-pulse-slow" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 z-20 hidden sm:block">
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-white/10 to-transparent transform translate-y-full group-hover:-translate-y-full transition-transform duration-1000 delay-100" />
+              <div className="absolute inset-0 rounded-full border-8 border-white/10 scale-0 group-hover:scale-100 transition-transform duration-700 animate-pulse-slow" />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-));
+  );
+});
 
 const StatCard = memo(({ icon: Icon, color, value, label, description, animation }) => (
   <div data-aos={animation} data-aos-duration={1300} className="relative group">
@@ -115,7 +114,7 @@ const StatCard = memo(({ icon: Icon, color, value, label, description, animation
 ));
 
 const AboutPage = () => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [isCVModalOpen, setIsCVModalOpen] = React.useState(false);
   const [showYearsExp, setShowYearsExp] = useState(false);
   const [yearsExpValue, setYearsExpValue] = useState(0);
@@ -126,7 +125,9 @@ const AboutPage = () => {
 
   const [profileImage, setProfileImage] = useState("");
   const [fullName, setFullName] = useState("");
+  const [fullNameAr, setFullNameAr] = useState("");
   const [quote, setQuote] = useState("");
+  const [quoteAr, setQuoteAr] = useState("");
 
   const [stats, setStats] = useState(() => {
     try {
@@ -146,7 +147,9 @@ const AboutPage = () => {
       localStorage.setItem("personalInfo_showYearsExperience", JSON.stringify(showYearsExp));
       if (fields?.profileImage) localStorage.setItem("personalInfo_profileImage", fields.profileImage);
       if (fields?.fullName) localStorage.setItem("personalInfo_fullName", fields.fullName);
+      if (fields?.fullNameAr) localStorage.setItem("personalInfo_fullNameAr", fields.fullNameAr);
       if (fields?.quote) localStorage.setItem("personalInfo_quote", fields.quote);
+      if (fields?.quoteAr) localStorage.setItem("personalInfo_quoteAr", fields.quoteAr);
     } catch {}
   };
 
@@ -161,7 +164,9 @@ const AboutPage = () => {
           "personalInfo_showYearsExperience",
           "personalInfo_profileImage",
           "personalInfo_fullName",
+          "personalInfo_fullNameAr",
           "personalInfo_quote",
+          "personalInfo_quoteAr",
         ]),
       ]);
 
@@ -194,8 +199,10 @@ const AboutPage = () => {
         }
         if (map.profileImage) setProfileImage(map.profileImage);
         if (map.fullName) setFullName(map.fullName);
+        if (map.fullNameAr) setFullNameAr(map.fullNameAr);
         if (map.quote) setQuote(map.quote);
-        cacheLocally({ profileImage: map.profileImage, fullName: map.fullName, quote: map.quote });
+        if (map.quoteAr) setQuoteAr(map.quoteAr);
+        cacheLocally({ profileImage: map.profileImage, fullName: map.fullName, fullNameAr: map.fullNameAr, quote: map.quote, quoteAr: map.quoteAr });
       } else {
         cacheLocally({});
       }
@@ -216,7 +223,9 @@ const AboutPage = () => {
           if (key === "showYearsExperience") setShowYearsExp(e.newValue === "true");
           if (key === "profileImage") setProfileImage(e.newValue);
           if (key === "fullName") setFullName(e.newValue);
+          if (key === "fullNameAr") setFullNameAr(e.newValue);
           if (key === "quote") setQuote(e.newValue);
+          if (key === "quoteAr") setQuoteAr(e.newValue);
         } catch {}
       }
     });
@@ -312,7 +321,7 @@ const AboutPage = () => {
                 data-aos-duration="1300"
                 itemProp="name"
               >
-                {fullName || t("about.name")}
+                {language === 'ar' && fullNameAr ? fullNameAr : (fullName || t("about.name"))}
               </span>
             </h2>
             
@@ -342,7 +351,7 @@ const AboutPage = () => {
         </div>
         
         <blockquote className="text-[var(--text-secondary)] text-center lg:text-start italic font-medium text-sm relative z-10 ps-6 whitespace-pre-wrap">
-          {quote ? `"${quote}"` : `"${t("about.quote")}"`}
+          {language === 'ar' && quoteAr ? `"${quoteAr}"` : (quote ? `"${quote}"` : `"${t("about.quote")}"`)}
         </blockquote>
       </div>
 

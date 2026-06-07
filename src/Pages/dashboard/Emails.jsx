@@ -74,10 +74,10 @@ export default function Emails() {
       setIsFrozen(!newValue); // revert on failure
       Swal.fire({
         icon: "error",
-        title: "Error",
+        title: t("common.errorTitle"),
         text:
           err.message ||
-          "Failed to update setting. Make sure the app_settings table has an 'emails_frozen' row.",
+          t("dashboard.updateSettingFailed"),
         background: "var(--bg-secondary)",
         color: "var(--text-primary)",
       });

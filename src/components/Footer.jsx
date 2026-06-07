@@ -52,26 +52,24 @@ const Footer = () => {
   }, [navigate]);
 
   return (
-    <footer>
-      <center>
-        <hr className="my-3 border-primary opacity-15 sm:mx-auto lg:my-6 text-center" />
-        <span className="block text-sm pb-4 text-secondary text-center">
-          © {currentYear}{" "}
-          <a href={githubUrl} className="hover:underline">
-            Omar Khaled™
-          </a>
-          . {t("footer.rights")}
-          {portrait && (
-            <button
-              onClick={handleStarClick}
-              className="inline-flex items-center justify-center ml-2 w-5 h-5 text-xs text-secondary/40 hover:text-accent-primary transition-colors align-middle"
-              title=""
-            >
-              ★
-            </button>
-          )}
-        </span>
-      </center>
+    <footer className="px-[5%] lg:px-[10%]">
+      <hr className="my-3 border-primary opacity-15 lg:my-6" />
+      <p className="text-sm pb-4 text-secondary text-center">
+        © {currentYear}{" "}
+        <a href={githubUrl} className="hover:underline">
+          {t("footer.authorName", { name: "Omar Khaled" })}
+        </a>
+        . {t("footer.rights")}
+        {portrait && (
+          <button
+            onClick={handleStarClick}
+            className="inline-flex items-center justify-center ms-1 w-5 h-5 text-xs text-secondary/40 hover:text-accent-primary transition-colors align-middle"
+            title=""
+          >
+            ★
+          </button>
+        )}
+      </p>
     </footer>
   );
 };

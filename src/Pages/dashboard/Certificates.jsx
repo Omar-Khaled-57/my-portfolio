@@ -93,7 +93,7 @@ export default function Certificates() {
 
       Swal.fire({
         icon: 'success',
-        title: 'Uploaded!',
+        title: t("common.uploaded"),
         timer: 1500,
         showConfirmButton: false,
         background: 'var(--bg-secondary)',
@@ -106,7 +106,7 @@ export default function Certificates() {
       console.error("Error uploading certificate:", error)
       Swal.fire({
         icon: 'error',
-        title: 'Upload Failed',
+        title: t("common.uploadFailed"),
         text: error.message,
         background: 'var(--bg-secondary)',
         color: 'var(--text-primary)'
@@ -136,7 +136,7 @@ export default function Certificates() {
         
         Swal.fire({
           icon: 'success',
-          title: 'Deleted!',
+          title: t("common.deleted"),
           timer: 1500,
           showConfirmButton: false,
           background: 'var(--bg-secondary)',
@@ -146,7 +146,7 @@ export default function Certificates() {
       } catch (error) {
         Swal.fire({
           icon: 'error',
-          title: 'Error',
+          title: t("common.errorTitle"),
           text: error.message,
           background: 'var(--bg-secondary)',
           color: 'var(--text-primary)'

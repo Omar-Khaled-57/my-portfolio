@@ -248,7 +248,7 @@ const sidebarVariants = {
    Shared CV content — bilingual, theme-reactive
 ───────────────────────────────────────────── */
 export const CVContent = () => {
-    const { language } = useI18n();
+    const { t, language } = useI18n();
     const isAr = language === 'ar';
     const contact = isAr ? getContactAr() : getContact();
     const d = cvData[language] || cvData.en;
@@ -299,12 +299,12 @@ export const CVContent = () => {
                                 <div className="flex items-start gap-2.5">
                                     <Github className="w-4 h-4 text-accent-primary mt-0.5 flex-shrink-0" />
                                     <a href={contact.github} target="_blank" rel="noopener noreferrer"
-                                        className="hover:text-accent-primary transition-colors duration-200">GitHub</a>
+                                        className="hover:text-accent-primary transition-colors duration-200">{t("social.githubLabel")}</a>
                                 </div>
                                 <div className="flex items-start gap-2.5">
                                     <Linkedin className="w-4 h-4 text-accent-primary mt-0.5 flex-shrink-0" />
                                     <a href={contact.linkedin} target="_blank" rel="noopener noreferrer"
-                                        className="hover:text-accent-primary transition-colors duration-200">LinkedIn</a>
+                                        className="hover:text-accent-primary transition-colors duration-200">{t("social.linkedinLabel")}</a>
                                 </div>
                             </div>
                         </motion.section>
@@ -497,12 +497,12 @@ const CVModal = ({ isOpen, onClose }) => {
                             {/* ── TOP BAR ── */}
                             <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-primary rounded-t-3xl"
                                 style={{ background: 'var(--bg-secondary)' }}>
-                                <span className="text-xs font-bold text-accent-primary uppercase tracking-widest">CV</span>
+                                <span className="text-xs font-bold text-accent-primary uppercase tracking-widest">{t("cv.title")}</span>
 
                                 <div className="flex items-center gap-1.5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                                     <a href="/cv" target="_blank" rel="noopener noreferrer"
                                         className="p-2 rounded-xl bg-primary/60 border border-primary text-secondary hover:text-primary hover:border-accent-primary/50 transition-all duration-300"
-                                        title="Open in new tab">
+                                        title={t("common.openInNewTab")}>
                                         <ExternalLink className="w-4 h-4" />
                                     </a>
 
@@ -521,24 +521,24 @@ const CVModal = ({ isOpen, onClose }) => {
                                     >
                                         <Download className="w-3.5 h-3.5" />
                                         <span className="hidden sm:inline">{t('about.actualDownload')}</span>
-                                        <span className="sm:hidden">PDF</span>
+                                        <span className="sm:hidden">{t("cv.pdfLabel")}</span>
                                     </a>
 
                                     <button onClick={toggleLanguage}
                                         className="p-2 rounded-xl bg-primary/60 border border-primary text-secondary hover:text-primary hover:border-accent-primary/50 transition-all duration-300"
-                                        title="Toggle Language">
+                                        title={t("language.toggle")}>
                                         <Languages className="w-4 h-4" />
                                     </button>
 
                                     <button onClick={toggleTheme}
                                         className="p-2 rounded-xl bg-primary/60 border border-primary text-secondary hover:text-primary hover:border-accent-primary/50 transition-all duration-300"
-                                        title="Toggle Theme">
+                                        title={t("theme.toggle")}>
                                         {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                                     </button>
 
                                     <button onClick={onClose}
                                         className="p-2 rounded-xl bg-primary/60 border border-primary text-secondary hover:text-red-400 hover:border-red-400/50 transition-all duration-300"
-                                        title="Close (Esc)">
+                                        title={t("common.close")}>
                                         <X className="w-4 h-4" />
                                     </button>
                                 </div>

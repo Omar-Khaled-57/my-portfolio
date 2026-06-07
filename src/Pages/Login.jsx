@@ -39,10 +39,10 @@ export default function Login() {
         <button
           onClick={() => navigate('/')}
           className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300 flex items-center gap-2 group"
-          title="Back to Home"
+          title={t("common.backToHome")}
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium hidden md:block">Back to Home</span>
+          <span className="text-sm font-medium hidden md:block">{t("common.backToHome")}</span>
         </button>
       </div>
       {/* Toggles */}
@@ -50,18 +50,18 @@ export default function Login() {
         <button
           onClick={toggleLanguage}
           className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300"
-          title="Toggle Language"
+          title={t("language.toggle")}
         >
           <Languages className="w-5 h-5" />
-          <span className="sr-only">Toggle Language</span>
+          <span className="sr-only">{t("language.toggle")}</span>
         </button>
         <button
           onClick={toggleTheme}
           className="p-2.5 rounded-xl bg-secondary border border-primary text-secondary hover:text-primary hover:bg-secondary/80 transition-all duration-300"
-          title="Toggle Theme"
+          title={t("theme.toggle")}
         >
           {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          <span className="sr-only">Toggle Theme</span>
+          <span className="sr-only">{t("theme.toggle")}</span>
         </button>
       </div>
 
@@ -104,7 +104,7 @@ export default function Login() {
                     name="email"
                     autoComplete="email"
                     type="email"
-                    placeholder="admin@example.com"
+                    placeholder={t("login.emailPlaceholder")}
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required

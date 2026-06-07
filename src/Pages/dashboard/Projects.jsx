@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../../supabase";
 import {
   Plus,
@@ -102,7 +102,7 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
           </h3>
           {isHidden && (
             <span className="px-2 py-0.5 rounded-md bg-yellow-500/15 text-yellow-400 text-[10px] font-bold uppercase tracking-wider border border-yellow-500/20">
-              Hidden
+              {t("dashboard.hidden")}
             </span>
           )}
         </div>
@@ -154,12 +154,12 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
                   ? "border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/10"
                   : "border-amber-500/25 text-amber-400 hover:bg-amber-500/10"
               }`}
-              aria-label={isHidden ? "Reveal project" : "Hide project"}
+              aria-label={isHidden ? t("dashboard.revealProject") : t("dashboard.hideProject")}
             >
               {isHidden ? (
-                <><Eye className="w-3 h-3" /> Reveal</>
+                <><Eye className="w-3 h-3" /> {t("dashboard.reveal")}</>
               ) : (
-                <><EyeOff className="w-3 h-3" /> Hide</>
+                <><EyeOff className="w-3 h-3" /> {t("dashboard.hide")}</>
               )}
             </button>
             <button
@@ -215,7 +215,7 @@ const ProjectForm = ({
   initial,
   onSubmit,
   onCancel,
-  submitLabel = "Save Project",
+  submitLabel,
   uploading,
 }) => {
   const { t } = useI18n();
@@ -266,10 +266,10 @@ const ProjectForm = ({
         
         <div className="sm:col-span-2">
           <InputField
-            label={(t("dashboard.projectTitle") || "Project Title") + " (Arabic)"}
+            label={(t("dashboard.projectTitle") || "Project Title") + t("common.arabicSuffix")}
             value={form.TitleAr}
             onChange={set("TitleAr")}
-            placeholder="عنوان المشروع بالعربية"
+            placeholder={t("dashboard.titleArPlaceholder")}
           />
         </div>
 
@@ -288,12 +288,12 @@ const ProjectForm = ({
 
         <div className="sm:col-span-2 space-y-1.5">
           <label className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
-            {(t("dashboard.description") || "Description") + " (Arabic)"}
+            {(t("dashboard.description") || "Description") + t("common.arabicSuffix")}
           </label>
           <textarea
             value={form.DescriptionAr}
             onChange={set("DescriptionAr")}
-            placeholder="وصف المشروع بالعربية"
+            placeholder={t("dashboard.descriptionArPlaceholder")}
             rows={3}
             className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all resize-none"
             dir="rtl"
@@ -316,13 +316,13 @@ const ProjectForm = ({
           label={t("dashboard.liveUrl")}
           value={form.Link}
           onChange={set("Link")}
-          placeholder="https://yourproject.com"
+            placeholder={t("dashboard.liveUrlPlaceholder")}
         />
         <InputField
           label={t("dashboard.githubUrl")}
           value={form.Github}
           onChange={set("Github")}
-          placeholder="https://github.com/username/repo"
+            placeholder={t("dashboard.githubUrlPlaceholder")}
         />
 
         <div className="sm:col-span-2 space-y-1.5">
@@ -394,6 +394,10 @@ export default function Projects() {
   const [uploading, setUploading] = useState(false);
   const [filter, setFilter] = useState("all");
 
+  const visibleProjects = projects.filter((p) => p.is_published !== false);
+  const hiddenProjects = projects.filter((p) => p.is_published === false);
+  const filteredProjects = filter === "all" ? projects : filter === "visible" ? visibleProjects : hiddenProjects;
+
   const fetchProjects = async () => {
     setLoading(true);
     const { data } = await supabase
@@ -445,7 +449,7 @@ export default function Projects() {
       Swal.fire({
         icon: 'success',
         title: t('common.successTitle') || 'Success!',
-        text: 'Project created successfully',
+        text: t("dashboard.projectCreated"),
         timer: 2000,
         showConfirmButton: false,
         background: 'var(--bg-secondary)',
@@ -459,7 +463,7 @@ export default function Projects() {
       Swal.fire({
         icon: 'error',
         title: t('common.errorTitle') || 'Error',
-        text: error.message || 'Failed to create project',
+        text: error.message || t("dashboard.createProjectFailed"),
         background: 'var(--bg-secondary)',
         color: 'var(--text-primary)'
       });
@@ -497,7 +501,7 @@ export default function Projects() {
       Swal.fire({
         icon: 'success',
         title: t('common.successTitle') || 'Success!',
-        text: 'Project updated successfully',
+        text: t("dashboard.projectUpdated"),
         timer: 2000,
         showConfirmButton: false,
         background: 'var(--bg-secondary)',
@@ -511,7 +515,7 @@ export default function Projects() {
       Swal.fire({
         icon: 'error',
         title: t('common.errorTitle') || 'Error',
-        text: error.message || 'Failed to update project',
+        text: error.message || t("dashboard.updateProjectFailed"),
         background: 'var(--bg-secondary)',
         color: 'var(--text-primary)'
       });
@@ -540,7 +544,7 @@ export default function Projects() {
         
         Swal.fire({
           icon: 'success',
-          title: 'Deleted!',
+          title: t("common.deleted"),
           timer: 1500,
           showConfirmButton: false,
           background: 'var(--bg-secondary)',
@@ -550,7 +554,7 @@ export default function Projects() {
       } catch (error) {
         Swal.fire({
           icon: 'error',
-          title: 'Error',
+          title: t("common.errorTitle"),
           text: error.message,
           background: 'var(--bg-secondary)',
           color: 'var(--text-primary)'
@@ -563,15 +567,13 @@ export default function Projects() {
     const newPublished = project.is_published === false ? true : false;
 
     const result = await Swal.fire({
-      title: newPublished ? "Reveal this project?" : "Hide this project?",
-      text: newPublished
-        ? "This project will become visible on your public portfolio."
-        : "This project will be hidden from your public portfolio. All data is preserved.",
+      title: newPublished ? t("dashboard.revealConfirm") : t("dashboard.hideConfirm"),
+      text: newPublished ? t("dashboard.revealConfirmText") : t("dashboard.hideConfirmText"),
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: newPublished ? '#10b981' : '#f59e0b',
       cancelButtonColor: '#6b7280',
-      confirmButtonText: newPublished ? "Yes, reveal" : "Yes, hide",
+      confirmButtonText: newPublished ? t("dashboard.yesReveal") : t("dashboard.yesHide"),
       cancelButtonText: t("common.cancel"),
       background: 'var(--bg-secondary)',
       color: 'var(--text-primary)'
@@ -588,7 +590,7 @@ export default function Projects() {
 
         Swal.fire({
           icon: 'success',
-          title: newPublished ? 'Project revealed!' : 'Project hidden',
+          title: newPublished ? t("dashboard.projectRevealed") : t("dashboard.projectHidden"),
           timer: 1500,
           showConfirmButton: false,
           background: 'var(--bg-secondary)',
@@ -599,7 +601,7 @@ export default function Projects() {
       } catch (error) {
         Swal.fire({
           icon: 'error',
-          title: 'Error',
+          title: t("common.errorTitle"),
           text: error.message,
           background: 'var(--bg-secondary)',
           color: 'var(--text-primary)'
@@ -608,15 +610,11 @@ export default function Projects() {
     }
   };
 
-  const visibleProjects = projects.filter((p) => p.is_published !== false);
-  const hiddenProjects = projects.filter((p) => p.is_published === false);
-  const filteredProjects = filter === "all" ? projects : filter === "visible" ? visibleProjects : hiddenProjects;
-
-  const filterOptions = [
-    { key: "all", label: `All (${projects.length})` },
-    { key: "visible", label: `Visible (${visibleProjects.length})` },
-    { key: "hidden", label: `Hidden (${hiddenProjects.length})` },
-  ];
+  const filterOptions = useMemo(() => [
+    { key: "all", label: `${t("dashboard.filterAll")} (${projects.length})` },
+    { key: "visible", label: `${t("dashboard.filterVisible")} (${visibleProjects.length})` },
+    { key: "hidden", label: `${t("dashboard.filterHidden")} (${hiddenProjects.length})` },
+  ], [t, projects.length, visibleProjects.length, hiddenProjects.length]);
 
   return (
     <div className="space-y-6z ">
@@ -634,7 +632,7 @@ export default function Projects() {
               {t("portfolio.projects")}
             </h1>
             <p className="text-secondary text-xs">
-              {loading ? t("common.loading") : `${filteredProjects.length} of ${projects.length} projects`}
+              {loading ? t("common.loading") : t("dashboard.projectsCountOf", { count: filteredProjects.length, total: projects.length })}
             </p>
           </div>
         </div>
@@ -706,7 +704,7 @@ export default function Projects() {
           <div className="p-16 text-center">
             <FolderGit2 className="w-10 h-10 text-gray-700 mx-auto mb-3" />
             <p className="text-gray-500 text-sm">
-              {filter === "hidden" ? "No hidden projects" : filter === "visible" ? "No visible projects" : t("dashboard.noProjects")}
+              {filter === "hidden" ? t("dashboard.noHiddenProjects") : filter === "visible" ? t("dashboard.noVisibleProjects") : t("dashboard.noProjects")}
             </p>
           </div>
         </Card>

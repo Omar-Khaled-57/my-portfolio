@@ -1,75 +1,74 @@
 import React, { useEffect, useRef } from "react"
 
 const initialPositions = [
-	{ x: -4, y: 0 },
-	{ x: -4, y: 0 },
-	{ x: 20, y: -8 },
-	{ x: 20, y: -8 },
+  { x: -4, y: 0 },
+  { x: -4, y: 0 },
+  { x: 20, y: -8 },
+  { x: 20, y: -8 },
 ]
 
 const AnimatedBackground = () => {
-	const blobRefs = useRef([])
+  const blobRefs = useRef([])
 
-	useEffect(() => {
-	blobRefs.current.forEach((blob) => {
-		if (blob) blob.style.transition = "transform 1.4s ease-out"
-	})
-	let requestId
-	let ticking = false
+  useEffect(() => {
+    blobRefs.current.forEach((blob) => {
+      if (blob) blob.style.transition = "transform 1.4s ease-out"
+    })
+    let requestId
+    let ticking = false
 
-		const updatePositions = () => {
-		const newScroll = window.scrollY
+    const updatePositions = () => {
+      const newScroll = window.scrollY
 
-			blobRefs.current.forEach((blob, index) => {
-				if (!blob) return;
-				const initialPos = initialPositions[index]
+      blobRefs.current.forEach((blob, index) => {
+        if (!blob) return;
+        const initialPos = initialPositions[index]
 
-				// Calculating movement in both X and Y direction
-				const xOffset = Math.sin(newScroll / 100 + index * 0.5) * 340 // Horizontal movement
-				const yOffset = Math.cos(newScroll / 100 + index * 0.5) * 40 // Vertical movement
+        const xOffset = Math.sin(newScroll / 100 + index * 0.5) * 340
+        const yOffset = Math.cos(newScroll / 100 + index * 0.5) * 40
 
-				const x = initialPos.x + xOffset
-				const y = initialPos.y + yOffset
+        const x = initialPos.x + xOffset
+        const y = initialPos.y + yOffset
 
-				blob.style.transform = `translate(${x}px, ${y}px)`
-			})
+        blob.style.transform = `translate(${x}px, ${y}px)`
+      })
 
-			ticking = false
-		}
+      ticking = false
+    }
 
-		const handleScroll = () => {
-			if (!ticking) {
-				requestId = requestAnimationFrame(updatePositions)
-				ticking = true
-			}
-		}
+    const handleScroll = () => {
+      if (!ticking) {
+        requestId = requestAnimationFrame(updatePositions)
+        ticking = true
+      }
+    }
 
-		window.addEventListener("scroll", handleScroll)
-		return () => {
-			window.removeEventListener("scroll", handleScroll)
-			if (requestId) cancelAnimationFrame(requestId)
-		}
-	}, [])
+    window.addEventListener("scroll", handleScroll)
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      if (requestId) cancelAnimationFrame(requestId)
+    }
+  }, [])
 
-	return (
-		<div className="fixed inset-0 ">
-			<div className="absolute inset-0">
-				<div
-					ref={(ref) => (blobRefs.current[0] = ref)}
-					className="absolute top-0 -start-4 md:w-96 md:h-96 w-72 h-72 bg-purple-500 rounded-full mix-blend-[var(--blob-mix-blend)] filter blur-[128px] opacity-[var(--blob-opacity)]"></div>
-				<div
-					ref={(ref) => (blobRefs.current[1] = ref)}
-					className="absolute top-0 -end-4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-[var(--blob-mix-blend)] filter blur-[128px] opacity-[var(--blob-opacity)] hidden sm:block"></div>
-				<div
-					ref={(ref) => (blobRefs.current[2] = ref)}
-					className="absolute -bottom-8 start-[-40%] md:start-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-[var(--blob-mix-blend)] filter blur-[128px] opacity-[var(--blob-opacity)]"></div>
-					<div
-					ref={(ref) => (blobRefs.current[3] = ref)}
-					className="absolute -bottom-10 end-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-[var(--blob-mix-blend)] filter blur-[128px] opacity-[var(--blob-opacity)] hidden sm:block"></div>
-			</div>
-			<div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f10_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f10_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-		</div>
-	)
+  return (
+    <div className="fixed inset-0 pointer-events-none">
+      <div className="absolute inset-0">
+        <div
+          ref={(ref) => (blobRefs.current[0] = ref)}
+          className="absolute top-0 -start-4 md:w-96 md:h-96 w-72 h-72 bg-indigo-500 rounded-full mix-blend-[var(--blob-mix-blend)] filter blur-[128px] opacity-[var(--blob-opacity)]" />
+        <div
+          ref={(ref) => (blobRefs.current[1] = ref)}
+          className="absolute top-0 -end-4 w-96 h-96 bg-purple-500 rounded-full mix-blend-[var(--blob-mix-blend)] filter blur-[128px] opacity-[var(--blob-opacity)] hidden sm:block" />
+        <div
+          ref={(ref) => (blobRefs.current[2] = ref)}
+          className="absolute -bottom-8 start-[-40%] md:start-20 w-96 h-96 bg-cyan-500 rounded-full mix-blend-[var(--blob-mix-blend)] filter blur-[128px] opacity-[var(--blob-opacity)]" />
+        <div
+          ref={(ref) => (blobRefs.current[3] = ref)}
+          className="absolute -bottom-10 end-20 w-96 h-96 bg-indigo-500 rounded-full mix-blend-[var(--blob-mix-blend)] filter blur-[128px] opacity-[var(--blob-opacity)] hidden sm:block" />
+      </div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f10_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f10_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+    </div>
+  )
 }
 
 export default AnimatedBackground
