@@ -17,10 +17,10 @@ import { useI18n } from "../../i18n";
 import Swal from "sweetalert2";
 
 const Card = ({ children, className = "" }) => (
-  <div className={`relative ${className} h-full transform-gpu`}>
-    <div className="relative glass-card rounded-2xl h-full border border-white/10 shadow-xl overflow-hidden bg-white/5">
-      {children}
-    </div>
+  <div className={`bg-indigo-500/[0.06] rounded-2xl border border-indigo-500/10 shadow-xl shadow-black/20 overflow-hidden relative noise-bg hover:shadow-2xl hover:border-indigo-500/20 hover:-translate-y-0.5 transition-all duration-300 ${className}`}>
+    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] to-transparent pointer-events-none" />
+    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/15 to-transparent pointer-events-none" />
+    {children}
   </div>
 );
 
@@ -48,9 +48,7 @@ const InputField = ({
 );
 
 const SkeletonCard = () => (
-  <div className="relative">
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-10" />
-    <div className="relative bg-secondary border border-primary rounded-2xl p-4 flex flex-col gap-3">
+  <div className="bg-secondary border border-primary rounded-2xl p-4 flex flex-col gap-3">
       <div className="w-full aspect-[16/8] bg-primary/20 animate-pulse rounded-xl" />
       <div className="h-4 bg-primary/20 animate-pulse rounded-lg w-2/3" />
       <div className="h-3 bg-primary/20 animate-pulse rounded-lg w-full" />
@@ -70,7 +68,6 @@ const SkeletonCard = () => (
           <div className="w-16 h-7 bg-primary/20 animate-pulse rounded-lg" />
         </div>
       </div>
-    </div>
   </div>
 );
 
@@ -83,10 +80,9 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
     <Card>
       <div className="p-4 flex flex-col h-full">
         {project.img && (
-          <div className="w-full aspect-[16/8] rounded-xl mb-4 relative overflow-hidden border border-white/10 shadow-[inset_0_2px_15px_rgba(255,255,255,0.05)] bg-black/20 group/img">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-50 z-10 pointer-events-none mix-blend-overlay"></div>
+          <div className="w-full aspect-[16/8] rounded-xl mb-4 relative overflow-hidden border border-primary bg-black/20">
             {!imgLoaded && (
-              <div className="w-full h-full animate-pulse bg-white/5" />
+              <div className="w-full h-full animate-pulse bg-primary/20" />
             )}
             <img
               src={project.img}
@@ -107,7 +103,7 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
           )}
         </div>
         {project.description && (
-          <p className="text-secondary text-xs mb-3 line-clamp-2 leading-relaxed">
+          <p className="text-primary/80 text-xs mb-3 line-clamp-2 leading-relaxed">
             {project.description}
           </p>
         )}
@@ -116,7 +112,7 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
             {project.tech_stack.map((tech, i) => (
               <span
                 key={i}
-                className="px-3 py-1 rounded-lg bg-[#1a1a2e] text-white text-[10px] font-bold uppercase tracking-wider border border-white/10 shadow-sm"
+                className="px-3 py-1 rounded-lg bg-primary/20 text-primary/70 text-[10px] font-medium border border-primary"
               >
                 {tech}
               </span>
@@ -130,7 +126,7 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
                 href={project.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-white/20 transition-colors"
+                className="p-1.5 rounded-lg border border-primary text-primary/60 hover:text-primary hover:border-white/20 transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
@@ -140,7 +136,7 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
                 href={project.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-white/20 transition-colors"
+                className="p-1.5 rounded-lg border border-primary text-primary/60 hover:text-primary hover:border-white/20 transition-colors"
               >
                 <Github className="w-3.5 h-3.5" />
               </a>
