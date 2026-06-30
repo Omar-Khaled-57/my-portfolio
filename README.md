@@ -1,174 +1,97 @@
-# Portfolio - Omar Khaled El-Khouly
+<h1>
+  <img src="public/icon.png" alt="Omar Khaled" width="36" height="36" style="vertical-align: middle; margin-right: 6px; border-radius: 8px;">
+  My Portfolio
+</h1>
 
-A premium, production-ready personal portfolio website built with **React 18**, **Tailwind CSS**, and **Supabase**. This project features a stunning glassmorphism design, multi-language support (English & Arabic), a secure admin dashboard, and real-time interaction.
+My premium personal portfolio with glassmorphism design, multi-language support (EN/AR), a secure admin dashboard, and real-time interaction.
 
-## 🚀 Live Demo
-[https://omar-el-khouly.vercel.app](https://omar-el-khouly.vercel.app)
+<p>
+  <img src="https://img.shields.io/badge/React_18-61DAFB?logo=react&logoColor=black" alt="React 18">
+  <img src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white" alt="Vite">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white" alt="Supabase">
+  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?logo=framer&logoColor=white" alt="Framer Motion">
+  <img src="https://img.shields.io/badge/i18n-EN_%2F_AR-3DC97A" alt="i18n">
+  <img src="https://img.shields.io/badge/PWA-5A0FC8?logo=pwa&logoColor=white" alt="PWA">
+</p>
 
----
-
-## ✨ Features
-
-- **Glassmorphism UI**: Modern, premium design with smooth animations using Framer Motion and AOS.
-- **Multi-Language Support**: Fully translated in English and Arabic.
-- **Admin Dashboard**: Secure management of projects, certificates, and comments.
-- **Real-time Comments**: Integrated comment system with the ability to pin/unpin or freeze comments.
-- **Supabase Integration**: Backend-as-a-service for database, authentication, and storage.
-- **SEO Optimized**: Meta tags, sitemap, and robots.txt configured for optimal search engine visibility.
-
----
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React 18, Vite, Tailwind CSS
-- **Animations**: Framer Motion, GSAP, AOS, Lottie
-- **Backend**: Supabase (Auth, DB, Storage, Realtime)
-- **UI Components**: Material UI, Headless UI, Shadcn/UI
-- **Alerts**: SweetAlert2
+🌐 **Live:** [omar-el-khouly.vercel.app](https://omar-el-khouly.vercel.app)
 
 ---
 
-## 📦 Getting Started
+## Features
 
-### 1. Prerequisites
+| Feature | Description |
+|---|---|
+| **Glassmorphism UI** | Modern design with smooth animations (Framer Motion, GSAP, AOS, Lottie) |
+| **Multi-Language** | Fully translated English & Arabic with RTL support |
+| **Admin Dashboard** | Secure management of projects, certificates, and comments |
+| **Real-time Comments** | Integrated comment system with pin/unpin and freeze controls |
+| **Supabase Backend** | Database, authentication, and storage via Supabase |
+| **PWA** | Installable progressive web app with offline support |
+| **SEO Optimized** | Meta tags, sitemap, and robots.txt configured |
+
+## Tech Stack
+
+| Layer | Library / Tool |
+|---|---|
+| **Framework** | [React 18](https://react.dev) + [Vite](https://vite.dev) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com) + [Material UI](https://mui.com) + [Shadcn/UI](https://ui.shadcn.com) |
+| **Animations** | [Framer Motion](https://www.framer.com/motion), [AOS](https://michalsnik.github.io/aos/), [Lottie](https://airbnb.io/lottie/) |
+| **Backend** | [Supabase](https://supabase.com) (Auth, DB, Storage, Realtime) |
+| **Alerts** | [SweetAlert2](https://sweetalert2.github.io) |
+| **Fonts** | Poppins (Latin), Cairo (Arabic) |
+
+## Structure
+
+```
+my-portfolio/
+├── public/
+│   ├── tools/              # Tech stack icons (SVG + PNG)
+│   ├── icon.png            # App icon
+│   ├── Meta.png            # Open Graph image
+│   ├── Coding.gif          # Animated hero asset
+│   ├── manifest.json       # PWA manifest
+│   └── sitemap.xml
+├── src/
+│   ├── components/         # Shared components (Navbar, Footer, Modal, etc.)
+│   ├── Pages/              # Page components (Home, About, Portfolio, Contact, CV)
+│   │   └── dashboard/      # Admin dashboard pages
+│   ├── context/            # Theme context
+│   ├── hooks/              # Custom hooks
+│   ├── assets/             # Static assets
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css           # Global styles & theme variables
+├── index.html
+├── vite.config.ts
+└── package.json
+```
+
+## Getting Started
+
+### Prerequisites
 - Node.js 18+
-- npm or yarn
+- A [Supabase](https://supabase.com) project (free tier)
 
-### 2. Installation
+### Install
+
 ```bash
-git clone https://github.com/Omar-Khaled-57/Portfolio.git
-cd Portfolio
+git clone https://github.com/Omar-Khaled-57/my-portfolio.git
+cd my-portfolio
 npm install
 ```
 
-### 3. Environment Variables
-Create a `.env` file in the root directory and add your Supabase credentials:
+### Environment
+
+Create `.env`:
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
----
+### Run
 
-## 🗄️ Supabase Setup Guide
-
-To set up the backend database, authentication, and security rules, go to your Supabase project's **SQL Editor** and run the following comprehensive setup script. 
-
-This script creates all necessary tables, configures secure Row Level Security (RLS) policies (ensuring only admins can modify sensitive data), and sets up storage buckets for images.
-
-### 1. Run the Database Setup Script
-```sql
--- 1. Create Tables
-CREATE TABLE public.projects (
-  id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-  title text,
-  title_ar text,
-  description text,
-  description_ar text,
-  img text,
-  link text,
-  github text,
-  features jsonb,
-  tech_stack jsonb,
-  is_published boolean DEFAULT true,
-  order_index int DEFAULT 0,
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE TABLE public.certificates (
-  id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-  img text,
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE TABLE public.portfolio_comments (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  content text NOT NULL,
-  user_name text NOT NULL,
-  profile_image text,
-  is_pinned boolean DEFAULT false,
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE TABLE public.profiles (
-  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  username text UNIQUE NOT NULL,
-  role text NOT NULL CHECK (role IN ('admin', 'user')),
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE TABLE public.app_settings (
-  key text PRIMARY KEY,
-  value text NOT NULL
-);
-INSERT INTO public.app_settings (key, value) VALUES ('comments_frozen', 'false');
-
--- 2. Enable Row Level Security (RLS)
-ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.certificates ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.portfolio_comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
-
--- 3. Public Read Policies
-CREATE POLICY "public read projects" ON public.projects FOR SELECT USING (true);
-CREATE POLICY "public read certificates" ON public.certificates FOR SELECT USING (true);
-CREATE POLICY "public read comments" ON public.portfolio_comments FOR SELECT USING (true);
-CREATE POLICY "Allow public read access" ON public.app_settings FOR SELECT USING (true);
-
--- 4. Admin Management Policies (Secured)
-CREATE POLICY "admin manage projects" ON public.projects FOR ALL
-USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
-
-CREATE POLICY "admin manage certificates" ON public.certificates FOR ALL
-USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
-
-CREATE POLICY "admin manage comments (update)" ON public.portfolio_comments FOR UPDATE
-USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
-
-CREATE POLICY "admin manage comments (delete)" ON public.portfolio_comments FOR DELETE
-USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
-
-CREATE POLICY "Allow admin update settings" ON public.app_settings FOR UPDATE 
-USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
-
-CREATE POLICY "Allow admin insert settings" ON public.app_settings FOR INSERT 
-WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
-
--- 5. User Specific Policies
-CREATE POLICY "public insert comment" ON public.portfolio_comments FOR INSERT WITH CHECK (is_pinned = false);
-CREATE POLICY "Users can view own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
-
--- 6. Storage Buckets & Policies
-INSERT INTO storage.buckets (id, name, public) VALUES ('project-images', 'project-images', true) ON CONFLICT DO NOTHING;
-CREATE POLICY "admin upload project images" ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'project-images' AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
-CREATE POLICY "public read project images" ON storage.objects FOR SELECT USING (bucket_id = 'project-images');
-
-INSERT INTO storage.buckets (id, name, public) VALUES ('certificate-images', 'certificate-images', true) ON CONFLICT DO NOTHING;
-CREATE POLICY "admin upload certificate images" ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'certificate-images' AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
-CREATE POLICY "public read certificate images" ON storage.objects FOR SELECT USING (bucket_id = 'certificate-images');
-
-INSERT INTO storage.buckets (id, name, public) VALUES ('profile-images', 'profile-images', true) ON CONFLICT DO NOTHING;
-CREATE POLICY "public upload profile images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'profile-images');
-CREATE POLICY "public read profile images" ON storage.objects FOR SELECT USING (bucket_id = 'profile-images');
-```
-
-### 2. Create Your Admin Account
-1. Go to **Authentication -> Users** and click **Add User**.
-2. After creating the user, copy their **User ID (UUID)**.
-3. Run the following SQL in the editor (replace `YOUR_USER_ID` with the copied UUID) to grant yourself admin access:
-```sql
-INSERT INTO public.profiles (id, username, role)
-VALUES ('YOUR_USER_ID', 'admin', 'admin');
-```
-
----
-
-## 🛠️ Development
-
-Run the development server:
 ```bash
 npm run dev
 ```
@@ -178,12 +101,19 @@ Build for production:
 npm run build
 ```
 
----
+## Supabase Setup
 
-## 📄 License
+Run the SQL in `README.md` (or copy from this file) to create tables, enable RLS, and configure storage buckets. Then create your admin user via **Authentication → Users**, copy their UUID, and insert into `profiles`:
+
+```sql
+INSERT INTO public.profiles (id, username, role)
+VALUES ('YOUR_USER_ID', 'admin', 'admin');
+```
+
+## License
+
 This project is for personal use. Feel free to use it as inspiration for your own portfolio!
 
-## 🤝 Contact
-**Omar Khaled El-Khouly**
-- GitHub: [@Omar-Khaled-57](https://github.com/Omar-Khaled-57)
-- WhatsApp: [+20 112 302 9406](https://wa.me/201123029406)
+## Contact
+
+**Omar Khaled El-Khouly** — [GitHub](https://github.com/Omar-Khaled-57) · [WhatsApp](https://wa.me/201123029406)
