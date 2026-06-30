@@ -1,5 +1,5 @@
 <h1>
-  <img src="public/icon.png" alt="Omar Khaled" width="36" height="36" style="vertical-align: middle; margin-right: 6px; border-radius: 8px;">
+  <img src="public/icon.png" alt="Omar Khaled" width="128" height="128" style="vertical-align: middle; margin-right: 12px; border-radius: 12px;">
   My Portfolio
 </h1>
 
@@ -36,8 +36,8 @@ My premium personal portfolio with glassmorphism design, multi-language support 
 | Layer | Library / Tool |
 |---|---|
 | **Framework** | [React 18](https://react.dev) + [Vite](https://vite.dev) |
-| **Styling** | [Tailwind CSS](https://tailwindcss.com) + [Material UI](https://mui.com) + [Shadcn/UI](https://ui.shadcn.com) |
-| **Animations** | [Framer Motion](https://www.framer.com/motion), [AOS](https://michalsnik.github.io/aos/), [Lottie](https://airbnb.io/lottie/) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com) + [Material UI](https://mui.com) + [Headless UI](https://headlessui.com) + [Shadcn/UI](https://ui.shadcn.com) |
+| **Animations** | [Framer Motion](https://www.framer.com/motion), [GSAP](https://gsap.com), [AOS](https://michalsnik.github.io/aos/), [Lottie](https://airbnb.io/lottie/) |
 | **Backend** | [Supabase](https://supabase.com) (Auth, DB, Storage, Realtime) |
 | **Alerts** | [SweetAlert2](https://sweetalert2.github.io) |
 | **Fonts** | Poppins (Latin), Cairo (Arabic) |
@@ -116,4 +116,4 @@ This project is for personal use. Feel free to use it as inspiration for your ow
 
 ## Contact
 
-**Omar Khaled El-Khouly** — [GitHub](https://github.com/Omar-Khaled-57) · [WhatsApp](https://wa.me/201123029406)
+Me — [GitHub](https://github.com/Omar-Khaled-57) · [WhatsApp](https://wa.me/201123029406) · [Portfolio](https://omar-el-khouly.vercel.app)
