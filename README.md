@@ -1,5 +1,5 @@
 <h1>
-  <img src="public/icon.png" alt="Omar Khaled" width="128" height="128" style="vertical-align: middle; margin-right: 12px; border-radius: 12px;">
+  <img src="public/icon.png" alt="Omar Khaled" width="80" height="80" style="vertical-align: middle; margin-right: 12px; border-radius: 12px;">
   My Portfolio
 </h1>
 
