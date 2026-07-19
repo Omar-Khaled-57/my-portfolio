@@ -5,9 +5,9 @@ import {
   Instagram,
   Youtube,
   ExternalLink,
-  MessageCircle,
   Globe,
 } from "lucide-react";
+import WhatsAppIcon from "./icons/WhatsAppIcon";
 import useAOS from "../hooks/useAOS";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
@@ -16,7 +16,7 @@ import { supabase } from "../supabase";
 const platformMeta = {
   LinkedIn: { icon: Linkedin, color: "#0A66C2", gradient: "from-[#0A66C2] to-[#0077B5]", isPrimary: true },
   GitHub: { icon: Github, color: "#333", gradient: "from-[#333] to-[#24292e]" },
-  WhatsApp: { icon: MessageCircle, color: "#25D366", gradient: "from-[#25D366] to-[#128C7E]" },
+  WhatsApp: { icon: WhatsAppIcon, color: "#25D366", gradient: "from-[#25D366] to-[#128C7E]" },
   Instagram: { icon: Instagram, color: "#E4405F", gradient: "from-[#E4405F] to-[#833AB4]" },
   YouTube: { icon: Youtube, color: "#FF0000", gradient: "from-[#FF0000] to-[#cc0000]" },
 };

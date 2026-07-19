@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
-import { MessageCircle, UserCircle2, Loader2, AlertCircle, Send, ImagePlus, X, Pin } from 'lucide-react';
+import { MessageSquareMore, MessagesSquare, UserCircle2, Loader2, AlertCircle, Send, ImagePlus, X, Pin } from 'lucide-react';
 import useAOS from "../hooks/useAOS";
 import { supabase } from '../supabase';
 import { useI18n } from "../i18n";
@@ -408,7 +408,7 @@ const Komentar = () => {
             <div className="p-6 border-b border-primary" data-aos="fade-down" data-aos-duration="800">
                 <div className="flex items-center gap-3">
                     <div className="p-2 rounded-xl bg-indigo-500/20">
-                        <MessageCircle className="w-6 h-6 text-indigo-400" />
+                        <MessageSquareMore className="w-6 h-6 text-indigo-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-primary">
                         {t("comments.title")} <span className="text-indigo-400">({totalComments})</span>
@@ -444,7 +444,7 @@ const Komentar = () => {
                     {/* Regular Comments */}
                     {comments.length === 0 && !pinnedComment ? (
                         <div className="text-center py-8" data-aos="fade-in">
-                            <UserCircle2 className="w-12 h-12 text-indigo-400 mx-auto mb-3 opacity-50" />
+                            <MessagesSquare className="w-12 h-12 text-indigo-400 mx-auto mb-3 opacity-50" />
                             <p className="text-gray-400">{t("comments.noComments")}</p>
                         </div>
                     ) : (

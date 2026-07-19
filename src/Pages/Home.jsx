@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from "react"
 import { Helmet } from "react-helmet-async"
-import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, MessageCircle } from "lucide-react"
+import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles } from "lucide-react"
+import WhatsAppIcon from "../components/icons/WhatsAppIcon"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import { supabase } from "../supabase"
@@ -40,12 +41,6 @@ const MainTitle = memo(({ first, second }) => (
   </div>
 ));
 
-const TechStack = memo(({ tech }) => (
-  <div className="px-4 py-2 hidden sm:block rounded-full bg-secondary backdrop-blur-sm border border-primary text-sm text-primary hover:bg-secondary/80 transition-colors shadow-sm">
-    {tech}
-  </div>
-));
-
 const CTAButton = memo(({ href, text, icon: Icon, contact }) => (
   <a href={href}>
     <button className="group relative w-[160px]">
@@ -81,20 +76,14 @@ const PAUSE_DURATION = 2000;
 
 const platformIconMap = {
   GitHub: Github,
-  Linkedin: Linkedin,
-  WhatsApp: MessageCircle,
+  LinkedIn: Linkedin,
+  WhatsApp: WhatsAppIcon,
   Instagram: Instagram,
 };
 
 const Home = () => {
   const { t } = useI18n();
   const words = t("home.words");
-  const techStack = useMemo(() => [
-    t("home.techStack.webDev"),
-    t("home.techStack.ai"),
-    t("home.techStack.mobileDev"),
-    t("home.techStack.uiUx"),
-  ], [t]);
   const [text, setText] = useState("")
   const [isTyping, setIsTyping] = useState(true)
   const [wordIndex, setWordIndex] = useState(0)
@@ -103,7 +92,7 @@ const Home = () => {
   const [socialLinks, setSocialLinks] = useState([
     { icon: Github, link: "https://github.com/Omar-Khaled-57", label: "GitHub Profile" },
     { icon: Linkedin, link: "https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/", label: "LinkedIn Profile" },
-    { icon: MessageCircle, link: "https://wa.me/201123029406", label: "WhatsApp" },
+    { icon: WhatsAppIcon, link: "https://wa.me/201123029406", label: "WhatsApp" },
   ]);
 
   useEffect(() => {
@@ -236,13 +225,6 @@ const Home = () => {
                     data-aos-delay="1000">
                     {t("home.description")}
                   </p>
-
-                  {/* Tech Stack */}
-                  <div className="flex flex-wrap gap-3 justify-start" data-aos="fade-up" data-aos-delay="1200">
-                    {techStack.map((tech, index) => (
-                      <TechStack key={index} tech={tech} />
-                    ))}
-                  </div>
 
                   {/* CTA Buttons */}
                   <div className="flex flex-row gap-3 w-full justify-start" data-aos="fade-up" data-aos-delay="1400">

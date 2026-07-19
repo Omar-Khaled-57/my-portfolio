@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { Modal, IconButton, Box, Backdrop, Typography } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
@@ -7,8 +7,12 @@ import { useI18n } from "../i18n"
 const Certificate = ({ ImgSertif }) => {
 	const { t } = useI18n()
 	const [open, setOpen] = useState(false)
+	const [loaded, setLoaded] = useState(false)
+	const [modalLoaded, setModalLoaded] = useState(false)
+	const imgRef = useRef(null)
 
 	const handleOpen = () => {
+		setModalLoaded(false)
 		setOpen(true)
 	}
 
@@ -16,11 +20,24 @@ const Certificate = ({ ImgSertif }) => {
 		setOpen(false)
 	}
 
+	useEffect(() => {
+		const img = imgRef.current
+		if (!img) return
+
+		if (img.complete && img.naturalWidth > 0) {
+			setLoaded(true)
+			return
+		}
+
+		const onLoad = () => setLoaded(true)
+		img.addEventListener("load", onLoad)
+		return () => img.removeEventListener("load", onLoad)
+	}, [])
+
 	return (
 		<Box component="div" sx={{ width: "100%" }}>
 			{/* Thumbnail Container */}
 			<Box
-				className=""
 				sx={{
 					position: "relative",
 					overflow: "hidden",
@@ -42,6 +59,37 @@ const Certificate = ({ ImgSertif }) => {
 						},
 					},
 				}}>
+				{/* Loading State - Spinner + Blur */}
+				<Box
+					sx={{
+						position: "absolute",
+						inset: 0,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						zIndex: 1,
+						opacity: loaded ? 0 : 1,
+						transition: "opacity 0.4s ease",
+						pointerEvents: loaded ? "none" : "auto",
+						backdropFilter: "blur(12px)",
+						backgroundColor: "rgba(0, 0, 0, 0.15)",
+					}}>
+					<Box
+						sx={{
+							width: 40,
+							height: 40,
+							border: "3px solid rgba(139, 92, 246, 0.2)",
+							borderTop: "3px solid #8b5cf6",
+							borderRadius: "50%",
+							animation: "spin 0.8s linear infinite",
+							"@keyframes spin": {
+								from: { transform: "rotate(0deg)" },
+								to: { transform: "rotate(360deg)" },
+							},
+						}}
+					/>
+				</Box>
+
 				{/* Certificate Image with Initial Filter */}
 				<Box
 					sx={{
@@ -54,10 +102,12 @@ const Certificate = ({ ImgSertif }) => {
 							insetInlineEnd: 0,
 							bottom: 0,
 							backgroundColor: "rgba(0, 0, 0, 0.1)",
-							zIndex: 1,
+							zIndex: 2,
+							pointerEvents: "none",
 						},
 					}}>
 					<img
+						ref={imgRef}
 						className="certificate-image"
 						src={ImgSertif}
 						alt={t("certificate.alt")}
@@ -68,8 +118,10 @@ const Certificate = ({ ImgSertif }) => {
 							height: "auto",
 							display: "block",
 							objectFit: "cover",
-							filter: "contrast(1.10) brightness(0.9) saturate(1.1)",
-							transition: "filter 0.3s ease",
+							filter: loaded
+								? "contrast(1.10) brightness(0.9) saturate(1.1)"
+								: "contrast(1.10) brightness(0.9) saturate(1.1) blur(10px)",
+							transition: "filter 0.5s ease",
 							aspectRatio: "16/11.5",
 						}}
 						onClick={handleOpen}
@@ -89,7 +141,7 @@ const Certificate = ({ ImgSertif }) => {
 						opacity: 0,
 						transition: "all 0.3s ease",
 						cursor: "pointer",
-						zIndex: 2,
+						zIndex: 3,
 					}}
 					onClick={handleOpen}>
 					{/* Hover Content */}
@@ -181,17 +233,50 @@ const Certificate = ({ ImgSertif }) => {
 						<CloseIcon sx={{ fontSize: 24 }} />
 					</IconButton>
 
+					{/* Modal Loading Spinner */}
+					{!modalLoaded && (
+						<Box
+							sx={{
+								position: "absolute",
+								inset: 0,
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								backdropFilter: "blur(8px)",
+								backgroundColor: "rgba(0, 0, 0, 0.3)",
+								borderRadius: 2,
+							}}>
+							<Box
+								sx={{
+									width: 48,
+									height: 48,
+									border: "3px solid rgba(255, 255, 255, 0.2)",
+									borderTop: "3px solid white",
+									borderRadius: "50%",
+									animation: "spin 0.8s linear infinite",
+									"@keyframes spin": {
+										from: { transform: "rotate(0deg)" },
+										to: { transform: "rotate(360deg)" },
+									},
+								}}
+							/>
+						</Box>
+					)}
+
 					{/* Modal Image */}
 					<img
 						src={ImgSertif}
 						alt={t("certificate.fullAlt")}
 						decoding="async"
+						onLoad={() => setModalLoaded(true)}
 						style={{
 							display: "block",
 							maxWidth: "100%",
 							maxHeight: "90vh",
 							margin: "0 auto",
 							objectFit: "contain",
+							opacity: modalLoaded ? 1 : 0,
+							transition: "opacity 0.3s ease",
 						}}
 					/>
 				</Box>
