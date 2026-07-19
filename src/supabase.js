@@ -12,17 +12,3 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
-
-let realtimeCheckPromise = null;
-
-export function isRealtimeAvailable() {
-  if (!realtimeCheckPromise) {
-    realtimeCheckPromise = fetch(`${supabaseUrl}/rest/v1/?select=1`, {
-      method: 'HEAD',
-      signal: AbortSignal.timeout(5000),
-    })
-      .then((r) => r.status > 0)
-      .catch(() => false);
-  }
-  return realtimeCheckPromise;
-}

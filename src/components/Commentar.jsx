@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { MessageSquareMore, MessagesSquare, UserCircle2, Loader2, AlertCircle, Send, ImagePlus, X, Pin } from 'lucide-react';
 import useAOS from "../hooks/useAOS";
-import { supabase, isRealtimeAvailable } from '../supabase';
+import { supabase } from '../supabase';
 import { useI18n } from "../i18n";
 
 
@@ -307,34 +307,10 @@ const Komentar = () => {
 
         fetchComments();
 
-        let subscription;
-        let pollInterval;
-
-        isRealtimeAvailable().then((available) => {
-            if (!available) return;
-            try {
-                subscription = supabase
-                    .channel('portfolio_comments')
-                    .on('postgres_changes', 
-                        { 
-                            event: '*', 
-                            schema: 'public', 
-                            table: 'portfolio_comments',
-                            filter: 'is_pinned=eq.false'
-                        }, 
-                        () => {
-                            fetchComments();
-                        }
-                    )
-                    .subscribe();
-            } catch {
-                pollInterval = setInterval(fetchComments, 30000);
-            }
-        });
+        const pollInterval = setInterval(fetchComments, 30000);
 
         return () => {
-            if (subscription) subscription.unsubscribe();
-            if (pollInterval) clearInterval(pollInterval);
+            clearInterval(pollInterval);
         };
     }, []);
 
