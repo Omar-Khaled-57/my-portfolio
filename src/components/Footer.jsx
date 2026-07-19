@@ -1,35 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "../i18n";
-import { supabase } from "../supabase";
+import { useSharedData } from "../context/DataContext";
 
 const Footer = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { socialLinks } = useSharedData();
   const currentYear = new Date().getFullYear();
-  const [githubUrl, setGithubUrl] = useState("https://github.com/Omar-Khaled-57");
+  const githubUrl = socialLinks?.find((s) => s.platform === "GitHub")?.url || "https://github.com/Omar-Khaled-57";
   const [portrait, setPortrait] = useState(false);
   const starClicks = useRef(0);
   const starTimer = useRef(null);
-
-  useEffect(() => {
-    const fetchGithub = async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "personalInfo_socialLinks")
-        .single();
-
-      if (data?.value) {
-        try {
-          const links = JSON.parse(data.value);
-          const gh = links.find((s) => s.platform === "GitHub");
-          if (gh) setGithubUrl(gh.url);
-        } catch {}
-      }
-    };
-    fetchGithub();
-  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(orientation: portrait)");

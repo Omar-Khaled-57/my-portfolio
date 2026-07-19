@@ -308,23 +308,35 @@ const Komentar = () => {
         fetchComments();
 
         // Set up real-time subscription
-        const subscription = supabase
-            .channel('portfolio_comments')
-            .on('postgres_changes', 
-                { 
-                    event: '*', 
-                    schema: 'public', 
-                    table: 'portfolio_comments',
-                    filter: 'is_pinned=eq.false'
-                }, 
-                () => {
-                    fetchComments(); // Refresh comments when changes occur
-                }
-            )
-            .subscribe();
+        let subscription;
+        try {
+            subscription = supabase
+                .channel('portfolio_comments')
+                .on('postgres_changes', 
+                    { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'portfolio_comments',
+                        filter: 'is_pinned=eq.false'
+                    }, 
+                    () => {
+                        fetchComments(); // Refresh comments when changes occur
+                    }
+                )
+                .subscribe((status) => {
+                    if (status === 'CHANNEL_ERROR') {
+                        // Realtime unavailable, fall back to polling
+                        pollInterval = setInterval(fetchComments, 30000);
+                    }
+                });
+        } catch {
+            // Realtime unavailable, fall back to polling
+        }
 
+        let pollInterval;
         return () => {
-            subscription.unsubscribe();
+            if (subscription) subscription.unsubscribe();
+            if (pollInterval) clearInterval(pollInterval);
         };
     }, []);
 

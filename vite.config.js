@@ -1,6 +1,36 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import fs from 'fs'
+import path from 'path'
+
+function renderBlockOptimizer() {
+  return {
+    name: 'render-block-optimizer',
+    transformIndexHtml(html) {
+      html = html.replace(
+        /<link rel="stylesheet"[^>]*href="(\/assets\/[^"]+\.css)"[^>]*>/g,
+        '<link rel="preload" href="$1" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"><noscript><link rel="stylesheet" href="$1"></noscript>'
+      )
+      return html
+    },
+    writeBundle({ dir }) {
+      const htmlPath = path.join(dir, 'index.html')
+      if (fs.existsSync(htmlPath)) {
+        let html = fs.readFileSync(htmlPath, 'utf-8')
+        html = html.replace(
+          /<script id="vite-plugin-pwa:register-sw"[^>]*><\/script>/,
+          ''
+        )
+        html = html.replace(
+          '</body>',
+          '<script type="module" src="/registerSW.js"></script>\n</body>'
+        )
+        fs.writeFileSync(htmlPath, html)
+      }
+    }
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -63,8 +93,10 @@ export default defineConfig({
         ],
       },
     }),
+    renderBlockOptimizer(),
   ],
   build: {
+    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Linkedin,
   Github,
@@ -11,7 +11,7 @@ import WhatsAppIcon from "./icons/WhatsAppIcon";
 import useAOS from "../hooks/useAOS";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
-import { supabase } from "../supabase";
+import { useSharedData } from "../context/DataContext";
 
 const platformMeta = {
   LinkedIn: { icon: Linkedin, color: "#0A66C2", gradient: "from-[#0A66C2] to-[#0077B5]", isPrimary: true },
@@ -36,27 +36,16 @@ const platformShortLabel = {
 const SocialLinks = () => {
   const { t } = useI18n();
   const { theme: currentTheme } = useTheme();
+  const { socialLinks: sharedSocialLinks } = useSharedData();
   const [socialLinks, setSocialLinks] = useState(defaults);
 
   const ghColor = currentTheme === "dark" ? "#f0f0f0" : "#333";
 
-  useEffect(() => {
-    const fetchLinks = async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "personalInfo_socialLinks")
-        .single();
-
-      if (data?.value) {
-        try {
-          const parsed = JSON.parse(data.value);
-          if (parsed.length > 0) setSocialLinks(parsed);
-        } catch {}
-      }
-    };
-    fetchLinks();
-  }, []);
+  if (sharedSocialLinks && sharedSocialLinks.length > 0) {
+    if (socialLinks === defaults || socialLinks.length !== sharedSocialLinks.length) {
+      setSocialLinks(sharedSocialLinks);
+    }
+  }
 
   const linksWithMeta = socialLinks.map((link) => {
     const meta = platformMeta[link.platform] || { icon: Globe, color: "#888", gradient: "from-[#666] to-[#444]" };

@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
-import { supabase } from "../supabase"; 
-
 import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
@@ -15,6 +13,7 @@ import { Code, Award, Boxes } from "lucide-react";
 import useAOS, { refreshAOS } from "../hooks/useAOS";
 import { useI18n } from "../i18n";
 import { useTheme as useCustomTheme } from "../context/ThemeContext";
+import { useSharedData } from "../context/DataContext";
 
 
 const ToggleButton = ({ onClick, isShowingMore }) => {
@@ -156,6 +155,7 @@ export default function FullWidthTabs() {
     { icon: "/tools/tensorflow.svg", language: "TensorFlow" },
     { icon: "/tools/electron.svg", language: "Electron" },
   ], [currentTheme]);
+  const { projects: sharedProjects, certificates: sharedCertificates } = useSharedData();
   const [projects, setProjects] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -168,6 +168,11 @@ export default function FullWidthTabs() {
   useAOS();
 
   useEffect(() => {
+    if (sharedProjects.length > 0) setProjects(sharedProjects);
+    if (sharedCertificates.length > 0) setCertificates(sharedCertificates);
+  }, [sharedProjects, sharedCertificates]);
+
+  useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
@@ -176,54 +181,6 @@ export default function FullWidthTabs() {
   useEffect(() => {
     refreshAOS();
   }, [value]);
-
-
-  const fetchData = useCallback(async () => {
-    try {
-      // Fetch data from Supabase in parallel
-      const [projectsResponse, certificatesResponse] = await Promise.all([
-        supabase.from("projects").select("*").eq('is_published', true).order('id', { ascending: false }),
-        supabase.from("certificates").select("*").order('id', { ascending: false }), 
-      ]);
-
-      // Error handling for each request
-      if (projectsResponse.error) throw projectsResponse.error;
-      if (certificatesResponse.error) throw certificatesResponse.error;
-
-      // Supabase returns data in the 'data' property
-      const projectData = projectsResponse.data || [];
-      const certificateData = certificatesResponse.data || [];
-
-      setProjects(projectData);
-      setCertificates(certificateData);
-
-      // Store in localStorage (this functionality is maintained)
-      localStorage.setItem("projects", JSON.stringify(projectData));
-      localStorage.setItem("certificates", JSON.stringify(certificateData));
-      
-      // Notify other components that data is loaded
-      window.dispatchEvent(new Event('portfolioDataLoaded'));
-      refreshAOS();
-    } catch (error) {
-      console.error("Error fetching data from Supabase:", error.message);
-    }
-  }, []);
-
-
-
-  useEffect(() => {
-    // Try to take from localStorage first for faster load
-    const cachedProjects = localStorage.getItem('projects');
-    const cachedCertificates = localStorage.getItem('certificates');
-
-    if (cachedProjects && cachedCertificates) {
-        const parsed = JSON.parse(cachedProjects);
-        setProjects(parsed.filter((p) => p.is_published !== false));
-        setCertificates(JSON.parse(cachedCertificates));
-    }
-    
-    fetchData(); // Still call fetchData to synchronize the latest data
-  }, [fetchData]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);

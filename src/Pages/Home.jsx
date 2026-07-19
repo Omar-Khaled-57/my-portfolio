@@ -4,7 +4,7 @@ import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles } from "lucid
 import WhatsAppIcon from "../components/icons/WhatsAppIcon"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
-import { supabase } from "../supabase"
+import { useSharedData } from "../context/DataContext"
 import LottieAnimation from "../components/LottieAnimation"
 
 const StatusBadge = memo(({ text }) => (
@@ -83,6 +83,7 @@ const platformIconMap = {
 
 const Home = () => {
   const { t } = useI18n();
+  const { socialLinks: rawSocialLinks } = useSharedData();
   const words = t("home.words");
   const [text, setText] = useState("")
   const [isTyping, setIsTyping] = useState(true)
@@ -96,32 +97,16 @@ const Home = () => {
   ]);
 
   useEffect(() => {
-    const fetchLinks = async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "personalInfo_socialLinks")
-        .single();
-
-      let links = [];
-      if (data?.value) {
-        try { links = JSON.parse(data.value); } catch {}
-      }
-      if (links.length === 0) {
-        try { links = JSON.parse(localStorage.getItem("personalInfo_socialLinks") || "[]"); } catch {}
-      }
-      if (links.length > 0) {
-        setSocialLinks(
-          links.map(({ platform, url }) => ({
-            icon: platformIconMap[platform] || ExternalLink,
-            link: url,
-            label: platform,
-          }))
-        );
-      }
-    };
-    fetchLinks();
-  }, []);
+    if (rawSocialLinks && rawSocialLinks.length > 0) {
+      setSocialLinks(
+        rawSocialLinks.map(({ platform, url }) => ({
+          icon: platformIconMap[platform] || ExternalLink,
+          link: url,
+          label: platform,
+        }))
+      );
+    }
+  }, [rawSocialLinks]);
 
   useAOS({ once: true, offset: 10 });
 

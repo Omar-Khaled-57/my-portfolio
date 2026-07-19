@@ -3,6 +3,7 @@ import { FileText, Code, Award, ArrowUpRight, Sparkles, FolderGit2, Briefcase } 
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import { supabase } from "../supabase"
+import { useSharedData } from "../context/DataContext"
 import CVModal from "../components/CVModal"
 // Memoized Components
 const Header = memo(({ t }) => (
@@ -53,6 +54,8 @@ const ProfileImage = memo(({ imageUrl }) => {
             <img
               src={imageUrl || "/Photo.png"}
               alt={t("about.profileAlt")}
+              width="320"
+              height="320"
               className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-2"
               loading="lazy"
             />
@@ -115,6 +118,7 @@ const StatCard = memo(({ icon: Icon, color, value, label, description, animation
 
 const AboutPage = () => {
   const { t, language } = useI18n();
+  const { projects: sharedProjects, certificates: sharedCertificates } = useSharedData();
   const [isCVModalOpen, setIsCVModalOpen] = React.useState(false);
   const [showYearsExp, setShowYearsExp] = useState(false);
   const [yearsExpValue, setYearsExpValue] = useState(0);
@@ -155,10 +159,18 @@ const AboutPage = () => {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [projectsRes, certsRes, settingsRes] = await Promise.all([
-        supabase.from("projects").select("*").order("id", { ascending: false }),
-        supabase.from("certificates").select("*").order("id", { ascending: false }),
-        supabase.from("app_settings").select("key, value").in("key", [
+      const projects = sharedProjects || [];
+      const certs = sharedCertificates || [];
+
+      setStats({
+        totalCertificates: certs.length,
+        accessibleProjects: countAccessible(projects),
+      });
+
+      const settingsRes = await supabase
+        .from("app_settings")
+        .select("key, value")
+        .in("key", [
           "personalInfo_totalProjects",
           "personalInfo_yearsExperience",
           "personalInfo_showYearsExperience",
@@ -167,21 +179,7 @@ const AboutPage = () => {
           "personalInfo_fullNameAr",
           "personalInfo_quote",
           "personalInfo_quoteAr",
-        ]),
-      ]);
-
-      const projects = projectsRes.error ? [] : (projectsRes.data || []);
-
-      if (projects.length > 0) {
-        localStorage.setItem("projects", JSON.stringify(projects));
-      }
-
-      const certs = certsRes.error ? [] : (certsRes.data || []);
-
-      setStats({
-        totalCertificates: certs.length,
-        accessibleProjects: countAccessible(projects),
-      });
+        ]);
 
       if (settingsRes.data) {
         const map = {};
