@@ -42,8 +42,8 @@ const MainTitle = memo(({ first, second }) => (
 ));
 
 const CTAButton = memo(({ href, text, icon: Icon, contact }) => (
-  <a href={href}>
-    <button className="group relative w-[160px]">
+  <a href={href} className="inline-flex">
+    <button className="group relative w-[160px] min-h-[48px]" type="button">
       <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-xl blur-md opacity-20 group-hover:opacity-40 transition-all duration-300"></div>
       <div className="relative h-12 bg-primary backdrop-blur-xl rounded-lg border border-primary leading-none overflow-hidden strong-shadow">
         <div className="absolute inset-0 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 bg-gradient-to-r from-[#4f52c9]/20 to-[#8644c5]/20"></div>

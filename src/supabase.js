@@ -21,7 +21,7 @@ export function isRealtimeAvailable() {
       method: 'HEAD',
       signal: AbortSignal.timeout(5000),
     })
-      .then((r) => r.ok)
+      .then((r) => r.status > 0)
       .catch(() => false);
   }
   return realtimeCheckPromise;
