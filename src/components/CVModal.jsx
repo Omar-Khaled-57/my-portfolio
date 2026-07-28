@@ -507,7 +507,7 @@ const CVModal = ({ isOpen, onClose }) => {
                                     </a>
 
                                     {/* File: OmarKhaledElKhouly.pdf (was CV-ATS.pdf) */}
-                                    <a href="/OmarKhaledElKhouly.pdf" download
+                                    <a href="/documents/OmarKhaledElKhouly.pdf" download
                                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 shadow-lg border"
                                         style={{
                                             background: 'rgba(99,102,241,0.15)',

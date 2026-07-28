@@ -52,7 +52,7 @@ const ProfileImage = memo(({ imageUrl }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-purple-500/20 via-transparent to-blue-500/20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 hidden sm:block" />
             
             <img
-              src={imageUrl || "/Photo.png"}
+              src={imageUrl || "/images/photo.png"}
               alt={t("about.profileAlt")}
               width="320"
               height="320"

@@ -353,7 +353,7 @@ export default function Comments() {
                   {/* Avatar */}
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 border border-primary flex items-center justify-center shrink-0">
                     <img
-                      src={comment.profile_image || "/default-avatar.jpg"}
+                      src={comment.profile_image || "/images/default-avatar.jpg"}
                       alt={t("comments.avatarAlt")}
                       className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover"
                     />

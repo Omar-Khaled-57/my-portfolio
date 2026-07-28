@@ -31,7 +31,7 @@ const CVPage = () => {
                 <div className="flex items-center gap-2">
                     {/* File name: OmarKhaledElKhouly.pdf (was CV-ATS.pdf) */}
                     <a
-                        href="/OmarKhaledElKhouly.pdf"
+                        href="/documents/OmarKhaledElKhouly.pdf"
                         download
                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 shadow-lg border"
                         style={{

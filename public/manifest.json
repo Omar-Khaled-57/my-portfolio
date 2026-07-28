@@ -4,13 +4,13 @@
   "description": "Official website and portfolio of Omar Khaled El-Khouly, Software Developer.",
   "icons": [
     {
-      "src": "/icon.png",
+      "src": "/icons/icon.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     },
     {
-      "src": "/ico.png",
+      "src": "/icons/ico.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"

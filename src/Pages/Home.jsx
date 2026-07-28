@@ -164,13 +164,13 @@ const Home = () => {
      <meta property="og:description" content={t("home.metaDescription")} />
         <meta property="og:url" content="https://omar-el-khouly.vercel.app/" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://omar-el-khouly.vercel.app/Meta.png" />
-        <meta property="og:image:secure_url" content="https://omar-el-khouly.vercel.app/Meta.png" />
+        <meta property="og:image" content="https://omar-el-khouly.vercel.app/images/og-image.png" />
+        <meta property="og:image:secure_url" content="https://omar-el-khouly.vercel.app/images/og-image.png" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1024" />
         <meta property="og:image:height" content="1024" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content="https://omar-el-khouly.vercel.app/Meta.png" />
+        <meta name="twitter:image" content="https://omar-el-khouly.vercel.app/images/og-image.png" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Person",
@@ -242,7 +242,7 @@ const Home = () => {
 
                   <div className="relative lg:start-12 z-10 w-full h-full">
                     <LottieAnimation
-                      animationPath="/Lottie.json"
+                      animationPath="/animations/lottie.json"
                       className={`w-full h-full transition-all duration-700 ease-in-out drop-shadow-[0_15px_50px_rgba(0,0,0,0.2)] drop-shadow-[0_5px_15px_rgba(99,102,241,0.6)] ${
                         isHovering 
                           ? "scale-[95%] sm:scale-[90%] rotate-2" 

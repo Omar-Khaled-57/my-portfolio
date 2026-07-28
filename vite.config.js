@@ -37,20 +37,20 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.png', 'ico.png'],
+      includeAssets: ['icons/icon.png', 'icons/ico.png'],
       manifest: {
         short_name: 'Omar Portfolio',
         name: 'Omar Khaled El-Khouly | Software Developer Portfolio',
         description: 'Official website and portfolio of Omar Khaled El-Khouly, Software Developer.',
         icons: [
           {
-            src: '/icon.png',
+            src: '/icons/icon.png',
             type: 'image/png',
             sizes: '512x512',
             purpose: 'any maskable',
           },
           {
-            src: '/ico.png',
+            src: '/icons/ico.png',
             type: 'image/png',
             sizes: '192x192',
             purpose: 'any maskable',
