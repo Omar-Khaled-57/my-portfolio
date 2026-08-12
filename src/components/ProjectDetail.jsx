@@ -22,6 +22,7 @@ import Swal from "sweetalert2";
 import { toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
+import { useSharedData } from "../context/DataContext";
 
 const TECH_ICONS = {
   React: Globe,
@@ -161,21 +162,40 @@ const ProjectDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { projects: contextProjects } = useSharedData();
   const [project, setProject] = useState(null);
+  const [dataLoaded, setDataLoaded] = useState(() => {
+    try {
+      return (JSON.parse(localStorage.getItem("projects")) || []).length > 0;
+    } catch {
+      return false;
+    }
+  });
   const projectId = location.state?.projectId;
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const onLoaded = () => setDataLoaded(true);
+    window.addEventListener("portfolioDataLoaded", onLoaded);
+    return () => window.removeEventListener("portfolioDataLoaded", onLoaded);
+  }, []);
+
+  useEffect(() => {
     const storedProjects = (JSON.parse(localStorage.getItem("projects")) || []).filter(
       (p) => p.is_published !== false
     );
 
+    let source = storedProjects.length > 0 ? storedProjects : contextProjects;
+
     let selectedProject = null;
     if (projectId) {
-      selectedProject = storedProjects.find((p) => p.id === projectId);
+      selectedProject = source.find((p) => p.id === projectId);
     }
     if (!selectedProject) {
-      selectedProject = storedProjects.find(
+      selectedProject = source.find(
         (p) => toSlug(p.title) === slug,
       );
     }
@@ -189,22 +209,44 @@ const ProjectDetails = () => {
       };
       setProject(enhancedProject);
     }
-  }, [slug, projectId]);
+  }, [slug, projectId, contextProjects]);
 
   if (!project) {
+    if (!dataLoaded) {
+      return (
+        <div className="min-h-screen bg-primary flex items-center justify-center">
+          <div className="text-center space-y-6 animate-fadeIn">
+            <div className="w-16 h-16 md:w-24 md:h-24 mx-auto border-4 border-accent-primary/30 border-t-accent-primary rounded-full animate-spin" />
+            <h2 className="text-xl md:text-3xl font-bold text-primary">
+              {t("project.loading")}
+            </h2>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className="min-h-screen bg-primary flex items-center justify-center px-4">
         <div className="text-center space-y-6 animate-fadeIn">
-          <div className="w-16 h-16 md:w-24 md:h-24 mx-auto border-4 border-accent-primary/30 border-t-accent-primary rounded-full animate-spin" />
-          <h2 className="text-xl md:text-3xl font-bold text-primary">
-            {t("project.loading")}
+          <h1 className="text-6xl font-bold text-accent-primary">404</h1>
+          <h2 className="text-xl md:text-2xl font-bold text-primary">
+            {t("notFound.title")}
           </h2>
+          <p className="text-primary/70 max-w-md mx-auto">
+            {t("notFound.description")}
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-3 rounded-xl bg-accent-primary text-white font-semibold transition hover:opacity-90"
+          >
+            {t("notFound.home")}
+          </button>
         </div>
       </div>
     );
   }
 
-  const projectUrl = `https://github.com/Omar-Khaled-57/project/${toSlug(project.title)}`;
+  const projectUrl = `https://omar-el-khouly.vercel.app/project/${toSlug(project.title)}`;
 
   return (
     <>
