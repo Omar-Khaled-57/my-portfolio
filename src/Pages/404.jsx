@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, ArrowLeft } from 'lucide-react';
+import { Home, ArrowLeft, FileQuestion } from 'lucide-react';
 import { useI18n } from "../i18n";
 
 export default function NotFoundPage() {
@@ -37,7 +37,7 @@ export default function NotFoundPage() {
         {/* Illustration */}
         <div className="mb-8">
           <div className="w-32 h-32 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-6">
-            <div className="text-6xl">🔍</div>
+            <FileQuestion size={40} strokeWidth={1.5} />
           </div>
         </div>
 
