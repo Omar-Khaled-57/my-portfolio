@@ -5,6 +5,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="/icons/icon.png" />
+  <!-- Apply saved/system theme and language before the app renders (prevents flash) -->
+  <script>
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem("portfolio-theme"); } catch (e) {}
+      if (theme !== "dark" && theme !== "light") {
+        theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      document.documentElement.setAttribute("data-theme", theme);
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#f8fafc" : "#030014");
+
+      var lang = null;
+      try { lang = localStorage.getItem("portfolio-language"); } catch (e) {}
+      if (lang !== "ar" && lang !== "en") {
+        lang = (navigator.language || "").toLowerCase().startsWith("ar") ? "ar" : "en";
+      }
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    })();
+  </script>
   <!-- preload Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +51,11 @@
   <meta name="author" content="Omar Khaled El-Khouly" />
   <meta name="robots" content="index, follow" />
 
+  <!-- Internationalization -->
+  <link rel="alternate" hreflang="en" href="https://omar-el-khouly.vercel.app/" />
+  <link rel="alternate" hreflang="ar" href="https://omar-el-khouly.vercel.app/" />
+  <link rel="alternate" hreflang="x-default" href="https://omar-el-khouly.vercel.app/" />
+
   <!-- Theme / PWA -->
   <meta name="theme-color" content="#030014" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -41,6 +66,9 @@
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Omar Khaled El-Khouly" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="ar_EG" />
   <meta property="og:url" content="https://omar-el-khouly.vercel.app" />
   <meta property="og:title" content="Omar Khaled El-Khouly - Software Developer" />
   <meta property="og:description" content="Official website and portfolio of Omar Khaled El-Khouly, Software Developer." />
@@ -54,7 +82,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://omar-el-khouly.vercel.app" />
   <meta name="twitter:title" content="Omar Khaled El-Khouly - Software Developer" />
-  <meta name="twitter:description" content="Official website and portfolio of Omar Khaled El-Khouly." />
+  <meta name="twitter:description" content="Official website and portfolio of Omar Khaled El-Khouly, Software Developer." />
   <meta name="twitter:image" content="https://omar-el-khouly.vercel.app/images/og-image.png" />
 
   <!-- Canonical -->
@@ -70,7 +98,7 @@
     "@type": "Person",
     "name": "Omar Khaled El-Khouly",
     "url": "https://omar-el-khouly.vercel.app",
-    "image": "/icons/icon.png",
+    "image": "https://omar-el-khouly.vercel.app/images/og-image.png",
     "jobTitle": "Software Developer",
     "description": "Focussed on creating engaging digital experiences and delivering the best solution for every project.",
     "sameAs": [

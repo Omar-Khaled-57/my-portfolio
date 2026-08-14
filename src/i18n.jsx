@@ -141,6 +141,8 @@ const resources = {
     "notFound.description": "The page you are looking for may have been moved, deleted, or never existed.",
     "notFound.back": "Back",
     "notFound.home": "Home",
+    "notFound.metaTitle": "404 - Page Not Found | Omar Khaled El-Khouly",
+    "notFound.metaDescription": "The page you are looking for could not be found. Return to the homepage of Omar Khaled El-Khouly, Software Developer.",
     "thankYou.title": "Thank You!",
     "thankYou.description": "Your message has been received. I'll get back to you as soon as possible.",
     "thankYou.backHome": "Back to Home",
@@ -447,6 +449,8 @@ const resources = {
     "notFound.description": "ربما تم نقل الصفحة التي تبحث عنها أو حذفها أو أنها لم تكن موجودة أصلا.",
     "notFound.back": "رجوع",
     "notFound.home": "الرئيسية",
+    "notFound.metaTitle": "404 - الصفحة غير موجودة | عمر خالد الخولي",
+    "notFound.metaDescription": "الصفحة التي تبحث عنها غير موجودة. ارجع إلى الصفحة الرئيسية لعمر خالد الخولي، مطور البرمجيات.",
     "thankYou.title": "شكرا لك!",
     "thankYou.description": "تم استلام رسالتك. سأرد عليك في أقرب وقت ممكن.",
     "thankYou.backHome": "العودة للرئيسية",
@@ -616,7 +620,9 @@ const I18nContext = createContext(null);
 const getInitialLanguage = () => {
   if (typeof window === "undefined") return DEFAULT_LANGUAGE;
   const saved = window.localStorage.getItem(STORAGE_KEY);
-  return saved === "ar" || saved === "en" ? saved : DEFAULT_LANGUAGE;
+  if (saved === "ar" || saved === "en") return saved;
+  const systemLang = (navigator.language || "").toLowerCase();
+  return systemLang.startsWith("ar") ? "ar" : DEFAULT_LANGUAGE;
 };
 
 const interpolate = (value, params = {}) =>
@@ -630,7 +636,6 @@ export const I18nProvider = ({ children }) => {
   const direction = language === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, language);
     document.documentElement.lang = language;
     document.documentElement.dir = direction;
   }, [direction, language]);
@@ -641,13 +646,19 @@ export const I18nProvider = ({ children }) => {
       return typeof entry === "string" ? interpolate(entry, params) : entry;
     };
 
-    const toggleLanguage = () => setLanguage((current) => (current === "en" ? "ar" : "en"));
+    const applyLanguage = (next) => {
+      window.localStorage.setItem(STORAGE_KEY, next);
+      setLanguage(next);
+    };
+
+    const toggleLanguage = () =>
+      applyLanguage(language === "en" ? "ar" : "en");
 
     return {
       language,
       direction,
       isRtl: direction === "rtl",
-      setLanguage,
+      setLanguage: applyLanguage,
       toggleLanguage,
       t,
     };
