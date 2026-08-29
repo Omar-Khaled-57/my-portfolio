@@ -120,28 +120,36 @@ const AboutPage = () => {
   const { t, language } = useI18n();
   const { projects: sharedProjects, certificates: sharedCertificates } = useSharedData();
   const [isCVModalOpen, setIsCVModalOpen] = React.useState(false);
-  const [showYearsExp, setShowYearsExp] = useState(false);
-  const [yearsExpValue, setYearsExpValue] = useState(0);
-  const [manualTotalProjects, setManualTotalProjects] = useState(26);
   // Dynamic stats calculation
   const countAccessible = (projects) =>
     projects.filter(p => p.is_published !== false && ((p.github && p.github.trim()) || (p.link && p.link.trim()))).length;
 
-  const [profileImage, setProfileImage] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [fullNameAr, setFullNameAr] = useState("");
-  const [quote, setQuote] = useState("");
-  const [quoteAr, setQuoteAr] = useState("");
+  const readLocal = (key, fallback = "") => {
+    try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; }
+  };
+  const readLocalNum = (key, fallback) => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw == null) return fallback;
+      return JSON.parse(raw);
+    } catch { return fallback; }
+  };
+
+  const [showYearsExp, setShowYearsExp] = useState(() => readLocal("personalInfo_showYearsExperience") === "true");
+  const [yearsExpValue, setYearsExpValue] = useState(() => readLocalNum("personalInfo_yearsExperience", 0));
+  const [manualTotalProjects, setManualTotalProjects] = useState(() => readLocalNum("personalInfo_totalProjects", 26));
+  const [profileImage, setProfileImage] = useState(() => readLocal("personalInfo_profileImage"));
+  const [fullName, setFullName] = useState(() => readLocal("personalInfo_fullName"));
+  const [fullNameAr, setFullNameAr] = useState(() => readLocal("personalInfo_fullNameAr"));
+  const [quote, setQuote] = useState(() => readLocal("personalInfo_quote"));
+  const [quoteAr, setQuoteAr] = useState(() => readLocal("personalInfo_quoteAr"));
 
   const [stats, setStats] = useState(() => {
-    try {
-      const cached = localStorage.getItem("projects");
-      if (cached) {
-        const projects = JSON.parse(cached);
-        return { totalCertificates: 0, accessibleProjects: countAccessible(projects) };
-      }
-    } catch {}
-    return { totalCertificates: 0, accessibleProjects: 0 };
+    let projects = [];
+    let certs = [];
+    try { projects = JSON.parse(localStorage.getItem("projects") || "[]"); } catch {}
+    try { certs = JSON.parse(localStorage.getItem("certificates") || "[]"); } catch {}
+    return { totalCertificates: certs.length, accessibleProjects: countAccessible(projects) };
   });
 
   const cacheLocally = (fields) => {
@@ -158,15 +166,14 @@ const AboutPage = () => {
   };
 
   useEffect(() => {
-    const fetchAll = async () => {
-      const projects = sharedProjects || [];
-      const certs = sharedCertificates || [];
+    setStats({
+      totalCertificates: sharedCertificates.length,
+      accessibleProjects: countAccessible(sharedProjects),
+    });
+  }, [sharedProjects, sharedCertificates]);
 
-      setStats({
-        totalCertificates: certs.length,
-        accessibleProjects: countAccessible(projects),
-      });
-
+  useEffect(() => {
+    const fetchSettings = async () => {
       const settingsRes = await supabase
         .from("app_settings")
         .select("key, value")
@@ -206,12 +213,9 @@ const AboutPage = () => {
       }
     };
 
-    fetchAll();
+    fetchSettings();
 
     const handleStorage = (e) => {
-      if (e.key === "projects") {
-        try { setStats(prev => ({ ...prev, accessibleProjects: countAccessible(JSON.parse(e.newValue)) })); } catch {}
-      }
       if (e.key?.startsWith("personalInfo_")) {
         try {
           const key = e.key.replace("personalInfo_", "");
@@ -227,11 +231,8 @@ const AboutPage = () => {
       }
     };
 
-    window.addEventListener('portfolioDataLoaded', fetchAll);
     window.addEventListener('storage', handleStorage);
-
     return () => {
-      window.removeEventListener('portfolioDataLoaded', fetchAll);
       window.removeEventListener('storage', handleStorage);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
