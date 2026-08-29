@@ -23,7 +23,10 @@ const StatusBadge = memo(({ text }) => (
 ));
 
 const MainTitle = memo(({ first, second }) => (
-  <div className="space-y-2" data-aos="fade-up" data-aos-delay="600">
+  <div
+    className="space-y-2"
+    style={{ animation: "hero-rise 0.9s ease-out 0.05s backwards" }}
+  >
     <h1 className="text-5xl sm:text-6xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight">
       <span className="relative inline-block">
         <span className="absolute -inset-2 bg-gradient-to-r from-[#6366f1] to-[#a855f7] blur-2xl opacity-20"></span>
