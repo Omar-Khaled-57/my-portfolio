@@ -265,7 +265,8 @@ const AboutPage = () => {
         label: t("about.totalProjects"),
         description: t("about.totalProjectsDescription"),
         animation: "fade-right",
-        tab: 0,
+        tab: null,
+        navigate: false,
       },
       {
         icon: Award,
@@ -402,19 +403,23 @@ const AboutPage = () => {
         </div>
 
         <div className={`grid grid-cols-1 ${showYearsExp ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-6 mt-16`}>
-          {statsData.map((stat) => (
-            <a
-              key={stat.label}
-              href="#Portfolio"
-              className="block cursor-pointer"
-              onClick={() => {
-                if (typeof stat.tab === "number") {
-                  window.dispatchEvent(new CustomEvent("portfolioTabChange", { detail: stat.tab }));
-                }
-              }}>
-              <StatCard {...stat} />
-            </a>
-          ))}
+          {statsData.map((stat) =>
+            stat.navigate === false ? (
+              <StatCard key={stat.label} {...stat} />
+            ) : (
+              <a
+                key={stat.label}
+                href="#Portfolio"
+                className="block cursor-pointer"
+                onClick={() => {
+                  if (typeof stat.tab === "number") {
+                    window.dispatchEvent(new CustomEvent("portfolioTabChange", { detail: stat.tab }));
+                  }
+                }}>
+                <StatCard {...stat} />
+              </a>
+            )
+          )}
         </div>
       </div>
 
