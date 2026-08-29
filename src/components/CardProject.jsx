@@ -3,8 +3,32 @@ import { Link } from "react-router-dom";
 import { ExternalLink, ArrowRight, Github } from "lucide-react";
 import { toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
+import { useTheme as useCustomTheme } from "../context/ThemeContext";
+import { getToolImage } from "../utils/techTools";
 
-const CardProject = ({ img, title, title_ar, description, description_ar, link: ProjectLink, github, id }) => {
+const TechIcons = ({ tools }) => {
+  const { theme } = useCustomTheme();
+  if (!tools || tools.length === 0) return null;
+  return (
+    <div className="flex items-center gap-2 mt-2 flex-wrap">
+      {tools.slice(0, 6).map((tool) => (
+        <img
+          key={tool.id}
+          src={getToolImage(tool, theme)}
+          alt={tool.name}
+          loading="lazy"
+          title={tool.name}
+          className="w-5 h-5 object-contain rounded"
+        />
+      ))}
+      {tools.length > 6 && (
+        <span className="text-[10px] text-secondary font-medium">+{tools.length - 6}</span>
+      )}
+    </div>
+  );
+};
+
+const CardProject = ({ img, title, title_ar, description, description_ar, link: ProjectLink, github, id, techTools }) => {
   const { t, language } = useI18n();
   const handleLiveDemo = (e) => {
     if (!ProjectLink) {
@@ -54,6 +78,8 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
             <h3 className="text-xl font-bold pb-2 pt-1 leading-relaxed bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent group-hover:from-accent-primary group-hover:to-accent-secondary transition-all duration-300">
               {language === 'ar' && title_ar ? title_ar : title}
             </h3>
+
+            <TechIcons tools={techTools} />
 
             <p className="text-secondary text-sm leading-relaxed line-clamp-2 font-medium">
               {language === 'ar' && description_ar ? description_ar : description}

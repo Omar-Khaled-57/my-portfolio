@@ -1,28 +1,14 @@
-import { useEffect, useState } from 'react'
-import { supabase } from "../../supabase";
-import { Award, Upload, Trash2, ImageIcon, Plus } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import { Reorder } from 'framer-motion'
+import { supabase } from "../../supabase"
+import { Award, Upload, Trash2, ImageIcon, Plus, ArrowUp, ArrowDown } from 'lucide-react'
 import { useI18n } from "../../i18n"
-import Swal from "sweetalert2";
+import { useDragOrder } from "../../hooks/useDragOrder"
+import DashboardCard from "../../components/dashboard/DashboardCard"
+import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton"
+import Swal from "sweetalert2"
 
-const Card = ({ children, className = '' }) => (
-  <div className={`relative group ${className}`}>
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-10 group-hover:opacity-25 transition duration-500" />
-    <div className="relative glass-card rounded-2xl h-full border border-primary strong-shadow">
-      {children}
-    </div>
-  </div>
-)
-
-const SkeletonCard = () => (
-  <div className="relative">
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-10" />
-    <div className="relative bg-secondary border border-primary rounded-2xl overflow-hidden">
-      <div className="w-full aspect-[16/11.5] bg-primary/20 animate-pulse" />
-    </div>
-  </div>
-)
-
-const CertCard = ({ cert, onDelete }) => {
+const CertCard = ({ cert, index, total, onDelete, onMove }) => {
   const { t } = useI18n()
   const [imgLoaded, setImgLoaded] = useState(false)
 
@@ -30,7 +16,6 @@ const CertCard = ({ cert, onDelete }) => {
     <div className="relative group">
       <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-10 group-hover:opacity-30 transition duration-500" />
       <div className="relative bg-secondary border border-primary rounded-2xl overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow">
-        {/* Skeleton shown until image loads */}
         {!imgLoaded && (
           <div className="w-full aspect-[16/11.5] bg-primary/20 animate-pulse" />
         )}
@@ -41,13 +26,33 @@ const CertCard = ({ cert, onDelete }) => {
           className={`w-full aspect-[16/11.5] object-cover group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'block' : 'hidden'}`}
         />
         {imgLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-end justify-end p-3 gap-1.5">
             <button
               onClick={() => onDelete(cert.id)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/20 border border-red-500/30 text-red-300 text-xs w-full justify-center hover:bg-red-500/30 transition-colors"
             >
               <Trash2 className="w-3 h-3" /> {t("common.delete")}
             </button>
+            <div className="flex items-center gap-1.5 w-full">
+              <button
+                onClick={() => onMove(index - 1)}
+                disabled={index === 0}
+                aria-label={t("dashboard.toolMoveUp")}
+                title={t("dashboard.toolMoveUp")}
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 border border-white/15 text-white/80 text-xs hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+              >
+                <ArrowUp className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => onMove(index + 1)}
+                disabled={index === total - 1}
+                aria-label={t("dashboard.toolMoveDown")}
+                title={t("dashboard.toolMoveDown")}
+                className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 border border-white/15 text-white/80 text-xs hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+              >
+                <ArrowDown className="w-3 h-3" />
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -64,14 +69,26 @@ export default function Certificates() {
   const [dragOver, setDragOver] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const fetchCerts = async () => {
+  const fetchCerts = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase.from('certificates').select('*').order('created_at', { ascending: false })
+    const { data } = await supabase
+      .from('certificates')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false })
     setCerts(data || [])
     setLoading(false)
-  }
+  }, [])
 
-  useEffect(() => { fetchCerts() }, [])
+  const { reorder } = useDragOrder({
+    items: certs,
+    setItems: setCerts,
+    table: "certificates",
+    orderField: "sort_order",
+    onSaved: fetchCerts,
+  })
+
+  useEffect(() => { fetchCerts() }, [fetchCerts])
 
   const handleFile = (f) => {
     if (!f) return
@@ -88,7 +105,11 @@ export default function Certificates() {
       if (uploadError) throw uploadError
 
       const { data } = supabase.storage.from('certificate-images').getPublicUrl(fileName)
-      const { error: insertError } = await supabase.from('certificates').insert({ img: data.publicUrl })
+      const maxOrder = certs.reduce((m, cert) => Math.max(m, cert.sort_order || 0), 0)
+      const { error: insertError } = await supabase.from('certificates').insert({
+        img: data.publicUrl,
+        sort_order: maxOrder + 1,
+      })
       if (insertError) throw insertError
 
       Swal.fire({
@@ -100,7 +121,7 @@ export default function Certificates() {
         color: 'var(--text-primary)'
       })
 
-      setFile(null); setPreview(null);
+      setFile(null); setPreview(null)
       fetchCerts()
     } catch (error) {
       console.error("Error uploading certificate:", error)
@@ -127,13 +148,13 @@ export default function Certificates() {
       cancelButtonText: t("common.cancel"),
       background: 'var(--bg-secondary)',
       color: 'var(--text-primary)'
-    });
+    })
 
     if (result.isConfirmed) {
       try {
         const { error } = await supabase.from('certificates').delete().eq('id', id)
         if (error) throw error
-        
+
         Swal.fire({
           icon: 'success',
           title: t("common.deleted"),
@@ -155,6 +176,17 @@ export default function Certificates() {
     }
   }
 
+  const handleMove = (certId) => (targetIndex) => {
+    if (targetIndex < 0 || targetIndex >= certs.length) return
+    const targetId = certs[targetIndex].id
+    if (targetId === certId) return
+    const next = [...certs]
+    const idx = next.findIndex((cert) => cert.id === certId)
+    next.splice(idx, 1)
+    next.splice(targetIndex, 0, certs[idx])
+    reorder(next, certs)
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -174,7 +206,7 @@ export default function Certificates() {
       </div>
 
       {/* Upload Card */}
-      <Card>
+      <DashboardCard>
         <div className="p-5 sm:p-6 space-y-4">
           <h2 className="text-sm font-semibold text-primary flex items-center gap-2">
             <Plus className="w-4 h-4 text-accent-primary" /> {t("dashboard.uploadCertificate")}
@@ -221,28 +253,48 @@ export default function Certificates() {
             </div>
           )}
         </div>
-      </Card>
+      </DashboardCard>
 
       {/* Grid */}
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <SkeletonCard key={i} />
+            <DashboardSkeleton key={i} variant="certificate" />
           ))}
         </div>
       ) : certs.length === 0 ? (
-        <Card>
+        <DashboardCard>
           <div className="p-16 text-center">
             <Award className="w-10 h-10 text-gray-700 mx-auto mb-3" />
             <p className="text-gray-500 text-sm">{t("dashboard.noCertificates")}</p>
           </div>
-        </Card>
+        </DashboardCard>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-          {certs.map(cert => (
-            <CertCard key={cert.id} cert={cert} onDelete={deleteCert} />
+        <Reorder.Group
+          as="div"
+          axis="both"
+          values={certs}
+          onReorder={(next) => reorder(next, certs)}
+          className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
+        >
+          {certs.map((cert, index) => (
+            <Reorder.Item
+              as="div"
+              key={cert.id}
+              value={cert}
+              layout
+              className="cursor-grab active:cursor-grabbing"
+            >
+              <CertCard
+                cert={cert}
+                index={index}
+                total={certs.length}
+                onDelete={deleteCert}
+                onMove={handleMove(cert.id)}
+              />
+            </Reorder.Item>
           ))}
-        </div>
+        </Reorder.Group>
       )}
     </div>
   )

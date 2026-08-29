@@ -40,11 +40,13 @@ export function DataProvider({ children }) {
         .from("projects")
         .select("*")
         .eq("is_published", true)
-        .order("id", { ascending: false }),
+        .order("order_index", { ascending: true })
+        .order("created_at", { ascending: false }),
       supabase
         .from("certificates")
         .select("*")
-        .order("id", { ascending: false }),
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false }),
       supabase
         .from("tech_tools")
         .select("*")

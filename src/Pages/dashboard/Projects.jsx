@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { Reorder } from "framer-motion";
 import { supabase } from "../../supabase";
 import {
   Plus,
@@ -6,81 +7,40 @@ import {
   Upload,
   FolderGit2,
   X,
-  ImageIcon,
   ExternalLink,
   Github,
   Pencil,
   Eye,
   EyeOff,
+  ArrowUp,
+  ArrowDown,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
+import { useSharedData } from "../../context/DataContext";
+import { useTheme as useCustomTheme } from "../../context/ThemeContext";
+import { getToolImage } from "../../utils/techTools";
+import { useDragOrder } from "../../hooks/useDragOrder";
+import DashboardCard from "../../components/dashboard/DashboardCard";
+import DashboardModal from "../../components/dashboard/DashboardModal";
+import DashboardInput from "../../components/dashboard/DashboardInput";
+import DashboardImageUpload from "../../components/dashboard/DashboardImageUpload";
+import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
 import Swal from "sweetalert2";
 
-const Card = ({ children, className = "" }) => (
-  <div className={`bg-indigo-500/[0.06] rounded-2xl border border-indigo-500/10 shadow-xl shadow-black/20 overflow-hidden relative noise-bg hover:shadow-2xl hover:border-indigo-500/20 hover:-translate-y-0.5 transition-all duration-300 ${className}`}>
-    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] to-transparent pointer-events-none" />
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/15 to-transparent pointer-events-none" />
-    {children}
-  </div>
-);
+const parseIds = (str) => [...new Set((str || "").split(",").map((s) => s.trim()).filter(Boolean))];
 
-const InputField = ({
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-  required = false,
-}) => (
-  <div className="space-y-1.5">
-    <label className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
-      {label}
-    </label>
-    <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      required={required}
-      className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all"
-    />
-  </div>
-);
-
-const SkeletonCard = () => (
-  <div className="bg-secondary border border-primary rounded-2xl p-4 flex flex-col gap-3">
-      <div className="w-full aspect-[16/8] bg-primary/20 animate-pulse rounded-xl" />
-      <div className="h-4 bg-primary/20 animate-pulse rounded-lg w-2/3" />
-      <div className="h-3 bg-primary/20 animate-pulse rounded-lg w-full" />
-      <div className="h-3 bg-primary/20 animate-pulse rounded-lg w-4/5" />
-      <div className="flex gap-1.5 mt-1">
-        <div className="h-5 w-16 bg-primary/20 animate-pulse rounded-full" />
-        <div className="h-5 w-12 bg-primary/20 animate-pulse rounded-full" />
-        <div className="h-5 w-20 bg-primary/20 animate-pulse rounded-full" />
-      </div>
-      <div className="flex justify-between items-center pt-2 border-t border-primary mt-auto">
-        <div className="flex gap-2">
-          <div className="w-7 h-7 bg-primary/20 animate-pulse rounded-lg" />
-          <div className="w-7 h-7 bg-primary/20 animate-pulse rounded-lg" />
-        </div>
-        <div className="flex gap-2">
-          <div className="w-14 h-7 bg-primary/20 animate-pulse rounded-lg" />
-          <div className="w-16 h-7 bg-primary/20 animate-pulse rounded-lg" />
-        </div>
-      </div>
-  </div>
-);
-
-const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
+const ProjectCard = ({ project, index, total, onDelete, onEdit, onTogglePublish, onMove }) => {
   const { t } = useI18n();
   const [imgLoaded, setImgLoaded] = useState(false);
   const isHidden = project.is_published === false;
 
   return (
-    <Card>
+    <DashboardCard>
       <div className="p-4 flex flex-col h-full">
         {project.img && (
-          <div className="w-full aspect-[16/8] rounded-xl mb-4 relative overflow-hidden border border-primary bg-black/20">
+          <div className="w-full aspect-[16/8] rounded-xl mb-4 relative overflow-hidden border border-primary bg-black/20 group/img">
             {!imgLoaded && (
               <div className="w-full h-full animate-pulse bg-primary/20" />
             )}
@@ -101,6 +61,26 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
               {t("dashboard.hidden")}
             </span>
           )}
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              onClick={() => onMove(index - 1)}
+              disabled={index === 0}
+              aria-label={t("dashboard.toolMoveUp")}
+              title={t("dashboard.toolMoveUp")}
+              className="p-1 rounded-lg border border-primary text-primary/50 hover:text-primary hover:border-white/20 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <ArrowUp className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => onMove(index + 1)}
+              disabled={index === total - 1}
+              aria-label={t("dashboard.toolMoveDown")}
+              title={t("dashboard.toolMoveDown")}
+              className="p-1 rounded-lg border border-primary text-primary/50 hover:text-primary hover:border-white/20 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <ArrowDown className="w-3 h-3" />
+            </button>
+          </div>
         </div>
         {project.description && (
           <p className="text-primary/80 text-xs mb-3 line-clamp-2 leading-relaxed">
@@ -173,48 +153,22 @@ const ProjectCard = ({ project, onDelete, onEdit, onTogglePublish }) => {
           </div>
         </div>
       </div>
-    </Card>
+    </DashboardCard>
   );
 };
 
-const Modal = ({ title, onClose, children }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
-    <div
-      className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-      onClick={onClose}
-    />
-    <div
-      className="relative z-10 w-full max-w-2xl flex flex-col"
-      style={{ maxHeight: "calc(100vh - 24px)" }}
-    >
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-20 pointer-events-none" />
-      <div className="relative bg-secondary border border-primary rounded-2xl flex flex-col overflow-hidden strong-shadow">
-        {/* Fixed header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-primary shrink-0">
-          <h2 className="text-base font-semibold text-primary">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 text-secondary hover:text-primary transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        {/* Scrollable content */}
-        <div className="overflow-y-auto flex-1">{children}</div>
-      </div>
-    </div>
-  </div>
-);
-
 const ProjectForm = ({
   initial,
+  tools,
   onSubmit,
   onCancel,
   submitLabel,
   uploading,
 }) => {
   const { t } = useI18n();
+  const { theme } = useCustomTheme();
+  const toolById = useMemo(() => new Map((tools || []).map((tool) => [tool.id, tool])), [tools]);
+
   const [form, setForm] = useState({
     Title: initial?.title || "",
     TitleAr: initial?.title_ar || "",
@@ -223,6 +177,7 @@ const ProjectForm = ({
     TechStack: Array.isArray(initial?.tech_stack)
       ? initial.tech_stack.join(", ")
       : initial?.tech_stack || "",
+    TechIds: Array.isArray(initial?.tech_ids) ? initial.tech_ids.join(", ") : initial?.tech_ids || "",
     Features: Array.isArray(initial?.features)
       ? initial.features.join(", ")
       : initial?.features || "",
@@ -231,6 +186,7 @@ const ProjectForm = ({
   });
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(initial?.img || null);
+  const [showPicker, setShowPicker] = useState(false);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -239,6 +195,15 @@ const ProjectForm = ({
     if (!f) return;
     setFile(f);
     setPreview(URL.createObjectURL(f));
+  };
+
+  const typedIds = useMemo(() => parseIds(form.TechIds), [form.TechIds]);
+
+  const toggleId = (id) => {
+    const set = new Set(typedIds);
+    if (set.has(id)) set.delete(id);
+    else set.add(id);
+    setForm((f) => ({ ...f, TechIds: [...set].join(", ") }));
   };
 
   return (
@@ -251,7 +216,7 @@ const ProjectForm = ({
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
-          <InputField
+          <DashboardInput
             label={t("dashboard.projectTitle") || "Project Title"}
             value={form.Title}
             onChange={set("Title")}
@@ -259,9 +224,9 @@ const ProjectForm = ({
             required
           />
         </div>
-        
+
         <div className="sm:col-span-2">
-          <InputField
+          <DashboardInput
             label={(t("dashboard.projectTitle") || "Project Title") + t("common.arabicSuffix")}
             value={form.TitleAr}
             onChange={set("TitleAr")}
@@ -296,62 +261,113 @@ const ProjectForm = ({
           />
         </div>
 
-        <InputField
+        <DashboardInput
           label={t("dashboard.techStackInput")}
           value={form.TechStack}
           onChange={set("TechStack")}
           placeholder={t("dashboard.techStackPlaceholder")}
         />
-        <InputField
+        <DashboardInput
           label={t("dashboard.featuresInput")}
           value={form.Features}
           onChange={set("Features")}
           placeholder={t("dashboard.featuresPlaceholder")}
         />
-        <InputField
+
+        <div className="sm:col-span-2 space-y-1.5">
+          <DashboardInput
+            label={t("dashboard.techIdsInput")}
+            value={form.TechIds}
+            onChange={set("TechIds")}
+            placeholder={t("dashboard.techIdsPlaceholder")}
+            hint={t("dashboard.techIdsHint")}
+          />
+
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {typedIds.map((id) => {
+              const tool = toolById.get(id);
+              return tool ? (
+                <span
+                  key={id}
+                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-primary/20 border border-primary text-[11px] text-primary font-medium"
+                >
+                  <img src={getToolImage(tool, theme)} alt="" className="w-4 h-4 object-contain" />
+                  {tool.name}
+                  <button type="button" onClick={() => toggleId(id)} className="text-secondary hover:text-primary">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ) : (
+                <span
+                  key={id}
+                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] font-medium"
+                >
+                  <span className="w-2 h-2 rounded-full bg-red-400" />
+                  {id} <span className="text-red-400/70">({t("dashboard.techIdsUnknown")})</span>
+                  <button type="button" onClick={() => toggleId(id)} className="text-red-400/60 hover:text-red-300">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowPicker((v) => !v)}
+            className="inline-flex items-center gap-1.5 text-xs text-accent-primary hover:text-accent-secondary transition-colors"
+          >
+            {t("dashboard.techQuickPick")}
+            {showPicker ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          {showPicker && (
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {(tools || [])
+                .slice()
+                .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+                .map((tool) => {
+                  const active = typedIds.includes(tool.id);
+                  return (
+                    <button
+                      key={tool.id}
+                      type="button"
+                      onClick={() => toggleId(tool.id)}
+                      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[11px] font-medium transition-colors ${
+                        active
+                          ? "border-accent-primary/50 bg-accent-primary/15 text-primary"
+                          : "border-primary bg-primary/10 text-secondary hover:border-white/20"
+                      }`}
+                    >
+                      <img src={getToolImage(tool, theme)} alt="" className="w-4 h-4 object-contain" />
+                      {tool.name}
+                    </button>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+
+        <DashboardInput
           label={t("dashboard.liveUrl")}
           value={form.Link}
           onChange={set("Link")}
-            placeholder={t("dashboard.liveUrlPlaceholder")}
+          placeholder={t("dashboard.liveUrlPlaceholder")}
         />
-        <InputField
+        <DashboardInput
           label={t("dashboard.githubUrl")}
           value={form.Github}
           onChange={set("Github")}
-            placeholder={t("dashboard.githubUrlPlaceholder")}
+          placeholder={t("dashboard.githubUrlPlaceholder")}
         />
 
-        <div className="sm:col-span-2 space-y-1.5">
-          <label className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
-            {t("dashboard.projectImage")}
-          </label>
-          <label className="flex items-center gap-4 w-full bg-secondary border border-dashed border-primary rounded-xl px-4 py-4 cursor-pointer hover:border-accent-primary/40 hover:bg-primary/5 transition-all">
-            {preview ? (
-              <img
-                src={preview}
-                className="h-16 w-24 object-cover rounded-lg border border-primary"
-                alt="preview"
-              />
-            ) : (
-              <div className="w-24 h-16 rounded-lg bg-primary/10 flex items-center justify-center border border-primary">
-                <ImageIcon className="w-5 h-5 text-secondary" />
-              </div>
-            )}
-            <div>
-              <p className="text-sm text-primary">
-                {preview ? t("dashboard.changeImage") : t("dashboard.uploadImage")}
-              </p>
-              <p className="text-xs text-secondary mt-0.5">
-                {t("dashboard.imageSupport")}
-              </p>
-            </div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </label>
+        <div className="sm:col-span-2">
+          <DashboardImageUpload
+            aspect="wide"
+            label={t("dashboard.projectImage")}
+            preview={preview}
+            onChange={handleFileChange}
+          />
         </div>
       </div>
 
@@ -383,6 +399,7 @@ const ProjectForm = ({
 
 export default function Projects() {
   const { t } = useI18n();
+  const { techTools } = useSharedData();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -390,29 +407,38 @@ export default function Projects() {
   const [uploading, setUploading] = useState(false);
   const [filter, setFilter] = useState("all");
 
-  const visibleProjects = projects.filter((p) => p.is_published !== false);
-  const hiddenProjects = projects.filter((p) => p.is_published === false);
-  const filteredProjects = filter === "all" ? projects : filter === "visible" ? visibleProjects : hiddenProjects;
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("projects")
       .select("*")
+      .order("order_index", { ascending: true })
       .order("created_at", { ascending: false });
     setProjects(data || []);
     setLoading(false);
-  };
+  }, []);
+
+  const { sortedItems: sortedProjects, reorder } = useDragOrder({
+    items: projects,
+    setItems: setProjects,
+    table: "projects",
+    orderField: "order_index",
+    onSaved: fetchProjects,
+  });
+
+  const visibleProjects = sortedProjects.filter((p) => p.is_published !== false);
+  const hiddenProjects = sortedProjects.filter((p) => p.is_published === false);
+  const filteredProjects = filter === "all" ? sortedProjects : filter === "visible" ? visibleProjects : hiddenProjects;
 
   useEffect(() => {
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
 
   const uploadImage = async (f) => {
     const fileName = `${Date.now()}-${f.name}`;
     const { error: uploadError } = await supabase.storage.from("project-images").upload(fileName, f);
     if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
-    
+
     const { data } = supabase.storage
       .from("project-images")
       .getPublicUrl(fileName);
@@ -421,9 +447,21 @@ export default function Projects() {
 
   const handleCreate = async (form, file) => {
     try {
+      const unknown = parseIds(form.TechIds).filter((id) => !techTools.find((tool) => tool.id === id));
+      if (unknown.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: t("dashboard.techIdsUnknownTitle"),
+          text: `${t("dashboard.techIdsUnknown")}: ${unknown.join(", ")}`,
+          background: "var(--bg-secondary)",
+          color: "var(--text-primary)",
+        });
+        return;
+      }
       setUploading(true);
       let imgUrl = "";
       if (file) imgUrl = await uploadImage(file);
+      const maxOrder = projects.reduce((m, p) => Math.max(m, p.order_index || 0), 0);
       const { error } = await supabase.from("projects").insert({
         title: form.Title,
         title_ar: form.TitleAr || null,
@@ -433,11 +471,13 @@ export default function Projects() {
         tech_stack: form.TechStack.split(",")
           .map((s) => s.trim())
           .filter(Boolean),
+        tech_ids: parseIds(form.TechIds),
         features: form.Features.split(",")
           .map((s) => s.trim())
           .filter(Boolean),
         link: form.Link,
         github: form.Github,
+        order_index: maxOrder + 1,
       });
 
       if (error) throw error;
@@ -470,6 +510,17 @@ export default function Projects() {
 
   const handleEdit = async (form, file) => {
     try {
+      const unknown = parseIds(form.TechIds).filter((id) => !techTools.find((tool) => tool.id === id));
+      if (unknown.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: t("dashboard.techIdsUnknownTitle"),
+          text: `${t("dashboard.techIdsUnknown")}: ${unknown.join(", ")}`,
+          background: "var(--bg-secondary)",
+          color: "var(--text-primary)",
+        });
+        return;
+      }
       setUploading(true);
       let imgUrl = editProject.img || "";
       if (file) imgUrl = await uploadImage(file);
@@ -484,6 +535,7 @@ export default function Projects() {
           tech_stack: form.TechStack.split(",")
             .map((s) => s.trim())
             .filter(Boolean),
+          tech_ids: parseIds(form.TechIds),
           features: form.Features.split(",")
             .map((s) => s.trim())
             .filter(Boolean),
@@ -537,7 +589,7 @@ export default function Projects() {
       try {
         const { error } = await supabase.from("projects").delete().eq("id", id);
         if (error) throw error;
-        
+
         Swal.fire({
           icon: 'success',
           title: t("common.deleted"),
@@ -606,14 +658,25 @@ export default function Projects() {
     }
   };
 
+  const handleMove = (projectId) => (targetIndex) => {
+    if (targetIndex < 0 || targetIndex >= filteredProjects.length) return;
+    const targetId = filteredProjects[targetIndex].id;
+    if (targetId === projectId) return;
+    const next = [...filteredProjects];
+    const idx = next.findIndex((project) => project.id === projectId);
+    next.splice(idx, 1);
+    next.splice(targetIndex, 0, filteredProjects[idx]);
+    reorder(next, filteredProjects);
+  };
+
   const filterOptions = useMemo(() => [
-    { key: "all", label: `${t("dashboard.filterAll")} (${projects.length})` },
+    { key: "all", label: `${t("dashboard.filterAll")} (${sortedProjects.length})` },
     { key: "visible", label: `${t("dashboard.filterVisible")} (${visibleProjects.length})` },
     { key: "hidden", label: `${t("dashboard.filterHidden")} (${hiddenProjects.length})` },
-  ], [t, projects.length, visibleProjects.length, hiddenProjects.length]);
+  ], [t, sortedProjects.length, visibleProjects.length, hiddenProjects.length]);
 
   return (
-    <div className="space-y-6z ">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
         <div className="flex items-center gap-3">
@@ -628,7 +691,7 @@ export default function Projects() {
               {t("portfolio.projects")}
             </h1>
             <p className="text-secondary text-xs">
-              {loading ? t("common.loading") : t("dashboard.projectsCountOf", { count: filteredProjects.length, total: projects.length })}
+              {loading ? t("common.loading") : t("dashboard.projectsCountOf", { count: filteredProjects.length, total: sortedProjects.length })}
             </p>
           </div>
         </div>
@@ -665,57 +728,75 @@ export default function Projects() {
 
       {/* Create Modal */}
       {showCreate && (
-        <Modal title={t("dashboard.addProject")} onClose={() => setShowCreate(false)}>
+        <DashboardModal title={t("dashboard.addProject")} onClose={() => setShowCreate(false)}>
           <ProjectForm
+            tools={techTools}
             onSubmit={handleCreate}
             onCancel={() => setShowCreate(false)}
             submitLabel={t("dashboard.saveProject")}
             uploading={uploading}
           />
-        </Modal>
+        </DashboardModal>
       )}
 
       {/* Edit Modal */}
       {editProject && (
-        <Modal title={t("dashboard.editProject")} onClose={() => setEditProject(null)}>
+        <DashboardModal title={t("dashboard.editProject")} onClose={() => setEditProject(null)}>
           <ProjectForm
             initial={editProject}
+            tools={techTools}
             onSubmit={handleEdit}
             onCancel={() => setEditProject(null)}
             submitLabel={t("dashboard.updateProject")}
             uploading={uploading}
           />
-        </Modal>
+        </DashboardModal>
       )}
 
       {/* Projects Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} />
+            <DashboardSkeleton key={i} variant="project" />
           ))}
         </div>
       ) : filteredProjects.length === 0 ? (
-        <Card>
+        <DashboardCard>
           <div className="p-16 text-center">
             <FolderGit2 className="w-10 h-10 text-gray-700 mx-auto mb-3" />
             <p className="text-gray-500 text-sm">
               {filter === "hidden" ? t("dashboard.noHiddenProjects") : filter === "visible" ? t("dashboard.noVisibleProjects") : t("dashboard.noProjects")}
             </p>
           </div>
-        </Card>
+        </DashboardCard>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredProjects.map((project) => (
-            <ProjectCard
+        <Reorder.Group
+          as="div"
+          axis="both"
+          values={filteredProjects}
+          onReorder={(next) => reorder(next, filteredProjects)}
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
+        >
+          {filteredProjects.map((project, index) => (
+            <Reorder.Item
+              as="div"
               key={project.id}
-              project={project}
-              onDelete={deleteProject}
-              onEdit={setEditProject}
-              onTogglePublish={handleTogglePublish}
-            />
+              value={project}
+              layout
+              className="cursor-grab active:cursor-grabbing"
+            >
+              <ProjectCard
+                project={project}
+                index={index}
+                total={filteredProjects.length}
+                onDelete={deleteProject}
+                onEdit={setEditProject}
+                onTogglePublish={handleTogglePublish}
+                onMove={handleMove(project.id)}
+              />
+            </Reorder.Item>
           ))}
-        </div>
+        </Reorder.Group>
       )}
     </div>
   );

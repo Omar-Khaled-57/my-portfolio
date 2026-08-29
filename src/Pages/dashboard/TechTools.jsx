@@ -1,115 +1,31 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { Reorder } from "framer-motion";
 import { supabase } from "../../supabase";
 import {
   Boxes,
   Plus,
   Trash2,
   Upload,
-  ImageIcon,
   Pencil,
-  X,
   ArrowUp,
   ArrowDown,
+  GripVertical,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
 import { useTheme as useCustomTheme } from "../../context/ThemeContext";
+import { getToolImage } from "../../utils/techTools";
+import { useDragOrder } from "../../hooks/useDragOrder";
+import DashboardCard from "../../components/dashboard/DashboardCard";
+import DashboardModal from "../../components/dashboard/DashboardModal";
+import DashboardInput from "../../components/dashboard/DashboardInput";
+import DashboardImageUpload from "../../components/dashboard/DashboardImageUpload";
+import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
 import Swal from "sweetalert2";
 
 const typeOptions = (t) => [
   { value: "Main", label: t("dashboard.toolTypeMain") },
   { value: "Other", label: t("dashboard.toolTypeOther") },
 ];
-
-const Card = ({ children, className = "" }) => (
-  <div className={`relative group ${className}`}>
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-10 group-hover:opacity-25 transition duration-500" />
-    <div className="relative glass-card rounded-2xl h-full border border-primary strong-shadow">
-      {children}
-    </div>
-  </div>
-);
-
-const SkeletonCard = () => (
-  <div className="bg-secondary border border-primary rounded-2xl p-4 flex flex-col gap-3">
-    <div className="w-20 h-20 mx-auto bg-primary/20 animate-pulse rounded-xl" />
-    <div className="h-4 bg-primary/20 animate-pulse rounded-lg w-2/3 mx-auto" />
-    <div className="h-5 w-16 bg-primary/20 animate-pulse rounded-full mx-auto" />
-    <div className="flex justify-center gap-1.5 mt-1">
-      <div className="h-5 w-12 bg-primary/20 animate-pulse rounded-full" />
-      <div className="h-5 w-14 bg-primary/20 animate-pulse rounded-full" />
-    </div>
-  </div>
-);
-
-const ImageUpload = ({ label, hint, preview, onChange }) => {
-  const { t } = useI18n();
-  return (
-    <div className="space-y-1.5">
-      <label className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
-        {label}
-      </label>
-      <label className="flex items-center gap-4 w-full bg-secondary border border-dashed border-primary rounded-xl px-4 py-4 cursor-pointer hover:border-accent-primary/40 hover:bg-primary/5 transition-all">
-        {preview ? (
-          <img
-            src={preview}
-            alt="preview"
-            className="h-14 w-14 object-contain rounded-lg border border-primary bg-white/10 p-1 shrink-0"
-          />
-        ) : (
-          <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center border border-primary shrink-0">
-            <ImageIcon className="w-5 h-5 text-secondary" />
-          </div>
-        )}
-        <div>
-          <p className="text-sm text-primary">
-            {preview ? t("dashboard.changeImage") : t("dashboard.uploadImage")}
-          </p>
-          <p className="text-xs text-secondary mt-0.5">{t("dashboard.imageSupport")}</p>
-          {hint && <p className="text-[11px] text-secondary/70 mt-1 leading-snug">{hint}</p>}
-        </div>
-        <input type="file" accept="image/*" onChange={onChange} className="hidden" />
-      </label>
-    </div>
-  );
-};
-
-const InputField = ({ label, value, onChange, placeholder, required = false }) => (
-  <div className="space-y-1.5">
-    <label className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
-      {label}
-    </label>
-    <input
-      type="text"
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      required={required}
-      className="w-full bg-secondary border border-primary rounded-xl px-4 py-2.5 text-primary placeholder-secondary text-sm outline-none focus:border-accent-primary/60 focus:ring-1 focus:ring-accent-primary/20 transition-all"
-    />
-  </div>
-);
-
-const Modal = ({ title, onClose, children }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
-    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-    <div className="relative z-10 w-full max-w-2xl flex flex-col" style={{ maxHeight: "calc(100vh - 24px)" }}>
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-2xl blur opacity-20 pointer-events-none" />
-      <div className="relative bg-secondary border border-primary rounded-2xl flex flex-col overflow-hidden strong-shadow">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-primary shrink-0">
-          <h2 className="text-base font-semibold text-primary">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 text-secondary hover:text-primary transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="overflow-y-auto flex-1">{children}</div>
-      </div>
-    </div>
-  </div>
-);
 
 const ToolForm = ({ initial, onSubmit, onCancel, submitLabel, uploading }) => {
   const { t } = useI18n();
@@ -146,7 +62,7 @@ const ToolForm = ({ initial, onSubmit, onCancel, submitLabel, uploading }) => {
       className="p-5 sm:p-6 space-y-4"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <InputField
+        <DashboardInput
           label={t("dashboard.toolName")}
           value={form.name}
           onChange={set("name")}
@@ -177,7 +93,7 @@ const ToolForm = ({ initial, onSubmit, onCancel, submitLabel, uploading }) => {
         </div>
 
         <div className="sm:col-span-2">
-          <InputField
+          <DashboardInput
             label={t("dashboard.toolTags")}
             value={form.tags}
             onChange={set("tags")}
@@ -186,7 +102,8 @@ const ToolForm = ({ initial, onSubmit, onCancel, submitLabel, uploading }) => {
         </div>
 
         <div className="sm:col-span-2">
-          <ImageUpload
+          <DashboardImageUpload
+            aspect="square"
             label={t("dashboard.toolImage")}
             hint={t("dashboard.toolImageHint")}
             preview={previewImage}
@@ -195,7 +112,8 @@ const ToolForm = ({ initial, onSubmit, onCancel, submitLabel, uploading }) => {
         </div>
 
         <div className="sm:col-span-2">
-          <ImageUpload
+          <DashboardImageUpload
+            aspect="square"
             label={t("dashboard.toolImageLight")}
             preview={previewImageLight}
             onChange={(e) => handleImageFile(e, "light")}
@@ -232,12 +150,11 @@ const ToolForm = ({ initial, onSubmit, onCancel, submitLabel, uploading }) => {
 const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
   const { t } = useI18n();
   const { theme: currentTheme } = useCustomTheme();
-  const resolvedImage =
-    currentTheme === "dark" || !tool.image_light ? tool.image : tool.image_light;
+  const resolvedImage = getToolImage(tool, currentTheme);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
-    <Card className="h-full">
+    <DashboardCard className="h-full">
       <div className="flex flex-col h-full items-center p-4 text-center gap-3">
         <div className="relative">
           {!imgLoaded && <div className="w-16 h-16 bg-primary/20 animate-pulse rounded-xl" />}
@@ -287,9 +204,9 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
         )}
 
         <div className="mt-auto pt-2 w-full flex items-center justify-between gap-1 border-t border-primary">
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1">
             <button
-              onClick={() => onMove(tool.id, -1)}
+              onClick={() => onMove(index - 1)}
               disabled={index === 0}
               aria-label={t("dashboard.toolMoveUp")}
               title={t("dashboard.toolMoveUp")}
@@ -298,7 +215,7 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
               <ArrowUp className="w-3.5 h-3.5" />
             </button>
             <button
-              onClick={() => onMove(tool.id, 1)}
+              onClick={() => onMove(index + 1)}
               disabled={index === total - 1}
               aria-label={t("dashboard.toolMoveDown")}
               title={t("dashboard.toolMoveDown")}
@@ -306,6 +223,9 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
             >
               <ArrowDown className="w-3.5 h-3.5" />
             </button>
+            <span aria-hidden className="hidden sm:block p-1 text-primary/30 cursor-grab">
+              <GripVertical className="w-3.5 h-3.5" />
+            </span>
           </div>
           <div className="flex gap-1">
             <button
@@ -323,7 +243,7 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
           </div>
         </div>
       </div>
-    </Card>
+    </DashboardCard>
   );
 };
 
@@ -336,18 +256,13 @@ export default function TechTools() {
   const [showCreate, setShowCreate] = useState(false);
   const [editTool, setEditTool] = useState(null);
 
-  const sortedTools = useMemo(
-    () => [...tools].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
-    [tools],
-  );
-
   const filteredTools = useMemo(() => {
     if (filter === "all") return sortedTools;
     return sortedTools.filter((tool) => tool.type === filter);
   }, [sortedTools, filter]);
 
-  const mainCount = useMemo(() => tools.filter((t) => t.type === "Main").length, [tools]);
-  const otherCount = useMemo(() => tools.filter((t) => t.type === "Other").length, [tools]);
+  const mainCount = useMemo(() => tools.filter((tool) => tool.type === "Main").length, [tools]);
+  const otherCount = useMemo(() => tools.filter((tool) => tool.type === "Other").length, [tools]);
 
   const fetchTools = useCallback(async () => {
     setLoading(true);
@@ -358,6 +273,14 @@ export default function TechTools() {
     setTools(data || []);
     setLoading(false);
   }, []);
+
+  const { sortedItems: sortedTools, reorder } = useDragOrder({
+    items: tools,
+    setItems: setTools,
+    table: "tech_tools",
+    orderField: "sort_order",
+    onSaved: fetchTools,
+  });
 
   useEffect(() => {
     fetchTools();
@@ -504,33 +427,15 @@ export default function TechTools() {
     }
   };
 
-  const moveTool = async (id, direction) => {
-    const index = sortedTools.findIndex((tool) => tool.id === id);
-    const partner = sortedTools[index + direction];
-    if (!partner) return;
-    const current = sortedTools[index];
-    try {
-      const results = await Promise.all([
-        supabase
-          .from("tech_tools")
-          .update({ sort_order: partner.sort_order })
-          .eq("id", current.id),
-        supabase
-          .from("tech_tools")
-          .update({ sort_order: current.sort_order })
-          .eq("id", partner.id),
-      ]);
-      if (results.some((r) => r.error)) throw results.find((r) => r.error).error;
-      fetchTools();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: t("common.errorTitle"),
-        text: error.message,
-        background: "var(--bg-secondary)",
-        color: "var(--text-primary)",
-      });
-    }
+  const handleMove = (toolId) => (targetIndex) => {
+    if (targetIndex < 0 || targetIndex >= filteredTools.length) return;
+    const targetId = filteredTools[targetIndex].id;
+    if (targetId === toolId) return;
+    const next = [...filteredTools];
+    const idx = next.findIndex((tool) => tool.id === toolId);
+    next.splice(idx, 1);
+    next.splice(targetIndex, 0, filteredTools[idx]);
+    reorder(next, filteredTools);
   };
 
   const filterOptions = useMemo(
@@ -544,7 +449,6 @@ export default function TechTools() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -590,21 +494,19 @@ export default function TechTools() {
         </div>
       </div>
 
-      {/* Create Modal */}
       {showCreate && (
-        <Modal title={t("dashboard.addTool")} onClose={() => setShowCreate(false)}>
+        <DashboardModal title={t("dashboard.addTool")} onClose={() => setShowCreate(false)}>
           <ToolForm
             onSubmit={handleCreate}
             onCancel={() => setShowCreate(false)}
             submitLabel={t("dashboard.saveTool")}
             uploading={uploading}
           />
-        </Modal>
+        </DashboardModal>
       )}
 
-      {/* Edit Modal */}
       {editTool && (
-        <Modal title={t("dashboard.editTool")} onClose={() => setEditTool(null)}>
+        <DashboardModal title={t("dashboard.editTool")} onClose={() => setEditTool(null)}>
           <ToolForm
             initial={editTool}
             onSubmit={handleEdit}
@@ -612,37 +514,49 @@ export default function TechTools() {
             submitLabel={t("dashboard.updateTool")}
             uploading={uploading}
           />
-        </Modal>
+        </DashboardModal>
       )}
 
-      {/* Tools Grid */}
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <SkeletonCard key={i} />
+            <DashboardSkeleton key={i} variant="tool" />
           ))}
         </div>
       ) : filteredTools.length === 0 ? (
-        <Card>
+        <DashboardCard>
           <div className="p-16 text-center">
             <Boxes className="w-10 h-10 text-gray-700 mx-auto mb-3" />
             <p className="text-gray-500 text-sm">{t("dashboard.noTools")}</p>
           </div>
-        </Card>
+        </DashboardCard>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+        <Reorder.Group
+          as="div"
+          axis="both"
+          values={filteredTools}
+          onReorder={(next) => reorder(next, filteredTools)}
+          className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
+        >
           {filteredTools.map((tool, index) => (
-            <ToolCard
+            <Reorder.Item
+              as="div"
               key={tool.id}
-              tool={tool}
-              index={index}
-              total={filteredTools.length}
-              onDelete={deleteTool}
-              onEdit={setEditTool}
-              onMove={moveTool}
-            />
+              value={tool}
+              layout
+              className="cursor-grab active:cursor-grabbing"
+            >
+              <ToolCard
+                tool={tool}
+                index={index}
+                total={filteredTools.length}
+                onDelete={deleteTool}
+                onEdit={setEditTool}
+                onMove={handleMove(tool.id)}
+              />
+            </Reorder.Item>
           ))}
-        </div>
+        </Reorder.Group>
       )}
     </div>
   );

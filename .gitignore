@@ -28,5 +28,8 @@ dist/
 *.env
 
 # Extra
-/dev
+/dev/*
+!/dev/sqls/
+!/dev/sqls/**
+!/dev/tech-tools.md
 *.py

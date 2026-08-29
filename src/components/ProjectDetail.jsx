@@ -23,6 +23,7 @@ import { toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
 import { useSharedData } from "../context/DataContext";
+import { getToolImage, resolveProjectTools } from "../utils/techTools";
 
 const TECH_ICONS = {
   React: Globe,
@@ -59,6 +60,34 @@ const TechBadge = ({ tech }) => {
   );
 };
 
+const ToolIconBadge = ({ tool, theme }) => {
+  return (
+    <div className="group relative overflow-hidden px-3 py-2 md:px-4 md:py-2.5 rounded-xl cursor-default transition-all duration-300 hover:scale-105 hover:shadow-accent-primary/10 border border-primary"
+      style={{
+        background: 'rgba(var(--color-accent-primary-rgb, 99 102 241) / 0.1)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/0 to-accent-secondary/0 group-hover:from-accent-primary/15 group-hover:to-accent-secondary/15 transition-all duration-500 rounded-xl" />
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"
+        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.08) 100%)' }}
+      />
+      <div className="relative flex items-center gap-1.5 md:gap-2">
+        <img
+          src={getToolImage(tool, theme)}
+          alt={tool.name}
+          title={tool.name}
+          className="w-3.5 h-3.5 md:w-4 md:h-4 object-contain transition-transform group-hover:scale-110"
+        />
+        <span className="text-xs md:text-sm font-medium text-secondary group-hover:text-primary transition-colors">
+          {tool.name}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const FeatureItem = ({ feature }) => {
   return (
     <li className="group/feature relative flex items-center p-3 md:p-4 rounded-xl transition-all duration-500 ease-out border border-primary hover:scale-[1.02] shadow-lg shadow-accent-primary/20 hover:shadow-2xl hover:shadow-accent-primary/40 overflow-hidden"
@@ -85,7 +114,7 @@ const FeatureItem = ({ feature }) => {
 };
 
 const ProjectStats = ({ project, t }) => {
-  const techStackCount = project?.tech_stack?.length || 0;
+  const techStackCount = project?.tech_ids?.length || project?.tech_stack?.length || 0;
   const featuresCount = project?.features?.length || 0;
 
   const StatItem = ({ icon: Icon, value, label, color }) => {
@@ -162,7 +191,7 @@ const ProjectDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { projects: contextProjects } = useSharedData();
+  const { projects: contextProjects, techTools: contextTechTools } = useSharedData();
   const [project, setProject] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(() => {
     try {
@@ -205,6 +234,7 @@ const ProjectDetails = () => {
         ...selectedProject,
         features: selectedProject.features || [],
         tech_stack: selectedProject.tech_stack || [],
+        tech_ids: selectedProject.tech_ids || [],
         github: selectedProject.github || "https://github.com/Omar-Khaled-57",
       };
       setProject(enhancedProject);
@@ -247,6 +277,9 @@ const ProjectDetails = () => {
   }
 
   const projectUrl = `https://omar-el-khouly.vercel.app/project/${toSlug(project.title)}`;
+  const projectTools = project.tech_ids?.length
+    ? resolveProjectTools(project, contextTechTools)
+    : [];
 
   return (
     <>
@@ -400,7 +433,13 @@ const ProjectDetails = () => {
                     <Code2 className="w-4 h-4 md:w-5 md:h-5 text-accent-primary" />
                     {t("project.technologiesUsed")}
                   </h3>
-                  {project.tech_stack.length > 0 ? (
+                  {projectTools.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 md:gap-3">
+                      {projectTools.map((tool) => (
+                        <ToolIconBadge key={tool.id} tool={tool} theme={theme} />
+                      ))}
+                    </div>
+                  ) : project.tech_stack.length > 0 ? (
                     <div className="flex flex-wrap gap-2 md:gap-3">
                       {project.tech_stack.map((tech, index) => (
                         <TechBadge key={index} tech={tech} />
