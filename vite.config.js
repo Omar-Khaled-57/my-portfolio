@@ -18,6 +18,18 @@ function renderBlockOptimizer() {
       const htmlPath = path.join(dir, 'index.html')
       if (fs.existsSync(htmlPath)) {
         let html = fs.readFileSync(htmlPath, 'utf-8')
+        const assetsDir = path.join(dir, 'assets')
+        if (fs.existsSync(assetsDir)) {
+          const homeChunk = fs
+            .readdirSync(assetsDir)
+            .find((f) => /^Home-[0-9A-Za-z_-]+\.js$/.test(f))
+          if (homeChunk) {
+            html = html.replace(
+              '<head>',
+              `<head>\n<link rel="modulepreload" href="/assets/${homeChunk}">`
+            )
+          }
+        }
         html = html.replace(
           /<script id="vite-plugin-pwa:register-sw"[^>]*><\/script>/,
           ''
