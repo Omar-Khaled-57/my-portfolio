@@ -63,8 +63,23 @@ export default defineConfig({
         orientation: 'portrait',
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,woff2,json,svg}'],
+        globPatterns: [
+          'index.html',
+          'manifest.json',
+          'icons/*.png',
+          'assets/index-*.js',
+          'assets/index-*.css',
+          'assets/react-vendor-*.js',
+        ],
         runtimeCaching: [
+          {
+            urlPattern: /^\/assets\/.*\.(js|css|woff2|json|svg)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'asset-cache',
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',

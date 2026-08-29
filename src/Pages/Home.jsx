@@ -88,18 +88,29 @@ const HeroAnimation = memo(({ className }) => {
   useEffect(() => {
     const el = holderRef.current;
     if (!el) return;
+    let visible = false;
+    const tryMount = () => {
+      const elapsed = (typeof performance !== "undefined" && performance.now()) || 0;
+      if (visible && elapsed >= 2500) setReady(true);
+    };
     if (typeof IntersectionObserver !== "function") {
-      const timer = setTimeout(() => setReady(true), 2000);
-      return () => clearTimeout(timer);
+      const timer = setInterval(() => {
+        if (performance.now() >= 2500) {
+          setReady(true);
+          clearInterval(timer);
+        }
+      }, 500);
+      return () => clearInterval(timer);
     }
     const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
-          setReady(true);
+          visible = true;
           io.disconnect();
+          tryMount();
         }
       },
-      { rootMargin: "200px 0px" }
+      { rootMargin: "0px 0px" }
     );
     io.observe(el);
     return () => io.disconnect();

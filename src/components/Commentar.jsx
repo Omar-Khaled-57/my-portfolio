@@ -253,8 +253,33 @@ const Komentar = () => {
 
     useAOS({ once: false, duration: 1000 });
 
+    const sectionRef = useRef(null);
+    const [shouldLoad, setShouldLoad] = useState(false);
+
+    // Only talk to Supabase when the comments section is about to be seen
+    useEffect(() => {
+        const el = sectionRef.current;
+        if (!el) return;
+        if (typeof IntersectionObserver !== "function") {
+            const timer = setTimeout(() => setShouldLoad(true), 4000);
+            return () => clearTimeout(timer);
+        }
+        const io = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((e) => e.isIntersecting)) {
+                    setShouldLoad(true);
+                    io.disconnect();
+                }
+            },
+            { rootMargin: "600px 0px" }
+        );
+        io.observe(el);
+        return () => io.disconnect();
+    }, []);
+
     // Fetch pinned comment
     useEffect(() => {
+        if (!shouldLoad) return;
         const fetchPinnedComment = async () => {
             try {
                 const { data, error } = await supabase
@@ -278,7 +303,7 @@ const Komentar = () => {
         };
 
         return afterFirstPaint(fetchPinnedComment);
-    }, []);
+    }, [shouldLoad]);
 
     // Fetch regular comments (excluding pinned) and set up real-time subscription
     const fetchComments = useCallback(async () => {
@@ -297,6 +322,7 @@ const Komentar = () => {
     }, []);
 
     useEffect(() => {
+        if (!shouldLoad) return;
         const cancel = afterFirstPaint(fetchComments);
         const pollInterval = setInterval(fetchComments, 30000);
 
@@ -304,7 +330,7 @@ const Komentar = () => {
             cancel();
             clearInterval(pollInterval);
         };
-    }, [fetchComments]);
+    }, [fetchComments, shouldLoad]);
 
     const uploadImage = useCallback(async (imageFile) => {
         if (!imageFile) return null;
@@ -384,7 +410,7 @@ const Komentar = () => {
     const totalComments = comments.length + (pinnedComment ? 1 : 0);
 
     return (
-        <div className="w-full glass-card rounded-2xl shadow-xl" data-aos="fade-up" data-aos-duration="1000">
+        <div ref={sectionRef} className="w-full glass-card rounded-2xl shadow-xl" data-aos="fade-up" data-aos-duration="1000">
             <div className="p-6 border-b border-primary" data-aos="fade-down" data-aos-duration="800">
                 <div className="flex items-center gap-3">
                     <div className="p-2 rounded-xl bg-indigo-500/20">
