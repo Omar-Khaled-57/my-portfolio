@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FolderGit2, Award, MessageSquare, LogOut, LayoutDashboard,
-  Sun, Moon, Languages, Home, Mail, User,
+  Sun, Moon, Languages, Home, Mail, User, Boxes,
 } from "lucide-react";
 import { supabase } from "../supabase";
 import { useTheme } from "../context/ThemeContext";
@@ -25,6 +25,7 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
     { to: '/dashboard/personal-info', label: t('dashboard.personalInfo'), icon: User },
     { to: '/dashboard/projects', label: t('portfolio.projects'), icon: FolderGit2 },
     { to: '/dashboard/certificates', label: t('portfolio.certificates'), icon: Award },
+    { to: '/dashboard/tech-tools', label: t('portfolio.techStack'), icon: Boxes },
     { to: '/dashboard/comments', label: t('comments.title'), icon: MessageSquare },
     { to: '/dashboard/emails', label: t('dashboard.emailsTitle'), icon: Mail },
   ], [t]);

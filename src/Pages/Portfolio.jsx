@@ -110,52 +110,19 @@ export default function FullWidthTabs() {
   const { theme: currentTheme } = useCustomTheme();
   const [value, setValue] = useState(0);
 
-  const mainTools = useMemo(() => [
-    { icon: "/tools/html.svg", language: "HTML" },
-    { icon: "/tools/css.svg", language: "CSS" },
-    { icon: "/tools/js.svg", language: "JavaScript" },
-    { icon: "/tools/ts.svg", language: "TypeScript" },
-    { icon: "/tools/react.svg", language: "React" },
-    { icon: "/tools/tailwind.svg", language: "Tailwind" },
-    { icon: "/tools/next.svg", language: "Next.js" },
-    { icon: "/tools/postgres.svg", language: "PostgreSQL" },
-    { icon: "/tools/vite.svg", language: "Vite" },
-    { icon: "/tools/vue.svg", language: "Vue" },
-    { icon: "/tools/nodejs.svg", language: "Node.js" },
-    { icon: "/tools/express2.svg", language: "Express.js" },
-    { icon: "/tools/jwt.svg", language: "JWT" },
-    { icon: "/tools/supabase.svg", language: "Supabase" },
-    { icon: "/tools/firebase.svg", language: "Firebase" },
-    { icon: "/tools/git.svg", language: "Git" },
-    { icon: "/tools/vercel.svg", language: "Vercel" },
-    { icon: "/tools/SweetAlert.svg", language: "SweetAlert" },
-    { icon: "/tools/sonner.svg", language: "Sonner" },
-    { icon: "/tools/framer.svg", language: "Framer Motion", needsInvert: true },
-    { icon: "/tools/animejs.png", language: "Anime.js" },
-    { icon: "/tools/i18n.png", language: "i18next" },
-    { icon: "/tools/MUI.svg", language: "Material UI" },
-  ], []);
+  const { projects: sharedProjects, certificates: sharedCertificates, techTools } = useSharedData();
 
-  const otherTools = useMemo(() => [
-    { icon: "/tools/cpp.svg", language: "C/C++" },
-    { icon: "/tools/mysql.svg", language: "MySQL" },
-    { icon: "/tools/php.svg", language: "PHP" },
-    { 
-      icon: currentTheme === "dark" ? "/tools/rust-dark.svg" : "/tools/rust-light.svg", 
-      language: "Rust" 
-    },
-    {
-      icon: currentTheme === "dark" ? "/tools/railway-dark.svg" : "/tools/railway-light.svg",
-      language: "Railway"
-    },
-    { icon: "/tools/tauri.svg", language: "Tauri" },
-    { icon: "/tools/kotlin.svg", language: "Kotlin" },
-    { icon: "/tools/python.svg", language: "Python" },
-    { icon: "/tools/keras.svg", language: "Keras" },
-    { icon: "/tools/tensorflow.svg", language: "TensorFlow" },
-    { icon: "/tools/electron.svg", language: "Electron" },
-  ], [currentTheme]);
-  const { projects: sharedProjects, certificates: sharedCertificates } = useSharedData();
+  const mainTools = useMemo(
+    () => techTools.filter((tool) => tool.type === "Main"),
+    [techTools],
+  );
+  const otherTools = useMemo(
+    () => techTools.filter((tool) => tool.type === "Other"),
+    [techTools],
+  );
+  const getToolImage = (tool) =>
+    currentTheme === "dark" || !tool.image_light ? tool.image : tool.image_light;
+
   const [projects, setProjects] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -373,14 +340,13 @@ export default function FullWidthTabs() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5 mb-16 w-full">
                 {mainTools.map((stack, index) => (
                   <div
-                    key={index}
+                    key={stack.id || index}
                     data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
                     data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
                   >
-                    <TechStackIcon 
-                      TechStackIcon={stack.icon} 
-                      Language={stack.language} 
-                      isWhite={stack.needsInvert && currentTheme === "dark"} 
+                    <TechStackIcon
+                      image={getToolImage(stack)}
+                      name={stack.name}
                     />
                   </div>
                 ))}
@@ -392,18 +358,21 @@ export default function FullWidthTabs() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5 w-full">
                 {otherTools.map((stack, index) => (
                   <div
-                    key={index}
+                    key={stack.id || index}
                     data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
                     data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
                   >
-                    <TechStackIcon 
-                      TechStackIcon={stack.icon} 
-                      Language={stack.language} 
-                      isWhite={stack.needsInvert && currentTheme === "dark"} 
+                    <TechStackIcon
+                      image={getToolImage(stack)}
+                      name={stack.name}
                     />
                   </div>
                 ))}
               </div>
+
+              {techTools.length === 0 && (
+                <p className="text-secondary text-sm">{t("dashboard.noTools")}</p>
+              )}
             </div>
           </TabPanel>
         </SwipeableViews>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Projects from './dashboard/Projects'
 import Certificates from './dashboard/Certificates'
+import TechTools from './dashboard/TechTools'
 import Comments from './dashboard/Comments'
 import Emails from './dashboard/Emails'
 import PersonalInfo from './dashboard/PersonalInfo'
@@ -83,6 +84,7 @@ export default function Dashboard() {
             <Route path="personal-info" element={<PersonalInfo />} />
             <Route path="projects" element={<Projects />} />
             <Route path="certificates" element={<Certificates />} />
+            <Route path="tech-tools" element={<TechTools />} />
             <Route path="comments" element={<Comments />} />
             <Route path="emails" element={<Emails />} />
           </Routes>

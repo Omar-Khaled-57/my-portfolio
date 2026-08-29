@@ -22,9 +22,15 @@ export function DataProvider({ children }) {
       return cached ? JSON.parse(cached) : [];
     } catch { return []; }
   });
+  const [techTools, setTechTools] = useState(() => {
+    try {
+      const cached = localStorage.getItem("tech_tools");
+      return cached ? JSON.parse(cached) : [];
+    } catch { return []; }
+  });
 
   const fetchData = useCallback(async () => {
-    const [socialRes, projectsRes, certsRes] = await Promise.all([
+    const [socialRes, projectsRes, certsRes, toolsRes] = await Promise.all([
       supabase
         .from("app_settings")
         .select("value")
@@ -39,6 +45,10 @@ export function DataProvider({ children }) {
         .from("certificates")
         .select("*")
         .order("id", { ascending: false }),
+      supabase
+        .from("tech_tools")
+        .select("*")
+        .order("sort_order", { ascending: true }),
     ]);
 
     if (socialRes.data?.value) {
@@ -59,6 +69,11 @@ export function DataProvider({ children }) {
       localStorage.setItem("certificates", JSON.stringify(certsRes.data));
     }
 
+    if (!toolsRes.error && toolsRes.data) {
+      setTechTools(toolsRes.data);
+      localStorage.setItem("tech_tools", JSON.stringify(toolsRes.data));
+    }
+
     window.dispatchEvent(new Event("portfolioDataLoaded"));
   }, []);
 
@@ -67,7 +82,7 @@ export function DataProvider({ children }) {
   }, [fetchData]);
 
   return (
-    <DataContext.Provider value={{ socialLinks, projects, certificates, refetch: fetchData }}>
+    <DataContext.Provider value={{ socialLinks, projects, certificates, techTools, refetch: fetchData }}>
       {children}
     </DataContext.Provider>
   );
