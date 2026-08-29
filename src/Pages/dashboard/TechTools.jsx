@@ -187,7 +187,7 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onToggleVisibility, on
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 min-w-0">
+            <div className="flex items-center justify-between gap-1.5 min-w-0">
               <h3 className="font-semibold text-primary text-sm truncate">{tool.name}</h3>
               {isHidden && (
                 <span className="shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-yellow-500/20 bg-yellow-500/15 text-yellow-400">
