@@ -22,32 +22,44 @@ const Navbar = () => {
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 20);
-            const sections = navItems.map(item => {
-                const section = document.querySelector(item.href);
-                if (section) {
-                    return {
-                        id: item.href.replace("#", ""),
-                        offset: section.offsetTop - 550,
-                        height: section.offsetHeight
-                    };
-                }
-                return null;
-            }).filter(Boolean);
-
-            const currentPosition = window.scrollY;
-            const active = sections.find(section => 
-                currentPosition >= section.offset && 
-                currentPosition < section.offset + section.height
-            );
-
-            if (active) {
-                setActiveSection(active.id);
-            }
         };
 
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { passive: true });
         handleScroll();
         return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    useEffect(() => {
+        let observer = null;
+        let retryTimer = null;
+
+        const init = () => {
+            const sections = navItems
+                .map((item) => document.getElementById(item.href.slice(1)))
+                .filter(Boolean);
+
+            if (sections.length === 0) {
+                retryTimer = setTimeout(init, 400);
+                return;
+            }
+
+            observer = new IntersectionObserver(
+                (entries) => {
+                    const intersecting = entries.filter((e) => e.isIntersecting);
+                    if (intersecting.length > 0) {
+                        setActiveSection(intersecting[intersecting.length - 1].target.id);
+                    }
+                },
+                { rootMargin: "-40% 0px -50% 0px", threshold: 0 }
+            );
+            sections.forEach((el) => observer.observe(el));
+        };
+
+        init();
+        return () => {
+            if (retryTimer) clearTimeout(retryTimer);
+            if (observer) observer.disconnect();
+        };
     }, [navItems]);
 
     useEffect(() => {

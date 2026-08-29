@@ -4,7 +4,7 @@
   <!-- Basic -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/png" href="/icons/icon.png" />
+  <link rel="icon" type="image/png" href="/icons/favicon.png" />
   <!-- Apply saved/system theme and language before the app renders (prevents flash) -->
   <script>
     (function () {
@@ -23,6 +23,13 @@
       }
       document.documentElement.lang = lang;
       document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+
+      if (lang === "ar") {
+        var cairo = document.createElement("link");
+        cairo.rel = "stylesheet";
+        cairo.href = "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap";
+        document.head.appendChild(cairo);
+      }
     })();
   </script>
   <!-- preload Google Font -->
@@ -33,14 +40,14 @@
   <link
     rel="preload"
     as="style"
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
     onload="this.onload=null;this.rel='stylesheet'"
   >
 
   <noscript>
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
     >
   </noscript>
   

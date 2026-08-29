@@ -6,13 +6,12 @@ import AnimatedBackground from "./components/Background";
 import LandingPage from "./components/LandingPage";
 import ProjectPageLayout from "./components/ProjectPageLayout";
 import GlobalKeyHandler from "./components/GlobalKeyHandler";
-
-import Login from "./Pages/Login";
-import Dashboard from "./Pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const CVPage = lazy(() => import('./Pages/CV'));
 const NotFoundPage = lazy(() => import('./Pages/404'));
+const Login = lazy(() => import('./Pages/Login'));
+const Dashboard = lazy(() => import('./Pages/Dashboard'));
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -46,13 +45,22 @@ function App() {
             }
           />
 
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={
+              <Suspense fallback={<div className="min-h-screen" />}>
+                <Login />
+              </Suspense>
+            }
+          />
 
           <Route
             path="/dashboard/*"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Suspense fallback={<div className="min-h-screen" />}>
+                  <Dashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           />

@@ -111,8 +111,14 @@ const Home = () => {
   useAOS({ once: true, offset: 10 });
 
   useEffect(() => {
+    let ticking = false;
     const handleResize = () => {
-      refreshAOS();
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        refreshAOS();
+        ticking = false;
+      });
     };
 
     window.addEventListener('resize', handleResize);

@@ -90,7 +90,24 @@ export function DataProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    let cancelled = false;
+    const run = () => {
+      if (!cancelled) fetchData();
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+      const idleId = window.requestIdleCallback(run, { timeout: 2000 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(idleId);
+      };
+    }
+
+    const timer = setTimeout(run, 1000);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [fetchData]);
 
   return (

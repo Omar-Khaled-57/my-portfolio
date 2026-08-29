@@ -1,17 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-export default function useAOS(options = {}) {
-  const optionsRef = useRef(options);
-  optionsRef.current = options;
+const DEFAULT_OPTIONS = { once: false, offset: 10 };
 
+let aosReady = false;
+
+export default function useAOS() {
   useEffect(() => {
-    AOS.init(optionsRef.current);
+    if (!aosReady) {
+      AOS.init(DEFAULT_OPTIONS);
+      aosReady = true;
+    }
     AOS.refresh();
-    return () => {
-      AOS.refreshHard();
-    };
   }, []);
 }
 
