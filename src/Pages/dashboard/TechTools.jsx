@@ -257,14 +257,6 @@ export default function TechTools() {
   const [showCreate, setShowCreate] = useState(false);
   const [editTool, setEditTool] = useState(null);
 
-  const filteredTools = useMemo(() => {
-    if (filter === "all") return sortedTools;
-    return sortedTools.filter((tool) => tool.type === filter);
-  }, [sortedTools, filter]);
-
-  const mainCount = useMemo(() => tools.filter((tool) => tool.type === "Main").length, [tools]);
-  const otherCount = useMemo(() => tools.filter((tool) => tool.type === "Other").length, [tools]);
-
   const fetchTools = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
@@ -282,6 +274,14 @@ export default function TechTools() {
     orderField: "sort_order",
     onSaved: fetchTools,
   });
+
+  const filteredTools = useMemo(() => {
+    if (filter === "all") return sortedTools;
+    return sortedTools.filter((tool) => tool.type === filter);
+  }, [sortedTools, filter]);
+
+  const mainCount = useMemo(() => tools.filter((tool) => tool.type === "Main").length, [tools]);
+  const otherCount = useMemo(() => tools.filter((tool) => tool.type === "Other").length, [tools]);
 
   useEffect(() => {
     fetchTools();
