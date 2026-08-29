@@ -18,24 +18,20 @@ const LandingPage = ({ showWelcome, setShowWelcome }) => (
       <WelcomeScreen onLoadingComplete={() => setShowWelcome(false)} />
     )}
 
-    {!showWelcome && (
-      <>
-        <Navbar />
-        <main>
-          <Suspense fallback={<div className="min-h-screen" />}>
-            <Home />
-          </Suspense>
-          <Suspense fallback={<div className="min-h-screen" />}>
-            <About />
-          </Suspense>
-          <Suspense fallback={<div className="h-20" />}>
-            <Portfolio />
-            <ContactPage />
-          </Suspense>
-        </main>
-        <Footer />
-      </>
-    )}
+    <Navbar />
+    <main>
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <Home />
+      </Suspense>
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <About />
+      </Suspense>
+      <Suspense fallback={<div className="h-20" />}>
+        <Portfolio />
+        <ContactPage />
+      </Suspense>
+    </main>
+    <Footer />
   </>
 );
 
