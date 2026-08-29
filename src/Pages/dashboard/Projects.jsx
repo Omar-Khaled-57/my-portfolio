@@ -13,8 +13,7 @@ import {
   EyeOff,
   ArrowUp,
   ArrowDown,
-  ChevronDown,
-  ChevronUp,
+  Check,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
 import { useSharedData } from "../../context/DataContext";
@@ -190,7 +189,6 @@ const ProjectForm = ({
   });
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(initial?.img || null);
-  const [showPicker, setShowPicker] = useState(false);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -278,16 +276,14 @@ const ProjectForm = ({
           placeholder={t("dashboard.featuresPlaceholder")}
         />
 
-        <div className="sm:col-span-2 space-y-1.5">
-          <DashboardInput
-            label={t("dashboard.techIdsInput")}
-            value={form.TechIds}
-            onChange={set("TechIds")}
-            placeholder={t("dashboard.techIdsPlaceholder")}
-            hint={t("dashboard.techIdsHint")}
-          />
+        <div className="sm:col-span-2 space-y-2">
+          <label className="block">
+            <span className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
+              {t("dashboard.techIdsInput")}
+            </span>
+          </label>
 
-          <div className="flex flex-wrap gap-1.5 pt-1">
+          <div className="flex flex-wrap gap-1.5">
             {typedIds.map((id) => {
               const tool = toolById.get(id);
               return tool ? (
@@ -316,17 +312,8 @@ const ProjectForm = ({
             })}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowPicker((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-xs text-accent-primary hover:text-accent-secondary transition-colors"
-          >
-            {t("dashboard.techQuickPick")}
-            {showPicker ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-
-          {showPicker && (
-            <div className="flex flex-wrap gap-1.5 pt-2">
+          {(tools || []).length > 0 && (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-2 pt-1">
               {(tools || [])
                 .slice()
                 .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
@@ -337,14 +324,21 @@ const ProjectForm = ({
                       key={tool.id}
                       type="button"
                       onClick={() => toggleId(tool.id)}
-                      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[11px] font-medium transition-colors ${
+                      aria-pressed={active}
+                      title={tool.name}
+                      className={`relative flex flex-col items-center gap-1 p-2 rounded-xl border text-[10px] font-medium transition-colors ${
                         active
-                          ? "border-accent-primary/50 bg-accent-primary/15 text-primary"
+                          ? "border-accent-primary/60 bg-accent-primary/15 text-primary"
                           : "border-primary bg-primary/10 text-secondary hover:border-white/20"
                       }`}
                     >
-                      <img src={getToolImage(tool, theme)} alt="" className="w-4 h-4 object-contain" />
-                      {tool.name}
+                      {active && (
+                        <span className="absolute top-0.5 end-0.5 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-accent-primary text-white">
+                          <Check className="w-2.5 h-2.5" />
+                        </span>
+                      )}
+                      <img src={getToolImage(tool, theme)} alt="" className="w-7 h-7 object-contain" />
+                      <span className="w-full truncate text-center leading-tight">{tool.name}</span>
                     </button>
                   );
                 })}
