@@ -4,6 +4,7 @@ import useAOS from "../hooks/useAOS";
 import { supabase } from '../supabase';
 import { useI18n } from "../i18n";
 import { useSharedData } from "../context/DataContext";
+import Swal from "sweetalert2";
 
 const afterFirstPaint = (fn) => {
   const timer = setTimeout(fn, 1000);
@@ -82,7 +83,14 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error: _error, isFrozen }) =
         if (file) {
             // Check file size (1MB limit)
             if (file.size > 1 * 1024 * 1024) {
-                alert(t('comments.fileTooLarge'));
+                Swal.fire({
+                    icon: 'warning',
+                    title: t('comments.fileTooLarge'),
+                    timer: 2500,
+                    showConfirmButton: false,
+                    background: 'var(--bg-secondary)',
+                    color: 'var(--text-primary)'
+                });
                 // Reset the input
                 if (e.target) e.target.value = '';
                 return;
@@ -90,7 +98,14 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error: _error, isFrozen }) =
             
             // Check file type
             if (!file.type.startsWith('image/')) {
-                alert(t('comments.invalidFile'));
+                Swal.fire({
+                    icon: 'warning',
+                    title: t('comments.invalidFile'),
+                    timer: 2500,
+                    showConfirmButton: false,
+                    background: 'var(--bg-secondary)',
+                    color: 'var(--text-primary)'
+                });
                 if (e.target) e.target.value = '';
                 return;
             }
