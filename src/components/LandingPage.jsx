@@ -1,5 +1,4 @@
 import React, { lazy, Suspense } from "react";
-import { AnimatePresence } from "framer-motion";
 import Navbar from "./Navbar";
 import WelcomeScreen from "../Pages/WelcomeScreen";
 import Footer from "./Footer";
@@ -15,11 +14,9 @@ const ContactPage = lazy(() => import("../Pages/Contact"));
  */
 const LandingPage = ({ showWelcome, setShowWelcome }) => (
   <>
-    <AnimatePresence mode="wait">
-      {showWelcome && (
-        <WelcomeScreen onLoadingComplete={() => setShowWelcome(false)} />
-      )}
-    </AnimatePresence>
+    {showWelcome && (
+      <WelcomeScreen onLoadingComplete={() => setShowWelcome(false)} />
+    )}
 
     {!showWelcome && (
       <>

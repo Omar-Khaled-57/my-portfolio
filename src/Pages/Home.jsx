@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback, memo } from "react"
+import React, { useState, useEffect, useCallback, memo, Suspense, lazy } from "react"
 import { Helmet } from "react-helmet-async"
 import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles } from "lucide-react"
 import WhatsAppIcon from "../components/icons/WhatsAppIcon"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import { useSharedData } from "../context/DataContext"
-import LottieAnimation from "../components/LottieAnimation"
+
+const LottieAnimation = lazy(() => import("../components/LottieAnimation"));
 
 const StatusBadge = memo(({ text }) => (
   <div className="hidden animate-float lg:mx-0" data-aos="zoom-in" data-aos-delay="400">
@@ -80,6 +81,24 @@ const platformIconMap = {
   WhatsApp: WhatsAppIcon,
   Instagram: Instagram,
 };
+
+const HeroAnimation = memo(({ className }) => {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setReady(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+    <>
+      <div className={className} aria-hidden="true" />
+      {ready && (
+        <Suspense fallback={null}>
+          <LottieAnimation animationPath="/animations/lottie.json" className={className} />
+        </Suspense>
+      )}
+    </>
+  );
+});
 
 const Home = () => {
   const { t } = useI18n();
@@ -247,8 +266,7 @@ const Home = () => {
                   </div>
 
                   <div className="relative lg:start-12 z-10 w-full h-full">
-                    <LottieAnimation
-                      animationPath="/animations/lottie.json"
+                    <HeroAnimation
                       className={`w-full h-full transition-all duration-700 ease-in-out drop-shadow-[0_15px_50px_rgba(0,0,0,0.2)] drop-shadow-[0_5px_15px_rgba(99,102,241,0.6)] ${
                         isHovering 
                           ? "scale-[95%] sm:scale-[90%] rotate-2" 

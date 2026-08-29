@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Code2, Github, Globe, User } from 'lucide-react';
 import { useI18n } from "../i18n";
 
@@ -50,75 +49,73 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
   }, [complete]);
 
   return (
-    <AnimatePresence>
-      {isLoading && (
-        <motion.div
-          className="fixed inset-0 bg-primary"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: EXIT_DURATION_MS / 1000, ease: 'easeInOut' } }}
-          onPointerDown={complete}
-        >
-          <BackgroundEffect />
+    <>
+      <style>{`@keyframes welcome-fade-in { from { opacity: 0; } to { opacity: 1; } }`}</style>
+      <div
+        className={`fixed inset-0 bg-primary transition-opacity duration-[350ms] ease-in-out pointer-events-none ${
+          isLoading ? "opacity-100 animate-[welcome-fade-in_0.4s_ease-out] pointer-events-auto" : "opacity-0"
+        }`}
+        onPointerDown={complete}
+      >
+        <BackgroundEffect />
 
-          <div className="relative min-h-screen flex items-center justify-center px-4">
-            <div className="w-full max-w-4xl mx-auto">
-              {/* Icons */}
-              <div className="flex justify-center gap-3 sm:gap-4 md:gap-8 mb-6 sm:mb-8 md:mb-12">
-                {[Code2, User, Github].map((Icon, index) => (
-                  <div key={index}>
-                    <IconButton Icon={Icon} />
-                  </div>
-                ))}
-              </div>
+        <div className="relative min-h-screen flex items-center justify-center px-4">
+          <div className="w-full max-w-4xl mx-auto">
+            {/* Icons */}
+            <div className="flex justify-center gap-3 sm:gap-4 md:gap-8 mb-6 sm:mb-8 md:mb-12">
+              {[Code2, User, Github].map((Icon, index) => (
+                <div key={index}>
+                  <IconButton Icon={Icon} />
+                </div>
+              ))}
+            </div>
 
-              {/* Welcome Text */}
-              <div className="text-center mb-6 sm:mb-8 md:mb-12">
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold space-y-2 sm:space-y-4">
-                  <div className="mb-2 sm:mb-4">
-                    <span className="inline-block px-2 bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent py-2">
-                      {t("welcome.one")}
-                    </span>{' '}
-                    <span className="inline-block px-2 bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent py-2">
-                      {t("welcome.two")}
-                    </span>{' '}
-                    <span className="inline-block px-2 bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent py-2">
-                      {t("welcome.three")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="inline-block px-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent py-2">
-                      {t("welcome.four")}
-                    </span>{' '}
-                    <span className="inline-block px-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent py-2">
-                      {t("welcome.five")}
-                    </span>
-                  </div>
-                </h1>
-              </div>
+            {/* Welcome Text */}
+            <div className="text-center mb-6 sm:mb-8 md:mb-12">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold space-y-2 sm:space-y-4">
+                <div className="mb-2 sm:mb-4">
+                  <span className="inline-block px-2 bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent py-2">
+                    {t("welcome.one")}
+                  </span>{' '}
+                  <span className="inline-block px-2 bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent py-2">
+                    {t("welcome.two")}
+                  </span>{' '}
+                  <span className="inline-block px-2 bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent py-2">
+                    {t("welcome.three")}
+                  </span>
+                </div>
+                <div>
+                  <span className="inline-block px-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent py-2">
+                    {t("welcome.four")}
+                  </span>{' '}
+                  <span className="inline-block px-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent py-2">
+                    {t("welcome.five")}
+                  </span>
+                </div>
+              </h1>
+            </div>
 
-              {/* Website Link */}
-              <div className="text-center">
-                <a
-                  href="https://omar-el-khouly.vercel.app"
-                  className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-full relative group hover:scale-105 transition-transform duration-300"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-full blur-md group-hover:blur-lg transition-all duration-300" />
-                  <div className="relative flex items-center gap-2 text-lg sm:text-xl md:text-2xl">
-                    <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
-                    <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                      omar-el-khouly.vercel.app
-                    </span>
-                  </div>
-                </a>
-              </div>
+            {/* Website Link */}
+            <div className="text-center">
+              <a
+                href="https://omar-el-khouly.vercel.app"
+                className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-full relative group hover:scale-105 transition-transform duration-300"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-full blur-md group-hover:blur-lg transition-all duration-300" />
+                <div className="relative flex items-center gap-2 text-lg sm:text-xl md:text-2xl">
+                  <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+                  <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    omar-el-khouly.vercel.app
+                  </span>
+                </div>
+              </a>
             </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
+      </div>
+    </>
   );
 };
 
