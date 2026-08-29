@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo, Suspense, lazy } from "react"
+import React, { useState, useEffect, useCallback, memo, Suspense, lazy, useRef } from "react"
 import { Helmet } from "react-helmet-async"
 import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles } from "lucide-react"
 import WhatsAppIcon from "../components/icons/WhatsAppIcon"
@@ -83,20 +83,35 @@ const platformIconMap = {
 };
 
 const HeroAnimation = memo(({ className }) => {
+  const holderRef = useRef(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    const timer = setTimeout(() => setReady(true), 1200);
-    return () => clearTimeout(timer);
+    const el = holderRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver !== "function") {
+      const timer = setTimeout(() => setReady(true), 2000);
+      return () => clearTimeout(timer);
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setReady(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "200px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
   return (
-    <>
-      <div className={className} aria-hidden="true" />
+    <div ref={holderRef} className={className}>
       {ready && (
         <Suspense fallback={null}>
           <LottieAnimation animationPath="/animations/lottie.json" className={className} />
         </Suspense>
       )}
-    </>
+    </div>
   );
 });
 
