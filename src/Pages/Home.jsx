@@ -253,7 +253,7 @@ const Home = ({ onReady }) => {
         })}</script>
       </Helmet>
 
-      <div className="min-h-screen bg-[var(--bg-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%]" id="Home">
+      <div className="min-h-screen bg-[var(--bg-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%] [@media(max-width:380px)]:pt-24 [@media(min-width:760px)_and_(max-width:770px)]:pt-24 [@media(min-width:820px)_and_(max-width:830px)]:pt-24" id="Home">
         <div className="relative z-10">
           <div className="container mx-auto min-h-screen">
             <div className="flex flex-col lg:flex-row items-center justify-center h-screen md:justify-between gap-0 sm:gap-12 lg:gap-20">
@@ -296,7 +296,7 @@ const Home = ({ onReady }) => {
               </div>
 
               {/* Right Column - WebM Video */}
-              <div className="w-full py-0 md:py-[10%] sm:py-0 lg:w-1/2 h-[260px] sm:h-[400px] lg:h-[600px] xl:h-[750px] relative flex items-center justify-center order-2 lg:order-2 mt-5 sm:mt-0"
+              <div className="w-full py-0 md:py-[10%] sm:py-0 lg:w-[75%] h-[360px] sm:h-[550px] lg:h-[720px] xl:h-[920px] relative flex items-center justify-center order-2 lg:order-2 mt-5 sm:mt-0"
                 data-aos="fade-left"
                 data-aos-delay="600">
                 <div
