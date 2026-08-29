@@ -3,6 +3,12 @@ import { MessageSquareMore, MessagesSquare, UserCircle2, Loader2, AlertCircle, S
 import useAOS from "../hooks/useAOS";
 import { supabase } from '../supabase';
 import { useI18n } from "../i18n";
+import { useSharedData } from "../context/DataContext";
+
+const afterFirstPaint = (fn) => {
+  const timer = setTimeout(fn, 1000);
+  return () => clearTimeout(timer);
+};
 
 
 const Comment = memo(({ comment, formatDate, index: _index, isPinned = false, t }) => (
@@ -238,28 +244,14 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error: _error, isFrozen }) =
 
 const Komentar = () => {
     const { language, t } = useI18n();
+    const { appSettings } = useSharedData();
     const [comments, setComments] = useState([]);
     const [pinnedComment, setPinnedComment] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
-    const [isFrozen, setIsFrozen] = useState(false);
+    const isFrozen = appSettings?.comments_frozen === "true";
 
     useAOS({ once: false, duration: 1000 });
-
-    useEffect(() => {
-        const fetchFrozenState = async () => {
-            const { data } = await supabase
-                .from('app_settings')
-                .select('value')
-                .eq('key', 'comments_frozen')
-                .limit(1)
-                .maybeSingle();
-            if (data) {
-                setIsFrozen(data.value === 'true');
-            }
-        };
-        fetchFrozenState();
-    }, []);
 
     // Fetch pinned comment
     useEffect(() => {
@@ -285,7 +277,7 @@ const Komentar = () => {
             }
         };
 
-        fetchPinnedComment();
+        return afterFirstPaint(fetchPinnedComment);
     }, []);
 
     // Fetch regular comments (excluding pinned) and set up real-time subscription
@@ -305,11 +297,11 @@ const Komentar = () => {
     }, []);
 
     useEffect(() => {
-        fetchComments();
-
+        const cancel = afterFirstPaint(fetchComments);
         const pollInterval = setInterval(fetchComments, 30000);
 
         return () => {
+            cancel();
             clearInterval(pollInterval);
         };
     }, [fetchComments]);

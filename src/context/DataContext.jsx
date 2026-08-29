@@ -4,39 +4,43 @@ import { supabase } from "../supabase";
 
 const DataContext = createContext(null);
 
+const DATA_FETCH_DELAY_MS = 600;
+
+const readCache = (key, fallback) => {
+  try {
+    const cached = localStorage.getItem(key);
+    return cached ? JSON.parse(cached) : fallback;
+  } catch { return fallback; }
+};
+
+const SETTINGS_KEYS = [
+  "personalInfo_email",
+  "personalInfo_socialLinks",
+  "personalInfo_totalProjects",
+  "personalInfo_yearsExperience",
+  "personalInfo_showYearsExperience",
+  "personalInfo_profileImage",
+  "personalInfo_fullName",
+  "personalInfo_fullNameAr",
+  "personalInfo_quote",
+  "personalInfo_quoteAr",
+  "emails_frozen",
+  "comments_frozen",
+];
+
 export function DataProvider({ children }) {
-  const [socialLinks, setSocialLinks] = useState(() => {
-    try {
-      const cached = localStorage.getItem("personalInfo_socialLinks");
-      return cached ? JSON.parse(cached) : null;
-    } catch { return null; }
-  });
-  const [projects, setProjects] = useState(() => {
-    try {
-      const cached = localStorage.getItem("projects");
-      return cached ? JSON.parse(cached) : [];
-    } catch { return []; }
-  });
-  const [certificates, setCertificates] = useState(() => {
-    try {
-      const cached = localStorage.getItem("certificates");
-      return cached ? JSON.parse(cached) : [];
-    } catch { return []; }
-  });
-  const [techTools, setTechTools] = useState(() => {
-    try {
-      const cached = localStorage.getItem("tech_tools");
-      return cached ? JSON.parse(cached) : [];
-    } catch { return []; }
-  });
+  const [socialLinks, setSocialLinks] = useState(() => readCache("personalInfo_socialLinks", null));
+  const [projects, setProjects] = useState(() => readCache("projects", []));
+  const [certificates, setCertificates] = useState(() => readCache("certificates", []));
+  const [techTools, setTechTools] = useState(() => readCache("tech_tools", []));
+  const [appSettings, setAppSettings] = useState(() => readCache("app_settings", {}));
 
   const fetchData = useCallback(async () => {
-    const [socialRes, projectsRes, certsRes, toolsRes] = await Promise.all([
+    const [settingsRes, projectsRes, certsRes, toolsRes] = await Promise.all([
       supabase
         .from("app_settings")
-        .select("value")
-        .eq("key", "personalInfo_socialLinks")
-        .single(),
+        .select("key, value")
+        .in("key", SETTINGS_KEYS),
       supabase
         .from("projects")
         .select("*")
@@ -54,12 +58,25 @@ export function DataProvider({ children }) {
         .order("sort_order", { ascending: true }),
     ]);
 
-    if (socialRes.data?.value) {
-      try {
-        const parsed = JSON.parse(socialRes.data.value);
-        setSocialLinks(parsed);
-        localStorage.setItem("personalInfo_socialLinks", JSON.stringify(parsed));
-      } catch {}
+    if (settingsRes.data) {
+      const map = {};
+      settingsRes.data.forEach(({ key, value }) => {
+        map[key] = value;
+      });
+      setAppSettings(map);
+      localStorage.setItem("app_settings", JSON.stringify(map));
+      if (map.personalInfo_socialLinks) {
+        try {
+          const parsed = JSON.parse(map.personalInfo_socialLinks);
+          setSocialLinks(parsed);
+          localStorage.setItem("personalInfo_socialLinks", JSON.stringify(parsed));
+        } catch {}
+      }
+      SETTINGS_KEYS.forEach((key) => {
+        if (map[key] !== undefined && key !== "personalInfo_socialLinks") {
+          localStorage.setItem(key, map[key]);
+        }
+      });
     }
 
     if (!projectsRes.error && projectsRes.data) {
@@ -82,19 +99,9 @@ export function DataProvider({ children }) {
 
   useEffect(() => {
     let cancelled = false;
-    const run = () => {
+    const timer = setTimeout(() => {
       if (!cancelled) fetchData();
-    };
-
-    if (typeof window.requestIdleCallback === "function") {
-      const idleId = window.requestIdleCallback(run, { timeout: 2000 });
-      return () => {
-        cancelled = true;
-        window.cancelIdleCallback(idleId);
-      };
-    }
-
-    const timer = setTimeout(run, 1000);
+    }, DATA_FETCH_DELAY_MS);
     return () => {
       cancelled = true;
       clearTimeout(timer);
@@ -102,7 +109,7 @@ export function DataProvider({ children }) {
   }, [fetchData]);
 
   return (
-    <DataContext.Provider value={{ socialLinks, projects, certificates, techTools, refetch: fetchData }}>
+    <DataContext.Provider value={{ socialLinks, projects, certificates, techTools, appSettings, refetch: fetchData }}>
       {children}
     </DataContext.Provider>
   );

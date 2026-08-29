@@ -2,7 +2,6 @@ import React, { useEffect, useState, memo, useMemo } from "react"
 import { FileText, Code, Award, ArrowUpRight, Sparkles, FolderGit2, Briefcase } from "lucide-react"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
-import { supabase } from "../supabase"
 import { useSharedData } from "../context/DataContext"
 import CVModal from "../components/CVModal"
 // Memoized Components
@@ -118,7 +117,7 @@ const StatCard = memo(({ icon: Icon, color, value, label, description, animation
 
 const AboutPage = () => {
   const { t, language } = useI18n();
-  const { projects: sharedProjects, certificates: sharedCertificates } = useSharedData();
+  const { projects: sharedProjects, certificates: sharedCertificates, appSettings } = useSharedData();
   const [isCVModalOpen, setIsCVModalOpen] = React.useState(false);
   // Dynamic stats calculation
   const countAccessible = (projects) =>
@@ -173,48 +172,25 @@ const AboutPage = () => {
   }, [sharedProjects, sharedCertificates]);
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      const settingsRes = await supabase
-        .from("app_settings")
-        .select("key, value")
-        .in("key", [
-          "personalInfo_totalProjects",
-          "personalInfo_yearsExperience",
-          "personalInfo_showYearsExperience",
-          "personalInfo_profileImage",
-          "personalInfo_fullName",
-          "personalInfo_fullNameAr",
-          "personalInfo_quote",
-          "personalInfo_quoteAr",
-        ]);
-
-      if (settingsRes.data) {
-        const map = {};
-        settingsRes.data.forEach(({ key, value }) => {
-          map[key.replace("personalInfo_", "")] = value;
-        });
-        if (map.totalProjects !== undefined) {
-          try { setManualTotalProjects(JSON.parse(map.totalProjects)); } catch { setManualTotalProjects(map.totalProjects); }
-        }
-        if (map.yearsExperience !== undefined) {
-          try { setYearsExpValue(JSON.parse(map.yearsExperience)); } catch { setYearsExpValue(map.yearsExperience); }
-        }
-        if (map.showYearsExperience !== undefined) {
-          setShowYearsExp(map.showYearsExperience === "true");
-        }
-        if (map.profileImage) setProfileImage(map.profileImage);
-        if (map.fullName) setFullName(map.fullName);
-        if (map.fullNameAr) setFullNameAr(map.fullNameAr);
-        if (map.quote) setQuote(map.quote);
-        if (map.quoteAr) setQuoteAr(map.quoteAr);
-        cacheLocally({ profileImage: map.profileImage, fullName: map.fullName, fullNameAr: map.fullNameAr, quote: map.quote, quoteAr: map.quoteAr });
-      } else {
-        cacheLocally({});
-      }
+    const s = appSettings || {};
+    const num = (key, fallback) => {
+      const raw = s[key];
+      if (raw === undefined) return fallback;
+      try { return JSON.parse(raw); } catch { return raw; }
     };
+    if (s.personalInfo_totalProjects !== undefined) setManualTotalProjects(num("personalInfo_totalProjects", manualTotalProjects));
+    if (s.personalInfo_yearsExperience !== undefined) setYearsExpValue(num("personalInfo_yearsExperience", yearsExpValue));
+    if (s.personalInfo_showYearsExperience !== undefined) setShowYearsExp(s.personalInfo_showYearsExperience === "true");
+    if (s.personalInfo_profileImage) setProfileImage(s.personalInfo_profileImage);
+    if (s.personalInfo_fullName) setFullName(s.personalInfo_fullName);
+    if (s.personalInfo_fullNameAr) setFullNameAr(s.personalInfo_fullNameAr);
+    if (s.personalInfo_quote) setQuote(s.personalInfo_quote);
+    if (s.personalInfo_quoteAr) setQuoteAr(s.personalInfo_quoteAr);
+    cacheLocally({ profileImage: s.personalInfo_profileImage, fullName: s.personalInfo_fullName, fullNameAr: s.personalInfo_fullNameAr, quote: s.personalInfo_quote, quoteAr: s.personalInfo_quoteAr });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appSettings]);
 
-    fetchSettings();
-
+  useEffect(() => {
     const handleStorage = (e) => {
       if (e.key?.startsWith("personalInfo_")) {
         try {
@@ -235,7 +211,7 @@ const AboutPage = () => {
     return () => {
       window.removeEventListener('storage', handleStorage);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const { totalCertificates, accessibleProjects } = stats;
 

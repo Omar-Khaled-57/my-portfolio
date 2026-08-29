@@ -1,34 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Share2, User, Mail, MessageSquare, Send, Lock } from "lucide-react";
 import SocialLinks from "../components/SocialLinks";
 import Komentar from "../components/Commentar";
-import Swal from "sweetalert2";
 import useAOS from "../hooks/useAOS";
 import axios from "axios";
 import { useI18n } from "../i18n";
-import { supabase } from "../supabase";
+import { useSharedData } from "../context/DataContext";
+
+const getSwal = async () => (await import("sweetalert2")).default;
 
 const ContactPage = () => {
   const { t } = useI18n();
+  const { appSettings } = useSharedData();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [emailsFrozen, setEmailsFrozen] = useState(false);
-
-  // Fetch freeze state once on mount
-  useEffect(() => {
-    supabase
-      .from("app_settings")
-      .select("value")
-      .eq("key", "emails_frozen")
-      .single()
-      .then(({ data }) => {
-        if (data) setEmailsFrozen(data.value === "true");
-      });
-  }, []);
+  const emailsFrozen = appSettings?.emails_frozen === "true";
 
   useAOS({ once: false });
 
@@ -42,6 +32,8 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const Swal = await getSwal();
 
     // Block submission if emails are frozen
     if (emailsFrozen) {
