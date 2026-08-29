@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Reorder } from 'framer-motion'
 import { supabase } from "../../supabase"
 import { Award, Upload, Trash2, ImageIcon, Plus, ArrowUp, ArrowDown } from 'lucide-react'
 import { useI18n } from "../../i18n"
 import { useDragOrder } from "../../hooks/useDragOrder"
 import DashboardCard from "../../components/dashboard/DashboardCard"
 import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton"
+import DragGrid from "../../components/dashboard/DragGrid"
 import Swal from "sweetalert2"
 
 const CertCard = ({ cert, index, total, onDelete, onMove }) => {
@@ -269,21 +269,12 @@ export default function Certificates() {
           </div>
         </DashboardCard>
       ) : (
-        <Reorder.Group
-          as="div"
-          axis="both"
-          values={certs}
-          onReorder={(next) => reorder(next, certs)}
-          className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
-        >
-          {certs.map((cert, index) => (
-            <Reorder.Item
-              as="div"
-              key={cert.id}
-              value={cert}
-              layout
-              className="cursor-grab active:cursor-grabbing"
-            >
+        <DragGrid
+            items={certs}
+            onReorder={(next) => reorder(next, certs)}
+            className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
+          >
+            {(cert, index) => (
               <CertCard
                 cert={cert}
                 index={index}
@@ -291,9 +282,8 @@ export default function Certificates() {
                 onDelete={deleteCert}
                 onMove={handleMove(cert.id)}
               />
-            </Reorder.Item>
-          ))}
-        </Reorder.Group>
+            )}
+          </DragGrid>
       )}
     </div>
   )

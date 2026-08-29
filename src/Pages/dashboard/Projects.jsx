@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Reorder } from "framer-motion";
 import { supabase } from "../../supabase";
 import {
   Plus,
@@ -27,6 +26,7 @@ import DashboardModal from "../../components/dashboard/DashboardModal";
 import DashboardInput from "../../components/dashboard/DashboardInput";
 import DashboardImageUpload from "../../components/dashboard/DashboardImageUpload";
 import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
+import DragGrid from "../../components/dashboard/DragGrid";
 import Swal from "sweetalert2";
 
 const parseIds = (str) => [...new Set((str || "").split(",").map((s) => s.trim()).filter(Boolean))];
@@ -774,33 +774,23 @@ export default function Projects() {
           </div>
         </DashboardCard>
       ) : (
-        <Reorder.Group
-          as="div"
-          axis="both"
-          values={filteredProjects}
+        <DragGrid
+          items={filteredProjects}
           onReorder={(next) => reorder(next, filteredProjects)}
           className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
         >
-          {filteredProjects.map((project, index) => (
-            <Reorder.Item
-              as="div"
-              key={project.id}
-              value={project}
-              layout
-              className="cursor-grab active:cursor-grabbing"
-            >
-              <ProjectCard
-                project={project}
-                index={index}
-                total={filteredProjects.length}
-                onDelete={deleteProject}
-                onEdit={setEditProject}
-                onTogglePublish={handleTogglePublish}
-                onMove={handleMove(project.id)}
-              />
-            </Reorder.Item>
-          ))}
-        </Reorder.Group>
+          {(project, index) => (
+            <ProjectCard
+              project={project}
+              index={index}
+              total={filteredProjects.length}
+              onDelete={deleteProject}
+              onEdit={setEditProject}
+              onTogglePublish={handleTogglePublish}
+              onMove={handleMove(project.id)}
+            />
+          )}
+        </DragGrid>
       )}
     </div>
   );

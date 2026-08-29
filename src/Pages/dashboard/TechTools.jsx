@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Reorder } from "framer-motion";
 import { supabase } from "../../supabase";
 import {
   Boxes,
@@ -21,6 +20,7 @@ import DashboardModal from "../../components/dashboard/DashboardModal";
 import DashboardInput from "../../components/dashboard/DashboardInput";
 import DashboardImageUpload from "../../components/dashboard/DashboardImageUpload";
 import DashboardSkeleton from "../../components/dashboard/DashboardSkeleton";
+import DragGrid from "../../components/dashboard/DragGrid";
 import Swal from "sweetalert2";
 
 const typeOptions = (t) => [
@@ -532,32 +532,22 @@ export default function TechTools() {
           </div>
         </DashboardCard>
       ) : (
-        <Reorder.Group
-          as="div"
-          axis="both"
-          values={filteredTools}
+        <DragGrid
+          items={filteredTools}
           onReorder={(next) => reorder(next, filteredTools)}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3"
         >
-          {filteredTools.map((tool, index) => (
-            <Reorder.Item
-              as="div"
-              key={tool.id}
-              value={tool}
-              layout
-              className="cursor-grab active:cursor-grabbing"
-            >
-              <ToolCard
-                tool={tool}
-                index={index}
-                total={filteredTools.length}
-                onDelete={deleteTool}
-                onEdit={setEditTool}
-                onMove={handleMove(tool.id)}
-              />
-            </Reorder.Item>
-          ))}
-        </Reorder.Group>
+          {(tool, index) => (
+            <ToolCard
+              tool={tool}
+              index={index}
+              total={filteredTools.length}
+              onDelete={deleteTool}
+              onEdit={setEditTool}
+              onMove={handleMove(tool.id)}
+            />
+          )}
+        </DragGrid>
       )}
     </div>
   );
