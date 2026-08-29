@@ -92,12 +92,13 @@ const HeroAnimation = memo(({ className }) => {
     const el = holderRef.current;
     if (!el) return;
     let visible = false;
+    let timer = null;
     const tryMount = () => {
       const elapsed = (typeof performance !== "undefined" && performance.now()) || 0;
       if (visible && elapsed >= 2500) setReady(true);
     };
     if (typeof IntersectionObserver !== "function") {
-      const timer = setInterval(() => {
+      timer = setInterval(() => {
         if (performance.now() >= 2500) {
           setReady(true);
           clearInterval(timer);
@@ -110,13 +111,21 @@ const HeroAnimation = memo(({ className }) => {
         if (entries.some((e) => e.isIntersecting)) {
           visible = true;
           io.disconnect();
-          tryMount();
+          const elapsed = (typeof performance !== "undefined" && performance.now()) || 0;
+          if (elapsed >= 2500) {
+            setReady(true);
+          } else {
+            timer = setTimeout(tryMount, 2500 - elapsed);
+          }
         }
       },
       { rootMargin: "0px 0px" }
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      if (timer) clearTimeout(timer);
+    };
   }, []);
   return (
     <div ref={holderRef} className={className}>
