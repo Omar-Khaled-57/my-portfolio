@@ -22,7 +22,7 @@ import { toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
 import { useSharedData } from "../context/DataContext";
-import { getToolImage, resolveProjectTools } from "../utils/techTools";
+import { getToolImage, matchToolByName, resolveProjectTools } from "../utils/techTools";
 
 const TECH_ICONS = {
   React: Globe,
@@ -59,7 +59,7 @@ const TechBadge = ({ tech }) => {
   );
 };
 
-const ToolIconBadge = ({ tool, theme }) => {
+const ToolIconBadge = ({ tool, theme, label }) => {
   return (
     <div className="group relative overflow-hidden px-3 py-2 md:px-4 md:py-2.5 rounded-xl cursor-default transition-all duration-300 hover:scale-105 hover:shadow-accent-primary/10 border border-primary"
       style={{
@@ -76,11 +76,11 @@ const ToolIconBadge = ({ tool, theme }) => {
         <img
           src={getToolImage(tool, theme)}
           alt={tool.name}
-          title={tool.name}
+          title={label || tool.name}
           className="w-3.5 h-3.5 md:w-4 md:h-4 object-contain transition-transform group-hover:scale-110"
         />
         <span className="text-xs md:text-sm font-medium text-secondary group-hover:text-primary transition-colors">
-          {tool.name}
+          {label || tool.name}
         </span>
       </div>
     </div>
@@ -424,9 +424,19 @@ const ProjectDetails = () => {
                     </div>
                   ) : project.tech_stack.length > 0 ? (
                     <div className="flex flex-wrap gap-2 md:gap-3">
-                      {project.tech_stack.map((tech, index) => (
-                        <TechBadge key={index} tech={tech} />
-                      ))}
+                      {project.tech_stack.map((tech, index) => {
+                        const tool = matchToolByName(tech, contextTechTools);
+                        return tool ? (
+                          <ToolIconBadge
+                            key={`${tool.id}-${index}`}
+                            tool={tool}
+                            theme={theme}
+                            label={tech}
+                          />
+                        ) : (
+                          <TechBadge key={index} tech={tech} />
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="text-sm md:text-base text-secondary/60 font-medium italic">

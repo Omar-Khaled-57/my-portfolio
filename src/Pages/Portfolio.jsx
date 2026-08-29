@@ -14,7 +14,7 @@ import useAOS, { refreshAOS } from "../hooks/useAOS";
 import { useI18n } from "../i18n";
 import { useTheme as useCustomTheme } from "../context/ThemeContext";
 import { useSharedData } from "../context/DataContext";
-import { resolveProjectTools } from "../utils/techTools";
+import { resolveStackTools } from "../utils/techTools";
 
 
 const ToggleButton = ({ onClick, isShowingMore }) => {
@@ -294,7 +294,7 @@ export default function FullWidthTabs() {
                       link={project.link}
                       github={project.github}
                       id={project.id}
-                      techTools={project.tech_ids ? resolveProjectTools(project, techTools) : []}
+                      techTools={resolveStackTools(project, techTools)}
                     />
                   </div>
                 ))}
