@@ -150,6 +150,14 @@ export default function FullWidthTabs() {
     refreshAOS();
   }, [value]);
 
+  useEffect(() => {
+    const onPortfolioTabChange = (e) => {
+      if (typeof e.detail === "number") setValue(e.detail);
+    };
+    window.addEventListener("portfolioTabChange", onPortfolioTabChange);
+    return () => window.removeEventListener("portfolioTabChange", onPortfolioTabChange);
+  }, []);
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };

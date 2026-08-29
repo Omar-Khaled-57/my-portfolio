@@ -265,6 +265,7 @@ const AboutPage = () => {
         label: t("about.totalProjects"),
         description: t("about.totalProjectsDescription"),
         animation: "fade-right",
+        tab: 0,
       },
       {
         icon: Award,
@@ -273,6 +274,7 @@ const AboutPage = () => {
         label: t("about.certificates"),
         description: t("about.certificatesDescription"),
         animation: "fade-up",
+        tab: 1,
       },
       {
         icon: FolderGit2,
@@ -281,6 +283,7 @@ const AboutPage = () => {
         label: t("about.accessibleProjects"),
         description: t("about.accessibleProjectsDescription"),
         animation: "fade-left",
+        tab: 0,
       },
     ];
     if (showYearsExp) {
@@ -291,6 +294,7 @@ const AboutPage = () => {
         label: t("about.yearsExperience"),
         description: t("about.yearsExperienceDescription"),
         animation: "fade-up",
+        tab: null,
       });
     }
     return base;
@@ -397,13 +401,21 @@ const AboutPage = () => {
           <ProfileImage imageUrl={profileImage} />
         </div>
 
-        <a href="#Portfolio">
-          <div className={`grid grid-cols-1 ${showYearsExp ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-6 mt-16 cursor-pointer`}>
-            {statsData.map((stat) => (
-              <StatCard key={stat.label} {...stat} />
-            ))}
-          </div>
-        </a>
+        <div className={`grid grid-cols-1 ${showYearsExp ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-6 mt-16`}>
+          {statsData.map((stat) => (
+            <a
+              key={stat.label}
+              href="#Portfolio"
+              className="block cursor-pointer"
+              onClick={() => {
+                if (typeof stat.tab === "number") {
+                  window.dispatchEvent(new CustomEvent("portfolioTabChange", { detail: stat.tab }));
+                }
+              }}>
+              <StatCard {...stat} />
+            </a>
+          ))}
+        </div>
       </div>
 
       <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
