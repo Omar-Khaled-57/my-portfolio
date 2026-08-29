@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FolderGit2, Award, MessageSquare, LogOut, LayoutDashboard,
-  Sun, Moon, Languages, Home, Mail, User, Boxes,
+  Sun, Moon, Languages, Home, Mail, User, Boxes, X,
 } from "lucide-react";
 import { supabase } from "../supabase";
 import { useTheme } from "../context/ThemeContext";
@@ -14,14 +14,14 @@ import { useI18n } from "../i18n";
  * @param {boolean} props.sidebarOpen - Whether the mobile drawer is open
  * @param {(v: boolean) => void} props.setSidebarOpen - Mobile drawer toggle
  */
-const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const { t, language, toggleLanguage } = useI18n();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
 
   const NAV_ITEMS = useMemo(() => [
-    { to: '/', label: t('nav.home'), icon: Home, external: true },
+    { to: '/', label: t('nav.home'), icon: Home },
     { to: '/dashboard/personal-info', label: t('dashboard.personalInfo'), icon: User },
     { to: '/dashboard/projects', label: t('portfolio.projects'), icon: FolderGit2 },
     { to: '/dashboard/certificates', label: t('portfolio.certificates'), icon: Award },
@@ -29,6 +29,8 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
     { to: '/dashboard/comments', label: t('comments.title'), icon: MessageSquare },
     { to: '/dashboard/emails', label: t('dashboard.emailsTitle'), icon: Mail },
   ], [t]);
+
+  const isActive = (to) => to !== '/' && (location.pathname === to || location.pathname.startsWith(`${to}/`));
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -44,10 +46,20 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
             <LayoutDashboard className="w-4 h-4 text-accent-primary" />
           </div>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-semibold text-primary">{t("dashboard.title")}</p>
           <p className="text-xs text-secondary">{t("dashboard.adminPanel")}</p>
         </div>
+        {sidebarOpen && (
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            aria-label={t("common.close")}
+            className="ms-auto p-1.5 rounded-lg border border-primary text-secondary hover:text-primary hover:bg-secondary/50 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       <div className="shrink-0 px-4 py-2.5 rounded-xl glass-card border-accent-primary/20 flex items-center gap-3 strong-shadow relative overflow-hidden group">
@@ -56,28 +68,29 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
           <span className="absolute inset-0 rounded-full bg-accent-primary animate-ping opacity-75" />
           <span className="relative w-1.5 h-1.5 rounded-full bg-accent-primary" />
         </div>
-        <span className="text-primary text-xs font-semibold tracking-wide uppercase">{t("dashboard.manager")}</span>
+        <span className="text-primary text-xs font-semibold tracking-wide uppercase truncate">{t("dashboard.manager")}</span>
       </div>
 
-      <nav className="flex flex-col gap-1.5 flex-1 min-h-0">
+      <nav className="flex flex-col gap-1.5 flex-1 min-h-0 overflow-y-auto hide-scrollbar overscroll-contain">
         <p className="text-[10px] text-secondary uppercase tracking-widest px-4 mb-2 shrink-0 opacity-60 font-bold">{t("dashboard.menu")}</p>
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
-          const active = to !== '/' && location.pathname.includes(to);
+          const active = isActive(to);
           return (
             <Link
               key={to}
               to={to}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-sm font-medium shrink-0 relative ${
+              aria-current={active ? "page" : undefined}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-sm font-medium shrink-0 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/60 ${
                 active
                   ? 'glass-card border-accent-primary/40 text-primary strong-shadow shadow-accent-primary/10'
                   : 'text-secondary hover:text-primary hover:bg-secondary/50 border border-transparent'
               }`}
             >
               <Icon className={`w-4 h-4 shrink-0 transition-colors duration-300 ${active ? 'text-accent-primary' : ''}`} />
-              <span className="relative z-10">{label}</span>
+              <span className="relative z-10 truncate">{label}</span>
               {active && (
-                <div className="ms-auto relative flex items-center justify-center w-4 h-4">
+                <div className="ms-auto relative flex items-center justify-center w-4 h-4 shrink-0">
                   <div className="absolute inset-0 bg-[#8685f7] rounded-full blur-[6px] animate-pulse opacity-70" />
                   <div className="absolute inset-0 bg-[#8685f7] rounded-full animate-ping opacity-20" />
                   <div className="relative w-2 h-2 rounded-full bg-[#8685f7] shadow-[0_0_12px_rgba(134,133,247,0.8)]" />
@@ -89,17 +102,17 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
       </nav>
 
       <div className="mt-auto space-y-2 shrink-0">
-        <div className="flex gap-2 mb-4" dir="ltr" style={{ direction: 'ltr' }}>
+        <div className="flex gap-2 mb-4" dir="ltr">
           <button
             onClick={toggleLanguage}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-secondary hover:text-primary hover:bg-secondary border border-primary transition-all duration-200 text-xs font-medium"
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-secondary hover:text-primary hover:bg-secondary border border-primary transition-all duration-200 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/60"
           >
             <Languages className="w-4 h-4" />
             {language === "en" ? "AR" : "EN"}
           </button>
           <button
             onClick={toggleTheme}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-secondary hover:text-primary hover:bg-secondary border border-primary transition-all duration-200 text-xs font-medium"
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-secondary hover:text-primary hover:bg-secondary border border-primary transition-all duration-200 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/60"
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             {theme === "dark" ? t("theme.light") : t("theme.dark")}
@@ -107,10 +120,10 @@ const Sidebar = ({ sidebarOpen: _sidebarOpen, setSidebarOpen }) => {
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-secondary hover:text-red-400 hover:bg-red-500/5 border border-transparent hover:border-red-500/15 transition-all duration-200 text-sm font-medium"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-secondary hover:text-red-400 hover:bg-red-500/5 border border-transparent hover:border-red-500/15 transition-all duration-200 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/60"
         >
           <LogOut className="w-4 h-4 shrink-0" />
-          {t("dashboard.signOut")}
+          <span className="truncate">{t("dashboard.signOut")}</span>
         </button>
       </div>
     </div>

@@ -388,6 +388,7 @@ export default function Comments() {
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => pin(comment.id, !comment.is_pinned)}
+                      aria-label={comment.is_pinned ? t("dashboard.unpin") : t("dashboard.pin")}
                       title={comment.is_pinned ? t("dashboard.unpin") : t("dashboard.pin")}
                       className={`p-2 rounded-lg border transition-all duration-200 ${
                         comment.is_pinned
@@ -403,6 +404,8 @@ export default function Comments() {
                     </button>
                     <button
                       onClick={() => remove(comment.id)}
+                      aria-label={t("common.delete")}
+                      title={t("common.delete")}
                       className="p-2 rounded-lg border border-white/10 text-gray-500 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/5 transition-all duration-200"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

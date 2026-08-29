@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Projects from './dashboard/Projects'
 import Certificates from './dashboard/Certificates'
@@ -15,6 +15,15 @@ export default function Dashboard() {
   const { t, toggleLanguage } = useI18n()
   const { theme, toggleTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const handleKey = (e) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [sidebarOpen]);
 
   return (
     // Key: DO NOT use overflow-hidden here so the main scrollbar can be interacted with normally
@@ -56,7 +65,8 @@ export default function Dashboard() {
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-secondary/50 backdrop-blur-xl shrink-0 shadow-[0_1px_0_0_rgba(99,102,241,0.12)]">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg border border-primary text-secondary hover:text-primary transition-colors"
+            aria-label={t("dashboard.menu")}
+            className="p-2 rounded-lg border border-primary text-secondary hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/60"
           >
             <Menu className="w-4 h-4" />
           </button>
@@ -64,13 +74,15 @@ export default function Dashboard() {
           <div className="ms-auto flex items-center gap-2" dir="ltr">
              <button
               onClick={toggleLanguage}
-              className="p-2 rounded-lg border border-primary text-secondary hover:text-primary transition-colors"
+              aria-label={t("language.label")}
+              className="p-2 rounded-lg border border-primary text-secondary hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/60"
             >
               <Languages className="w-4 h-4" />
             </button>
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg border border-primary text-secondary hover:text-primary transition-colors"
+              aria-label={theme === "dark" ? t("theme.light") : t("theme.dark")}
+              className="p-2 rounded-lg border border-primary text-secondary hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/60"
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>

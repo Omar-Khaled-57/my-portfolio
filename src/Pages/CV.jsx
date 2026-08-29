@@ -6,7 +6,7 @@ import { CVContent } from '../components/CVModal';
 import { useNavigate } from 'react-router-dom';
 
 const CVPage = () => {
-    const { t, language, toggleLanguage } = useI18n();
+    const { t, toggleLanguage } = useI18n();
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
 

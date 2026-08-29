@@ -208,8 +208,7 @@ const AboutPage = () => {
 
     fetchAll();
 
-    window.addEventListener('portfolioDataLoaded', fetchAll);
-    window.addEventListener('storage', (e) => {
+    const handleStorage = (e) => {
       if (e.key === "projects") {
         try { setStats(prev => ({ ...prev, accessibleProjects: countAccessible(JSON.parse(e.newValue)) })); } catch {}
       }
@@ -226,10 +225,14 @@ const AboutPage = () => {
           if (key === "quoteAr") setQuoteAr(e.newValue);
         } catch {}
       }
-    });
+    };
+
+    window.addEventListener('portfolioDataLoaded', fetchAll);
+    window.addEventListener('storage', handleStorage);
 
     return () => {
       window.removeEventListener('portfolioDataLoaded', fetchAll);
+      window.removeEventListener('storage', handleStorage);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

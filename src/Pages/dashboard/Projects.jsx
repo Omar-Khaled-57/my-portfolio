@@ -106,6 +106,8 @@ const ProjectCard = ({ project, index, total, onDelete, onEdit, onTogglePublish,
                 href={project.link}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={t("project.liveDemo")}
+                title={t("project.liveDemo")}
                 className="p-1.5 rounded-lg border border-primary text-primary/60 hover:text-primary hover:border-white/20 transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -116,6 +118,8 @@ const ProjectCard = ({ project, index, total, onDelete, onEdit, onTogglePublish,
                 href={project.github}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={t("project.githubRepoLabel")}
+                title={t("project.githubRepoLabel")}
                 className="p-1.5 rounded-lg border border-primary text-primary/60 hover:text-primary hover:border-white/20 transition-colors"
               >
                 <Github className="w-3.5 h-3.5" />

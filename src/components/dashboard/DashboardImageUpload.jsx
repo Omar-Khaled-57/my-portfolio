@@ -1,7 +1,10 @@
 import { ImageIcon } from "lucide-react";
 import { useI18n } from "../../i18n";
 
-const DashboardImageUpload = ({ label, hint, preview, onChange, aspect = "wide" }) => (
+const DashboardImageUpload = ({ label, hint, preview, onChange, aspect = "wide" }) => {
+  const { t } = useI18n();
+
+  return (
   <div className="space-y-1.5">
     <label className="text-xs text-accent-primary uppercase tracking-wider font-semibold">
       {label}
@@ -38,6 +41,7 @@ const DashboardImageUpload = ({ label, hint, preview, onChange, aspect = "wide" 
       <input type="file" accept="image/*" onChange={onChange} className="hidden" />
     </label>
   </div>
-);
+  );
+};
 
 export default DashboardImageUpload;

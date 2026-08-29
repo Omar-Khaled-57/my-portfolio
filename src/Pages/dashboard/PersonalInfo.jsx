@@ -422,6 +422,8 @@ export default function PersonalInfo() {
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}
+                    aria-label={t("dashboard.changeImage")}
+                    title={t("dashboard.changeImage")}
                     disabled={imageUploading}
                     className="absolute -bottom-1 -end-1 w-7 h-7 rounded-full bg-accent-primary border-2 border-primary flex items-center justify-center hover:scale-110 transition-transform disabled:opacity-50"
                   >
@@ -736,9 +738,11 @@ export default function PersonalInfo() {
                         className="min-w-0 flex-1 bg-primary rounded-lg px-3 py-1.5 text-primary text-sm outline-none focus:ring-1 focus:ring-accent-primary/20 transition-all"
                       />
                       <button
-                        onClick={() => removeLink(index)}
-                        className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-                      >
+                          onClick={() => removeLink(index)}
+                          aria-label={`${t("common.delete")}: ${link.platform}`}
+                          title={`${t("common.delete")}: ${link.platform}`}
+                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+                        >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>

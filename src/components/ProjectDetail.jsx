@@ -18,7 +18,6 @@ import {
   Moon,
   Languages,
 } from "lucide-react";
-import Swal from "sweetalert2";
 import { toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
@@ -167,22 +166,6 @@ const ProjectStats = ({ project, t }) => {
       />
     </div>
   );
-};
-
-const handleGithubClick = (githubLink, t) => {
-  if (githubLink === "Private") {
-    Swal.fire({
-      icon: "info",
-      title: t("project.privateTitle"),
-      text: t("project.privateText"),
-      confirmButtonText: t("project.privateConfirm"),
-      confirmButtonColor: "#3085d6",
-      background: "#030014",
-      color: "#ffffff",
-    });
-    return false;
-  }
-  return true;
 };
 
 const ProjectDetails = () => {

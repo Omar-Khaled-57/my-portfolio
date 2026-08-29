@@ -23,10 +23,10 @@ const CertCard = ({ cert, index, total, onDelete, onMove }) => {
           src={cert.img}
           alt={t("certificate.alt")}
           onLoad={() => setImgLoaded(true)}
+          onError={() => setImgLoaded(true)}
           className={`w-full aspect-[16/11.5] object-cover group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'block' : 'hidden'}`}
         />
-        {imgLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-end justify-end p-3 gap-1.5">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-end justify-end p-3 gap-1.5">
             <button
               onClick={() => onDelete(cert.id)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/20 border border-red-500/30 text-red-300 text-xs w-full justify-center hover:bg-red-500/30 transition-colors"
@@ -54,9 +54,8 @@ const CertCard = ({ cert, index, total, onDelete, onMove }) => {
               </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
   )
 }
 

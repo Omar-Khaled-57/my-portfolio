@@ -289,22 +289,22 @@ const Komentar = () => {
     }, []);
 
     // Fetch regular comments (excluding pinned) and set up real-time subscription
-    useEffect(() => {
-        const fetchComments = async () => {
-            const { data, error } = await supabase
-                .from('portfolio_comments')
-                .select('*')
-                .eq('is_pinned', false)
-                .order('created_at', { ascending: false });
-            
-            if (error) {
-                console.error('Error fetching comments:', error);
-                return;
-            }
-            
-            setComments(data || []);
-        };
+    const fetchComments = useCallback(async () => {
+        const { data, error } = await supabase
+            .from('portfolio_comments')
+            .select('*')
+            .eq('is_pinned', false)
+            .order('created_at', { ascending: false });
+        
+        if (error) {
+            console.error('Error fetching comments:', error);
+            return;
+        }
+        
+        setComments(data || []);
+    }, []);
 
+    useEffect(() => {
         fetchComments();
 
         const pollInterval = setInterval(fetchComments, 30000);
@@ -312,7 +312,7 @@ const Komentar = () => {
         return () => {
             clearInterval(pollInterval);
         };
-    }, []);
+    }, [fetchComments]);
 
     const uploadImage = useCallback(async (imageFile) => {
         if (!imageFile) return null;
@@ -358,13 +358,15 @@ const Komentar = () => {
             if (error) {
                 throw error;
             }
+
+            fetchComments();
         } catch (error) {
             setError(t('comments.postError'));
             console.error('Error adding comment: ', error);
         } finally {
             setIsSubmitting(false);
         }
-    }, [uploadImage, t]);
+    }, [uploadImage, t, fetchComments]);
 
     const formatDate = useCallback((timestamp) => {
         if (!timestamp) return '';

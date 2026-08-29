@@ -1,10 +1,16 @@
 const DashboardSkeleton = ({ variant = "tool" }) => {
   if (variant === "tool") {
     return (
-      <div className="bg-secondary border border-primary rounded-2xl p-4 flex flex-col gap-3">
-        <div className="w-20 h-20 mx-auto bg-primary/20 animate-pulse rounded-xl" />
-        <div className="h-4 bg-primary/20 animate-pulse rounded-lg w-2/3 mx-auto" />
-        <div className="h-5 w-16 bg-primary/20 animate-pulse rounded-full mx-auto" />
+      <div className="bg-secondary border border-primary rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/20 animate-pulse rounded-lg shrink-0" />
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="flex items-center gap-1.5">
+            <div className="h-3.5 bg-primary/20 animate-pulse rounded-md w-2/3" />
+            <div className="h-4 w-10 bg-primary/20 animate-pulse rounded border shrink-0" />
+          </div>
+          <div className="h-2.5 bg-primary/20 animate-pulse rounded w-1/2" />
+        </div>
+        <div className="w-14 h-6 bg-primary/20 animate-pulse rounded-lg shrink-0" />
       </div>
     );
   }

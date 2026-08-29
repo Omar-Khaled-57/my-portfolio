@@ -10,6 +10,7 @@ import {
   ArrowUp,
   ArrowDown,
   GripVertical,
+  Images,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
 import { useTheme as useCustomTheme } from "../../context/ThemeContext";
@@ -152,58 +153,57 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
   const { theme: currentTheme } = useCustomTheme();
   const resolvedImage = getToolImage(tool, currentTheme);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const isMain = tool.type === "Main";
 
   return (
     <DashboardCard className="h-full">
-      <div className="flex flex-col h-full items-center p-4 text-center gap-3">
-        <div className="relative">
-          {!imgLoaded && <div className="w-16 h-16 bg-primary/20 animate-pulse rounded-xl" />}
+      <div className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 min-w-0">
+        <span aria-hidden className="hidden lg:flex text-primary/30 cursor-grab shrink-0">
+          <GripVertical className="w-4 h-4" />
+        </span>
+
+        <div className="relative shrink-0">
+          {!imgLoaded && <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/20 animate-pulse rounded-lg" />}
           <img
             src={resolvedImage}
             alt={t("dashboard.toolImageAlt", { name: tool.name })}
             onLoad={() => setImgLoaded(true)}
-            className={`h-16 w-16 object-contain transition-opacity ${imgLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
+            loading="lazy"
+            className={`h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg transition-opacity ${imgLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
           />
           {tool.image_light && (
             <span
               title={t("dashboard.toolImageLight")}
-              className="absolute -top-1.5 -end-1.5 w-3.5 h-3.5 rounded-full bg-gradient-to-r from-amber-400 to-sky-400 border border-white/40"
-            />
+              aria-label={t("dashboard.toolImageLight")}
+              className="absolute -top-1 -end-1 flex items-center justify-center w-4 h-4 rounded-full bg-secondary border border-primary text-accent-primary shadow-sm"
+            >
+              <Images className="w-2.5 h-2.5" />
+            </span>
           )}
         </div>
 
-        <div className="min-h-0 w-full">
-          <h3 className="font-semibold text-primary text-sm truncate">{tool.name}</h3>
-          <span
-            className={`inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
-              tool.type === "Main"
-                ? "bg-indigo-500/15 text-indigo-400 border-indigo-500/25"
-                : "bg-cyan-500/15 text-cyan-400 border-cyan-500/25"
-            }`}
-          >
-            {tool.type === "Main" ? t("dashboard.toolTypeMain") : t("dashboard.toolTypeOther")}
-          </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <h3 className="font-semibold text-primary text-sm truncate">{tool.name}</h3>
+            <span
+              className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
+                isMain
+                  ? "bg-indigo-500/15 text-indigo-400 border-indigo-500/25"
+                  : "bg-cyan-500/15 text-cyan-400 border-cyan-500/25"
+              }`}
+            >
+              {isMain ? t("dashboard.toolTypeMain") : t("dashboard.toolTypeOther")}
+            </span>
+          </div>
+          {tool.tags && tool.tags.length > 0 && (
+            <p className="text-[10px] text-secondary truncate mt-0.5">
+              {tool.tags.slice(0, 3).join(" · ")}
+              {tool.tags.length > 3 ? ` +${tool.tags.length - 3}` : ""}
+            </p>
+          )}
         </div>
 
-        {tool.tags && tool.tags.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-1.5">
-            {tool.tags.slice(0, 4).map((tag, i) => (
-              <span
-                key={i}
-                className="px-2 py-0.5 rounded-md bg-primary/20 text-primary/60 text-[10px] border border-primary"
-              >
-                {tag}
-              </span>
-            ))}
-            {tool.tags.length > 4 && (
-              <span className="px-2 py-0.5 rounded-md bg-primary/20 text-primary/60 text-[10px] border border-primary">
-                +{tool.tags.length - 4}
-              </span>
-            )}
-          </div>
-        )}
-
-        <div className="mt-auto pt-2 w-full flex items-center justify-between gap-1 border-t border-primary">
+        <div className="flex flex-col sm:flex-row items-center gap-1 shrink-0">
           <div className="flex items-center gap-1">
             <button
               onClick={() => onMove(index - 1)}
@@ -212,7 +212,7 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
               title={t("dashboard.toolMoveUp")}
               className="p-1.5 rounded-lg border border-primary text-primary/50 hover:text-primary hover:border-white/20 disabled:opacity-30 disabled:pointer-events-none transition-colors"
             >
-              <ArrowUp className="w-3.5 h-3.5" />
+              <ArrowUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
             <button
               onClick={() => onMove(index + 1)}
@@ -221,24 +221,25 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
               title={t("dashboard.toolMoveDown")}
               className="p-1.5 rounded-lg border border-primary text-primary/50 hover:text-primary hover:border-white/20 disabled:opacity-30 disabled:pointer-events-none transition-colors"
             >
-              <ArrowDown className="w-3.5 h-3.5" />
+              <ArrowDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
-            <span aria-hidden className="hidden sm:block p-1 text-primary/30 cursor-grab">
-              <GripVertical className="w-3.5 h-3.5" />
-            </span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1">
             <button
               onClick={() => onEdit(tool)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-indigo-500/25 text-indigo-400 hover:bg-indigo-500/10 text-xs transition-colors"
+              aria-label={t("common.edit")}
+              title={t("common.edit")}
+              className="p-1.5 rounded-lg border border-indigo-500/25 text-indigo-400 hover:bg-indigo-500/10 transition-colors"
             >
-              <Pencil className="w-3 h-3" /> {t("common.edit")}
+              <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
             <button
               onClick={() => onDelete(tool)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs transition-colors"
+              aria-label={t("common.delete")}
+              title={t("common.delete")}
+              className="p-1.5 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
           </div>
         </div>
@@ -518,7 +519,7 @@ export default function TechTools() {
       )}
 
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
           {Array.from({ length: 8 }).map((_, i) => (
             <DashboardSkeleton key={i} variant="tool" />
           ))}
@@ -536,7 +537,7 @@ export default function TechTools() {
           axis="both"
           values={filteredTools}
           onReorder={(next) => reorder(next, filteredTools)}
-          className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3"
         >
           {filteredTools.map((tool, index) => (
             <Reorder.Item

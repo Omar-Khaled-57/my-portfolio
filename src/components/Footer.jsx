@@ -46,7 +46,7 @@ const Footer = () => {
           <button
             onClick={handleStarClick}
             className="inline-flex items-center justify-center ms-1 w-5 h-5 text-xs text-secondary/40 hover:text-accent-primary transition-colors align-middle"
-            title=""
+            aria-label="★"
           >
             ★
           </button>
