@@ -31,7 +31,7 @@ export function DataProvider({ children }) {
   });
 
   const fetchData = useCallback(async () => {
-    const [socialRes, projectsRes, certsRes, initialToolsRes] = await Promise.all([
+    const [socialRes, projectsRes, certsRes, toolsRes] = await Promise.all([
       supabase
         .from("app_settings")
         .select("value")
@@ -51,17 +51,8 @@ export function DataProvider({ children }) {
       supabase
         .from("tech_tools")
         .select("*")
-        .eq("is_published", true)
         .order("sort_order", { ascending: true }),
     ]);
-
-    let toolsRes = initialToolsRes;
-    if (toolsRes.error) {
-      toolsRes = await supabase
-        .from("tech_tools")
-        .select("*")
-        .order("sort_order", { ascending: true });
-    }
 
     if (socialRes.data?.value) {
       try {
