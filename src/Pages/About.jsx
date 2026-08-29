@@ -259,14 +259,13 @@ const AboutPage = () => {
   const statsData = useMemo(() => {
     const base = [
       {
-        icon: Code,
+        icon: FolderGit2,
         color: "from-[#6366f1] to-[#a855f7]",
-        value: manualTotalProjects,
-        label: t("about.totalProjects"),
-        description: t("about.totalProjectsDescription"),
-        animation: "fade-right",
-        tab: null,
-        navigate: false,
+        value: accessibleProjects,
+        label: t("about.accessibleProjects"),
+        description: t("about.accessibleProjectsDescription"),
+        animation: "fade-left",
+        tab: 0,
       },
       {
         icon: Award,
@@ -278,13 +277,14 @@ const AboutPage = () => {
         tab: 1,
       },
       {
-        icon: FolderGit2,
+        icon: Code,
         color: "from-[#6366f1] to-[#a855f7]",
-        value: accessibleProjects,
-        label: t("about.accessibleProjects"),
-        description: t("about.accessibleProjectsDescription"),
-        animation: "fade-left",
-        tab: 0,
+        value: manualTotalProjects,
+        label: t("about.totalProjects"),
+        description: t("about.totalProjectsDescription"),
+        animation: "fade-right",
+        tab: null,
+        navigate: false,
       },
     ];
     if (showYearsExp) {
