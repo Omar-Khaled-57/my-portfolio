@@ -79,6 +79,7 @@ export default defineConfig({
           'index.html',
           'manifest.json',
           'icons/*.png',
+          'fonts/*.woff2',
           'assets/index-*.js',
           'assets/index-*.css',
           'assets/react-vendor-*.js',
@@ -90,22 +91,6 @@ export default defineConfig({
             options: {
               cacheName: 'asset-cache',
               expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
           },
           {
