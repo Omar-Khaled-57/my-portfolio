@@ -10,6 +10,8 @@ import {
   ArrowDown,
   GripVertical,
   Images,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
 import { useTheme as useCustomTheme } from "../../context/ThemeContext";
@@ -148,62 +150,101 @@ const ToolForm = ({ initial, onSubmit, onCancel, submitLabel, uploading }) => {
   );
 };
 
-const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
+const ToolCard = ({ tool, index, total, onDelete, onEdit, onToggleVisibility, onMove }) => {
   const { t } = useI18n();
   const { theme: currentTheme } = useCustomTheme();
   const resolvedImage = getToolImage(tool, currentTheme);
   const [imgLoaded, setImgLoaded] = useState(false);
   const isMain = tool.type === "Main";
+  const isHidden = tool.is_published === false;
 
   return (
     <DashboardCard className="h-full">
-      <div className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 min-w-0">
-        <span aria-hidden className="hidden lg:flex text-primary/30 cursor-grab shrink-0">
-          <GripVertical className="w-4 h-4" />
-        </span>
+      <div className="p-2.5 sm:p-3 min-w-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <span aria-hidden className="hidden lg:flex text-primary/30 cursor-grab shrink-0">
+            <GripVertical className="w-4 h-4" />
+          </span>
 
-        <div className="relative shrink-0">
-          {!imgLoaded && <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/20 animate-pulse rounded-lg" />}
-          <img
-            src={resolvedImage}
-            alt={t("dashboard.toolImageAlt", { name: tool.name })}
-            onLoad={() => setImgLoaded(true)}
-            loading="lazy"
-            className={`h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg transition-opacity ${imgLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
-          />
-          {tool.image_light && (
-            <span
-              title={t("dashboard.toolImageLight")}
-              aria-label={t("dashboard.toolImageLight")}
-              className="absolute -top-1 -end-1 flex items-center justify-center w-4 h-4 rounded-full bg-secondary border border-primary text-accent-primary shadow-sm"
-            >
-              <Images className="w-2.5 h-2.5" />
-            </span>
-          )}
+          <div className="relative shrink-0">
+            {!imgLoaded && <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/20 animate-pulse rounded-lg" />}
+            <img
+              src={resolvedImage}
+              alt={t("dashboard.toolImageAlt", { name: tool.name })}
+              onLoad={() => setImgLoaded(true)}
+              loading="lazy"
+              className={`h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg transition-opacity ${imgLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
+            />
+            {tool.image_light && (
+              <span
+                title={t("dashboard.toolImageLight")}
+                aria-label={t("dashboard.toolImageLight")}
+                className="absolute -top-1 -end-1 flex items-center justify-center w-4 h-4 rounded-full bg-secondary border border-primary text-accent-primary shadow-sm"
+              >
+                <Images className="w-2.5 h-2.5" />
+              </span>
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h3 className="font-semibold text-primary text-sm truncate">{tool.name}</h3>
+              {isHidden && (
+                <span className="shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-yellow-500/20 bg-yellow-500/15 text-yellow-400">
+                  {t("dashboard.hidden")}
+                </span>
+              )}
+              <span
+                className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
+                  isMain
+                    ? "bg-indigo-500/15 text-indigo-400 border-indigo-500/25"
+                    : "bg-cyan-500/15 text-cyan-400 border-cyan-500/25"
+                }`}
+              >
+                {isMain ? t("dashboard.toolTypeMain") : t("dashboard.toolTypeOther")}
+              </span>
+            </div>
+            {tool.tags && tool.tags.length > 0 && (
+              <p className="text-[10px] text-secondary truncate mt-0.5">
+                {tool.tags.slice(0, 3).join(" · ")}
+                {tool.tags.length > 3 ? ` +${tool.tags.length - 3}` : ""}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <h3 className="font-semibold text-primary text-sm truncate">{tool.name}</h3>
-            <span
-              className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
-                isMain
-                  ? "bg-indigo-500/15 text-indigo-400 border-indigo-500/25"
-                  : "bg-cyan-500/15 text-cyan-400 border-cyan-500/25"
+        <div className="mt-2 sm:mt-3 pt-2 sm:pt-2.5 border-t border-primary flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => onEdit(tool)}
+              aria-label={t("common.edit")}
+              title={t("common.edit")}
+              className="p-1.5 rounded-lg border border-indigo-500/25 text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+            >
+              <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            </button>
+            <button
+              onClick={() => onToggleVisibility(tool)}
+              aria-label={isHidden ? t("dashboard.reveal") : t("dashboard.hide")}
+              title={isHidden ? t("dashboard.revealTool") : t("dashboard.hideTool")}
+              className={`flex items-center justify-center p-1.5 rounded-lg border text-xs transition-colors ${
+                isHidden
+                  ? "border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/10"
+                  : "border-amber-500/25 text-amber-400 hover:bg-amber-500/10"
               }`}
             >
-              {isMain ? t("dashboard.toolTypeMain") : t("dashboard.toolTypeOther")}
-            </span>
+              {isHidden ? <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> : <EyeOff className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+            </button>
+            <button
+              onClick={() => onDelete(tool)}
+              aria-label={t("common.delete")}
+              title={t("common.delete")}
+              className="p-1.5 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            </button>
           </div>
-          {tool.tags && tool.tags.length > 0 && (
-            <p className="text-[10px] text-secondary truncate mt-0.5">
-              {tool.tags.slice(0, 3).join(" · ")}
-              {tool.tags.length > 3 ? ` +${tool.tags.length - 3}` : ""}
-            </p>
-          )}
-        </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-1 shrink-0">
           <div className="flex items-center gap-1">
             <button
               onClick={() => onMove(index - 1)}
@@ -222,24 +263,6 @@ const ToolCard = ({ tool, index, total, onDelete, onEdit, onMove }) => {
               className="p-1.5 rounded-lg border border-primary text-primary/50 hover:text-primary hover:border-white/20 disabled:opacity-30 disabled:pointer-events-none transition-colors"
             >
               <ArrowDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            </button>
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => onEdit(tool)}
-              aria-label={t("common.edit")}
-              title={t("common.edit")}
-              className="p-1.5 rounded-lg border border-indigo-500/25 text-indigo-400 hover:bg-indigo-500/10 transition-colors"
-            >
-              <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            </button>
-            <button
-              onClick={() => onDelete(tool)}
-              aria-label={t("common.delete")}
-              title={t("common.delete")}
-              className="p-1.5 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors"
-            >
-              <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
           </div>
         </div>
@@ -439,6 +462,53 @@ export default function TechTools() {
     reorder(next, filteredTools);
   };
 
+  const handleToggleVisibility = async (tool) => {
+    const newPublished = tool.is_published === false;
+
+    const result = await Swal.fire({
+      title: newPublished ? t("dashboard.revealToolConfirm") : t("dashboard.hideToolConfirm"),
+      text: newPublished ? t("dashboard.revealToolConfirmText") : t("dashboard.hideToolConfirmText"),
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: newPublished ? "#10b981" : "#f59e0b",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: newPublished ? t("dashboard.yesReveal") : t("dashboard.yesHide"),
+      cancelButtonText: t("common.cancel"),
+      background: "var(--bg-secondary)",
+      color: "var(--text-primary)",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const { error } = await supabase
+        .from("tech_tools")
+        .update({ is_published: newPublished })
+        .eq("id", tool.id);
+      if (error) throw error;
+
+      Swal.fire({
+        icon: "success",
+        title: newPublished ? t("dashboard.toolRevealed") : t("dashboard.toolHidden"),
+        timer: 1500,
+        showConfirmButton: false,
+        background: "var(--bg-secondary)",
+        color: "var(--text-primary)",
+      });
+
+      fetchTools();
+    } catch (error) {
+      console.error("Error updating tool visibility:", error);
+      Swal.fire({
+        icon: "error",
+        title: t("common.errorTitle"),
+        text: error.message,
+        background: "var(--bg-secondary)",
+        color: "var(--text-primary)",
+      });
+    }
+  };
+
   const filterOptions = useMemo(
     () => [
       { key: "all", label: `${t("dashboard.filterAll")} (${tools.length})` },
@@ -544,6 +614,7 @@ export default function TechTools() {
               total={filteredTools.length}
               onDelete={deleteTool}
               onEdit={setEditTool}
+              onToggleVisibility={handleToggleVisibility}
               onMove={handleMove(tool.id)}
             />
           )}
