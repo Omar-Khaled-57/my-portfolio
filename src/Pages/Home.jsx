@@ -95,7 +95,11 @@ const HeroAnimation = memo(({ className }) => {
     let timer = null;
     const tryMount = () => {
       const elapsed = (typeof performance !== "undefined" && performance.now()) || 0;
-      if (visible && elapsed >= 2500) setReady(true);
+      if (elapsed < 2500) {
+        timer = setTimeout(tryMount, 2500 - elapsed);
+        return;
+      }
+      if (visible) setReady(true);
     };
     if (typeof IntersectionObserver !== "function") {
       timer = setInterval(() => {
@@ -111,12 +115,7 @@ const HeroAnimation = memo(({ className }) => {
         if (entries.some((e) => e.isIntersecting)) {
           visible = true;
           io.disconnect();
-          const elapsed = (typeof performance !== "undefined" && performance.now()) || 0;
-          if (elapsed >= 2500) {
-            setReady(true);
-          } else {
-            timer = setTimeout(tryMount, 2500 - elapsed);
-          }
+          tryMount();
         }
       },
       { rootMargin: "0px 0px" }
@@ -138,7 +137,7 @@ const HeroAnimation = memo(({ className }) => {
   );
 });
 
-const Home = () => {
+const Home = ({ onReady }) => {
   const { t } = useI18n();
   const { socialLinks: rawSocialLinks } = useSharedData();
   const words = t("home.words");
@@ -166,6 +165,13 @@ const Home = () => {
   }, [rawSocialLinks]);
 
   useAOS({ once: true, offset: 10 });
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() => onReady?.())
+    );
+    return () => cancelAnimationFrame(id);
+  }, [onReady]);
 
   useEffect(() => {
     let ticking = false;

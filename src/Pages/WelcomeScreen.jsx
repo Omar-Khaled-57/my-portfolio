@@ -21,9 +21,10 @@ const IconButton = ({ Icon }) => (
 const SPLASH_DURATION_MS = 800;
 const EXIT_DURATION_MS = 350;
 
-const WelcomeScreen = ({ onLoadingComplete }) => {
+const WelcomeScreen = ({ onLoadingComplete, heroReady }) => {
   const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(true);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const finishedRef = useRef(false);
 
   const complete = useCallback(() => {
@@ -34,19 +35,25 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
   }, [onLoadingComplete]);
 
   useEffect(() => {
-    const timer = setTimeout(complete, SPLASH_DURATION_MS);
+    const timer = setTimeout(() => setMinTimeElapsed(true), SPLASH_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [complete]);
+  }, []);
 
   useEffect(() => {
-    const skip = () => complete();
+    if (minTimeElapsed && heroReady) complete();
+  }, [minTimeElapsed, heroReady, complete]);
+
+  useEffect(() => {
+    const skip = () => {
+      if (heroReady) complete();
+    };
     window.addEventListener('keydown', skip);
     window.addEventListener('scroll', skip, { passive: true });
     return () => {
       window.removeEventListener('keydown', skip);
       window.removeEventListener('scroll', skip);
     };
-  }, [complete]);
+  }, [complete, heroReady]);
 
   return (
     <>
@@ -55,7 +62,7 @@ const WelcomeScreen = ({ onLoadingComplete }) => {
         className={`fixed inset-0 bg-primary transition-opacity duration-[350ms] ease-in-out pointer-events-none ${
           isLoading ? "opacity-100 animate-[welcome-fade-in_0.4s_ease-out] pointer-events-auto" : "opacity-0"
         }`}
-        onPointerDown={complete}
+        onPointerDown={heroReady ? complete : undefined}
       >
         <BackgroundEffect />
 
