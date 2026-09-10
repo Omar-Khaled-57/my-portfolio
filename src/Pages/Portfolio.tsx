@@ -1,0 +1,407 @@
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import type { ReactNode, SyntheticEvent } from "react";
+
+import { useTheme } from "@mui/material/styles";
+import AppBar from "@mui/material/AppBar";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import CardProject from "../components/CardProject";
+import TechStackIcon from "../components/TechStackIcon";
+import Certificate from "../components/Certificate";
+import { Code, Award, Boxes } from "lucide-react";
+import useAOS, { refreshAOS } from "../hooks/useAOS";
+import { useI18n } from "../i18n";
+import { useTheme as useCustomTheme } from "../context/ThemeContext";
+import { useSharedData } from "../context/DataContext";
+import { resolveStackTools } from "../utils/techTools";
+import type { Project, Certificate as CertificateType, TechTool } from "../types";
+
+
+interface ToggleButtonProps {
+  onClick: () => void;
+  isShowingMore: boolean;
+}
+
+const ToggleButton = ({ onClick, isShowingMore }: ToggleButtonProps) => {
+  const { t } = useI18n();
+
+  return (
+  <button
+    onClick={onClick}
+    className="
+      px-3 py-1.5
+      text-secondary 
+      hover:text-primary 
+      text-sm 
+      font-medium 
+      transition-all 
+      duration-300 
+      ease-in-out
+      flex 
+      items-center 
+      gap-2
+      bg-secondary 
+      hover:bg-secondary/80
+      rounded-md
+      border 
+      border-primary
+      backdrop-blur-sm
+      group
+      relative
+      overflow-hidden
+    "
+  >
+    <span className="relative z-10 flex items-center gap-2">
+      {isShowingMore ? t("common.seeLess") : t("common.seeMore")}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={`
+          transition-transform 
+          duration-300 
+          ${isShowingMore ? "group-hover:-translate-y-0.5" : "group-hover:translate-y-0.5"}
+        `}
+      >
+        <polyline points={isShowingMore ? "18 15 12 9 6 15" : "6 9 12 15 18 9"}></polyline>
+      </svg>
+    </span>
+    <span className="absolute bottom-0 start-0 w-0 h-0.5 bg-purple-500/50 transition-all duration-300 group-hover:w-full"></span>
+  </button>
+  );
+};
+
+
+interface TabPanelProps {
+  children?: ReactNode;
+  value: number;
+  index: number;
+  dir?: string;
+}
+
+function TabPanel({ children, value, index, ...other }: TabPanelProps) {
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: { xs: 1, sm: 3 } }}>
+          <Typography component="div">{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+function a11yProps(index: number) {
+  return {
+    id: `full-width-tab-${index}`,
+    "aria-controls": `full-width-tabpanel-${index}`,
+  };
+}
+function SwipeableViews({ index, children }: { index: number; children: ReactNode }) {
+  return (
+    <div className="overflow-hidden">
+      {React.Children.toArray(children)[index]}
+    </div>
+  );
+}
+
+export default function FullWidthTabs() {
+  const { t } = useI18n();
+  const theme = useTheme();
+  const { theme: currentTheme } = useCustomTheme();
+  const [value, setValue] = useState(0);
+
+  const { projects: sharedProjects, certificates: sharedCertificates, techTools } = useSharedData();
+
+  const mainTools = useMemo(
+    () => techTools.filter((tool) => tool.type === "Main"),
+    [techTools],
+  );
+  const otherTools = useMemo(
+    () => techTools.filter((tool) => tool.type === "Other"),
+    [techTools],
+  );
+  const getToolImage = (tool: TechTool) =>
+    currentTheme === "dark" || !tool.image_light ? tool.image : tool.image_light;
+
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [certificates, setCertificates] = useState<CertificateType[]>([]);
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  const [showAllCertificates, setShowAllCertificates] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const initialItems = isMobile ? 4 : 6;
+  const tabsRef = useRef(value);
+  tabsRef.current = value;
+
+  useAOS();
+
+  useEffect(() => {
+    if (sharedProjects.length > 0) setProjects(sharedProjects);
+    if (sharedCertificates.length > 0) setCertificates(sharedCertificates);
+  }, [sharedProjects, sharedCertificates]);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    refreshAOS();
+  }, [value]);
+
+  useEffect(() => {
+    const onPortfolioTabChange = (e: Event) => {
+      const detail = (e as CustomEvent<unknown>).detail;
+      if (typeof detail === "number") setValue(detail);
+    };
+    window.addEventListener("portfolioTabChange", onPortfolioTabChange as EventListener);
+    return () => window.removeEventListener("portfolioTabChange", onPortfolioTabChange as EventListener);
+  }, []);
+
+  const handleChange = (event: SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+
+  const toggleShowMore = useCallback((type: 'projects' | 'certificates') => {
+    if (type === 'projects') {
+      setShowAllProjects(prev => !prev);
+    } else {
+      setShowAllCertificates(prev => !prev);
+    }
+  }, []);
+
+  const displayedProjects = showAllProjects ? projects : projects.slice(0, initialItems);
+  const displayedCertificates = showAllCertificates ? certificates : certificates.slice(0, initialItems);
+
+  // Component return statement
+  return (
+    <div className="px-[5%] lg:px-[10%] w-full sm:mt-0 mt-[3rem] bg-primary overflow-hidden" id="Portfolio">
+      {/* Header section - unchanged */}
+      <div className="text-center pb-10" data-aos="fade-up" data-aos-duration="1000">
+        <h2 className="inline-block text-3xl md:text-5xl font-bold text-center mx-auto text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a855f7]">
+          <span style={{
+            color: '#6366f1',
+            backgroundImage: 'linear-gradient(45deg, #6366f1 10%, #a855f7 93%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            paddingBottom: '0.1em'
+          }}>
+            {t("portfolio.title")}
+          </span>
+        </h2>
+        <p className="text-secondary max-w-2xl mx-auto text-sm md:text-base mt-2">
+          {t("portfolio.description")}
+        </p>
+      </div>
+
+      <Box sx={{ width: "100%" }}>
+        {/* AppBar and Tabs section - unchanged */}
+        <AppBar
+          position="static"
+          elevation={0}
+          sx={{
+            bgcolor: "transparent",
+            border: "1px solid var(--border-color)",
+            borderRadius: "20px",
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              insetInlineStart: 0,
+              insetInlineEnd: 0,
+              bottom: 0,
+              background: "linear-gradient(180deg, rgba(139, 92, 246, 0.03) 0%, rgba(59, 130, 246, 0.03) 100%)",
+              backdropFilter: "blur(10px)",
+              zIndex: 0,
+            },
+          }}
+          className="md:px-4"
+        >
+          {/* Tabs remain unchanged */}
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            textColor="secondary"
+            indicatorColor="secondary"
+            variant="fullWidth"
+            sx={{
+              minHeight: "70px",
+              "& .MuiTab-root": {
+                fontSize: { xs: "0.9rem", md: "1rem" },
+                fontWeight: "600",
+                fontFamily: "inherit",
+                color: "var(--text-secondary)",
+                textTransform: "none",
+                transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                padding: "20px 0",
+                zIndex: 1,
+                margin: "8px",
+                borderRadius: "12px",
+                "&:hover": {
+                  color: "var(--text-primary)",
+                  backgroundColor: "rgba(139, 92, 246, 0.1)",
+                  transform: "translateY(-2px)",
+                  "& .lucide": {
+                    transform: "scale(1.1) rotate(5deg)",
+                  },
+                },
+                "&.Mui-selected": {
+                  color: "var(--text-primary)",
+                  background: "linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2))",
+                  boxShadow: "0 4px 15px -3px rgba(139, 92, 246, 0.2)",
+                  "& .lucide": {
+                    color: "var(--accent-primary)",
+                  },
+                },
+              },
+              "& .MuiTabs-indicator": {
+                height: 0,
+              },
+              "& .MuiTabs-flexContainer": {
+                gap: "8px",
+              },
+            }}
+          >
+            <Tab
+              icon={<Code className="mb-2 w-5 h-5 transition-all duration-300" />}
+              label={t("portfolio.projects")}
+              {...a11yProps(0)}
+            />
+            <Tab
+              icon={<Award className="mb-2 w-5 h-5 transition-all duration-300" />}
+              label={t("portfolio.certificates")}
+              {...a11yProps(1)}
+            />
+            <Tab
+              icon={<Boxes className="mb-2 w-5 h-5 transition-all duration-300" />}
+              label={t("portfolio.techStack")}
+              {...a11yProps(2)}
+            />
+          </Tabs>
+        </AppBar>
+
+        <SwipeableViews index={value}>
+          <TabPanel value={value} index={0} dir={theme.direction}>
+            <div className="container mx-auto flex justify-center items-center overflow-visible py-4 sm:py-8 px-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-5">
+                {displayedProjects.map((project, index) => (
+                  <div
+                    key={project.id || index}
+                    data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
+                    data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
+                  >
+                    <CardProject
+                      img={project.img}
+                      title={project.title}
+                      title_ar={project.title_ar}
+                      description={project.description}
+                      description_ar={project.description_ar}
+                      link={project.link}
+                      github={project.github}
+                      id={project.id}
+                      techTools={resolveStackTools(project, techTools)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {projects.length > initialItems && (
+              <div className="mt-6 w-full flex justify-start">
+                <ToggleButton
+                  onClick={() => toggleShowMore('projects')}
+                  isShowingMore={showAllProjects}
+                />
+              </div>
+            )}
+          </TabPanel>
+
+          <TabPanel value={value} index={1} dir={theme.direction}>
+            <div className="container mx-auto flex justify-center items-center overflow-visible py-4 sm:py-8 px-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 md:gap-5 gap-4">
+                {displayedCertificates.map((certificate, index) => (
+                  <div
+                    key={certificate.id || index}
+                    data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
+                    data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
+                  >
+                    <Certificate ImgSertif={certificate.img} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {certificates.length > initialItems && (
+              <div className="mt-6 w-full flex justify-start">
+                <ToggleButton
+                  onClick={() => toggleShowMore('certificates')}
+                  isShowingMore={showAllCertificates}
+                />
+              </div>
+            )}
+          </TabPanel>
+
+          <TabPanel value={value} index={2} dir={theme.direction}>
+            <div className="container mx-auto flex flex-col justify-center items-center overflow-hidden pb-[5%]">
+              <h3 className="text-xl font-bold text-primary mb-8 self-start border-l-4 border-accent-primary pl-4">
+                {t("portfolio.mainTools")}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5 mb-16 w-full">
+                {mainTools.map((stack, index) => (
+                  <div
+                    key={stack.id || index}
+                    data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
+                    data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
+                  >
+                    <TechStackIcon
+                      image={getToolImage(stack)}
+                      name={stack.name}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <h3 className="text-xl font-bold text-primary mb-8 self-start border-l-4 border-accent-primary pl-4">
+                {t("portfolio.otherTools")}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-8 gap-5 w-full">
+                {otherTools.map((stack, index) => (
+                  <div
+                    key={stack.id || index}
+                    data-aos={index % 3 === 0 ? "fade-up-right" : index % 3 === 1 ? "fade-up" : "fade-up-left"}
+                    data-aos-duration={index % 3 === 0 ? "1000" : index % 3 === 1 ? "1200" : "1000"}
+                  >
+                    <TechStackIcon
+                      image={getToolImage(stack)}
+                      name={stack.name}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {techTools.length === 0 && (
+                <p className="text-secondary text-sm">{t("dashboard.noTools")}</p>
+              )}
+            </div>
+          </TabPanel>
+        </SwipeableViews>
+      </Box>
+    </div>
+  );
+}
