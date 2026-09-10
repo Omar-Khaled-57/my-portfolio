@@ -6,7 +6,7 @@ import { useSharedData } from "../context/DataContext"
 import CVModal from "../components/CVModal"
 // Memoized Components
 const Header = memo(({ t }) => (
-  <div className="text-center lg:mb-8 mb-2 px-[5%] lg:px-[10%]">
+  <div className="text-center lg:mb-8 mb-2">
     <div className="inline-block relative group">
       <h2 
         className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#a855f7] py-2" 
@@ -277,9 +277,12 @@ const AboutPage = () => {
     return base;
   }, [manualTotalProjects, totalCertificates, accessibleProjects, showYearsExp, yearsExpValue, t]);
 
+  const displayFullName = language === 'ar' && fullNameAr ? fullNameAr : (fullName || t("about.name"));
+  const displayNameParts = displayFullName.split("El-Khouly");
+
   return (
     <div
-      className="h-auto pb-[10%] text-[var(--text-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%] mt-10 sm-mt-0" 
+      className="h-auto pb-[10%] text-[var(--text-primary)] overflow-hidden px-[8%] sm:px-[5%] lg:px-[10%] mt-10 sm:mt-0" 
       id="About"
      itemScope
   itemType="https://schema.org/Person"
@@ -299,12 +302,19 @@ const AboutPage = () => {
                 {t("about.greeting")}
               </span>
               <span 
-                className="block mt-2 text-[var(--text-primary)] whitespace-nowrap"
+                className="block mt-2 text-[var(--text-primary)] break-words"
                 data-aos="fade-right"
                 data-aos-duration="1300"
                 itemProp="name"
               >
-                {language === 'ar' && fullNameAr ? fullNameAr : (fullName || t("about.name"))}
+                {displayNameParts.length > 1 ? (
+                  <>
+                    <span className="block">{displayNameParts[0].trim()}</span>
+                    <span className="block">El-Khouly</span>
+                  </>
+                ) : (
+                  displayFullName
+                )}
               </span>
             </h2>
             

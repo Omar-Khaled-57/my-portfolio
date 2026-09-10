@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useDragControls } from "framer-motion";
 
 const sameKeyOrder = (a, b) =>
   a.length === b.length && a.every((it, i) => String(it.id) === String(b[i].id));
@@ -15,7 +15,53 @@ const sameKeyOrder = (a, b) =>
  *    animation (the dragged item is compared against the other cells' centers).
  *  - The final order is committed exactly once via onReorder on drop, so the
  *    parent (useDragOrder) persists a single batched update.
+ *
+ * Touch handling: framer-motion injects inline `touch-action: none` whenever
+ * `drag` is set and `dragListener !== false`, which blocks native scrolling on
+ * touch devices entirely (the dashboard tech/cert/project grids are inside a
+ * vertically-scrolling <main>). To keep mobile scrolling working we disable the
+ * drag listener (which suppresses that inline style) and start drags manually
+ * via dragControls — but only for mouse/pen pointers. Touch gesture are left to
+ * the browser thanks to the `touch-pan-y` class, so users can scroll the grid
+ * on phones while desktop reorder (and the per-item arrow buttons) are intact.
  */
+
+const DragItem = ({ item, index, containerRef, onDrag, onDragEnd, children }) => {
+  const controls = useDragControls();
+  return (
+    <motion.div
+      data-drag-item
+      data-drag-key={item.id}
+      layout
+      drag
+      dragListener={false}
+      dragControls={controls}
+      dragConstraints={containerRef}
+      dragElastic={0.05}
+      dragMomentum={false}
+      dragSnapToOrigin
+      transition={{ type: "spring", stiffness: 500, damping: 40 }}
+      whileDrag={{ zIndex: 30, scale: 1.02 }}
+      onDrag={onDrag}
+      onDragEnd={onDragEnd}
+      className="cursor-grab active:cursor-grabbing touch-pan-y"
+      draggable={false}
+      style={{
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        WebkitTouchCallout: "none",
+      }}
+      onPointerDown={(e) => {
+        if (e.pointerType === "mouse" || e.pointerType === "pen") {
+          controls.start(e);
+        }
+      }}
+    >
+      {children(item, index)}
+    </motion.div>
+  );
+};
+
 export default function DragGrid({ items, onReorder, className = "", children }) {
   const containerRef = useRef(null);
   const [order, setOrder] = useState(items);
@@ -72,24 +118,16 @@ export default function DragGrid({ items, onReorder, className = "", children })
   return (
     <div ref={containerRef} className={className}>
       {order.map((item, index) => (
-        <motion.div
+        <DragItem
           key={item.id}
-          data-drag-item
-          data-drag-key={item.id}
-          layout
-          drag
-          dragConstraints={containerRef}
-          dragElastic={0.05}
-          dragMomentum={false}
-          dragSnapToOrigin
-          transition={{ type: "spring", stiffness: 500, damping: 40 }}
-          whileDrag={{ zIndex: 30, scale: 1.02 }}
+          item={item}
+          index={index}
+          containerRef={containerRef}
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
-          className="cursor-grab active:cursor-grabbing touch-none"
         >
-          {children(item, index)}
-        </motion.div>
+          {children}
+        </DragItem>
       ))}
     </div>
   );

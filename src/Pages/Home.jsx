@@ -253,12 +253,12 @@ const Home = ({ onReady }) => {
         })}</script>
       </Helmet>
 
-      <div className="min-h-screen bg-[var(--bg-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%] [@media(max-width:380px)]:pt-24 [@media(min-width:760px)_and_(max-width:770px)]:pt-24 [@media(min-width:820px)_and_(max-width:830px)]:pt-24" id="Home">
+      <div className="min-h-dvh bg-[var(--bg-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%] pt-20 sm:pt-24" id="Home">
         <div className="relative z-10">
-          <div className="container mx-auto min-h-screen">
-            <div className="flex flex-col lg:flex-row items-center justify-center h-screen md:justify-between gap-0 sm:gap-12 lg:gap-20">
+          <div className="container mx-auto">
+            <div className="flex flex-col landscape:max-lg:flex-row lg:flex-row items-center justify-center min-h-[calc(100dvh-5rem)] sm:min-h-[calc(100dvh-6rem)] md:justify-between gap-0 sm:gap-12 landscape:max-lg:gap-8 lg:gap-20">
               {/* Left Column */}
-              <div className="w-full lg:w-1/2 space-y-6 sm:space-y-8 text-left lg:text-left order-1 lg:order-1 lg:mt-0"
+              <div className="w-full landscape:max-lg:w-1/2 lg:w-1/2 space-y-6 sm:space-y-8 text-left lg:text-left order-1 lg:order-1 lg:mt-0"
                 data-aos="fade-right"
                 data-aos-delay="200">
                 <div className="space-y-4 sm:space-y-6 text-start">
@@ -296,7 +296,7 @@ const Home = ({ onReady }) => {
               </div>
 
               {/* Right Column - WebM Video */}
-              <div className="w-full py-0 md:py-[10%] sm:py-0 lg:w-[75%] h-[360px] sm:h-[550px] lg:h-[720px] xl:h-[920px] relative flex items-center justify-center order-2 lg:order-2 mt-5 sm:mt-0"
+              <div className="w-full landscape:max-lg:w-1/2 lg:w-[75%] py-0 h-[min(360px,38dvh)] sm:portrait:h-[min(500px,50dvh)] landscape:max-lg:h-[min(640px,84dvh)] lg:h-[min(680px,100dvh-6rem)] xl:h-[min(840px,100dvh-6rem)] relative flex items-center justify-center order-2 lg:order-2 mt-5 portrait:max-sm:mt-[clamp(14px,4dvh,40px)] landscape:max-lg:mt-0 sm:mt-0"
                 data-aos="fade-left"
                 data-aos-delay="600">
                 <div
@@ -313,8 +313,8 @@ const Home = ({ onReady }) => {
                     <HeroAnimation
                       className={`w-full h-full transition-all duration-700 ease-in-out drop-shadow-[0_15px_50px_rgba(0,0,0,0.2)] drop-shadow-[0_5px_15px_rgba(99,102,241,0.6)] ${
                         isHovering 
-                          ? "scale-[95%] sm:scale-[90%] rotate-2" 
-                          : "scale-[85%] sm:scale-[80%]"
+                          ? "scale-100 sm:scale-100 landscape:max-lg:scale-100 rotate-2" 
+                          : "scale-[90%] sm:scale-[90%] landscape:max-lg:scale-100"
                       }`}
                     />
                   </div>

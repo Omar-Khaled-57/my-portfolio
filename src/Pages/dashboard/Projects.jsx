@@ -47,6 +47,7 @@ const ProjectCard = ({ project, index, total, onDelete, onEdit, onTogglePublish,
               src={project.img}
               alt={project.title}
               onLoad={() => setImgLoaded(true)}
+              onError={() => setImgLoaded(true)}
               className={`w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-105 ${imgLoaded ? "opacity-100" : "opacity-0 absolute"}`}
             />
           </div>
