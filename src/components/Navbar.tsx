@@ -87,7 +87,7 @@ const Navbar = () => {
 
     return (
         <nav
-            className={`fixed w-full top-0 z-50 transition-all duration-500 ${
+            className={`fixed w-full top-0 z-[60] animate-nav-slide transition-all duration-500 ${
                 isOpen
                     ? "bg-[var(--bg-primary)]"
                     : scrolled

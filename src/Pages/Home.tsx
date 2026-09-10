@@ -92,42 +92,21 @@ const HeroAnimation = memo(({ className }: { className?: string }) => {
   useEffect(() => {
     const el = holderRef.current;
     if (!el) return;
-    let visible = false;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const tryMount = () => {
-      const elapsed = (typeof performance !== "undefined" && performance.now()) || 0;
-      if (elapsed < 2500) {
-        timer = setTimeout(tryMount, 2500 - elapsed);
-        return;
-      }
-      if (visible) setReady(true);
-    };
     if (typeof IntersectionObserver !== "function") {
-      timer = setInterval(() => {
-        if (performance.now() >= 2500) {
-          setReady(true);
-          if (timer) clearInterval(timer);
-        }
-      }, 500);
-      return () => {
-        if (timer) clearInterval(timer);
-      };
+      setReady(true);
+      return;
     }
     const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
-          visible = true;
+          setReady(true);
           io.disconnect();
-          tryMount();
         }
       },
       { rootMargin: "0px 0px" }
     );
     io.observe(el);
-    return () => {
-      io.disconnect();
-      if (timer) clearTimeout(timer);
-    };
+    return () => io.disconnect();
   }, []);
   return (
     <div ref={holderRef} className={className}>
@@ -146,7 +125,7 @@ interface SocialLinkItem {
   label: string;
 }
 
-const Home = ({ onReady }: { onReady?: () => void }) => {
+const Home = () => {
   const { t } = useI18n();
   const { socialLinks: rawSocialLinks } = useSharedData();
   const words = t("home.words");
@@ -174,13 +153,6 @@ const Home = ({ onReady }: { onReady?: () => void }) => {
   }, [rawSocialLinks]);
 
   useAOS();
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() =>
-      requestAnimationFrame(() => onReady?.())
-    );
-    return () => cancelAnimationFrame(id);
-  }, [onReady]);
 
   useEffect(() => {
     let ticking = false;

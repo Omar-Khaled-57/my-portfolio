@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState, lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 import AnimatedBackground from "./components/Background";
@@ -7,6 +7,7 @@ import LandingPage from "./components/LandingPage";
 import ProjectPageLayout from "./components/ProjectPageLayout";
 import GlobalKeyHandler from "./components/GlobalKeyHandler";
 import ProtectedRoute from "./components/ProtectedRoute";
+import LoadingScreen from "./components/LoadingScreen";
 
 const CVPage = lazy(() => import('./Pages/CV'));
 const NotFoundPage = lazy(() => import('./Pages/404'));
@@ -14,8 +15,6 @@ const Login = lazy(() => import('./Pages/Login'));
 const Dashboard = lazy(() => import('./Pages/Dashboard'));
 
 function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
-
   return (
     <HelmetProvider>
       <div className="pointer-events-none fixed inset-0 z-0">
@@ -26,12 +25,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={
-              <LandingPage
-                showWelcome={showWelcome}
-                setShowWelcome={setShowWelcome}
-              />
-            }
+            element={<LandingPage />}
           />
 
           <Route path="/project/:slug" element={<ProjectPageLayout />} />
@@ -39,7 +33,7 @@ function App() {
           <Route
             path="/cv"
             element={
-              <Suspense fallback={<div className="min-h-screen" />}>
+              <Suspense fallback={<LoadingScreen />}>
                 <CVPage />
               </Suspense>
             }
@@ -48,7 +42,7 @@ function App() {
           <Route
             path="/login"
             element={
-              <Suspense fallback={<div className="min-h-screen" />}>
+              <Suspense fallback={<LoadingScreen />}>
                 <Login />
               </Suspense>
             }
@@ -58,7 +52,7 @@ function App() {
             path="/dashboard/*"
             element={
               <ProtectedRoute>
-                <Suspense fallback={<div className="min-h-screen" />}>
+                <Suspense fallback={<LoadingScreen />}>
                   <Dashboard />
                 </Suspense>
               </ProtectedRoute>

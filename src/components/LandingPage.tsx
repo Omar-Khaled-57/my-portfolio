@@ -1,49 +1,60 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import Navbar from "./Navbar";
-import WelcomeScreen from "../Pages/WelcomeScreen";
 import Footer from "./Footer";
+import LoadingScreen from "./LoadingScreen";
+import Loader from "./Loader";
+import { useI18n } from "../i18n";
 
 const Home = lazy(() => import("../Pages/Home"));
 const About = lazy(() => import("../Pages/About"));
 const Portfolio = lazy(() => import("../Pages/Portfolio"));
 const ContactPage = lazy(() => import("../Pages/Contact"));
 
-interface LandingPageProps {
-  showWelcome: boolean;
-  setShowWelcome: (v: boolean) => void;
-}
+const OnMounted = ({ onReady, children }: { onReady: () => void; children: ReactNode }) => {
+  const firedRef = useRef(false);
+  useEffect(() => {
+    if (firedRef.current) return;
+    firedRef.current = true;
+    onReady();
+  }, [onReady]);
+  return <>{children}</>;
+};
 
-/**
- * Main landing page layout.
- * The hero (Home) is always mounted underneath the welcome splash so it can
- * load while the splash is up; the splash only lifts once the hero reports
- * ready. The navbar appears only after the splash is gone.
- */
-const LandingPage = ({ showWelcome, setShowWelcome }: LandingPageProps) => {
-  const [heroReady, setHeroReady] = useState(false);
+const LandingPage = () => {
+  const { t } = useI18n();
+  const [ready, setReady] = useState(false);
+  const [overlayGone, setOverlayGone] = useState(false);
+
+  useEffect(() => {
+    if (!ready) return;
+    const id = setTimeout(() => setOverlayGone(true), 600);
+    return () => clearTimeout(id);
+  }, [ready]);
 
   return (
     <>
-      {!showWelcome && <Navbar />}
-      {/* Home is mounted during the splash so it loads beneath it. */}
       <main>
-        <Suspense fallback={<div className="min-h-screen" />}>
-          <Home onReady={() => setHeroReady(true)} />
+        <Suspense fallback={null}>
+          <OnMounted onReady={() => setReady(true)}>
+            {ready && <Navbar />}
+            <Home />
+          </OnMounted>
         </Suspense>
-        <Suspense fallback={<div className="min-h-screen" />}>
+        <Suspense fallback={<LoadingScreen />}>
           <About />
         </Suspense>
-        <Suspense fallback={<div className="h-20" />}>
+        <Suspense fallback={<div className="loader-compact h-20 flex items-center justify-center overflow-hidden"><Loader /></div>}>
           <Portfolio />
           <ContactPage />
         </Suspense>
       </main>
       <Footer />
-      {showWelcome && (
-        <WelcomeScreen
-          onLoadingComplete={() => setShowWelcome(false)}
-          heroReady={heroReady}
-        />
+      {!overlayGone && (
+        <div className={`loader-overlay ${ready ? "loader-overlay--hide" : ""}`}>
+          <Loader />
+          <span className="loader-caption">{t("common.loading")}</span>
+        </div>
       )}
     </>
   );
