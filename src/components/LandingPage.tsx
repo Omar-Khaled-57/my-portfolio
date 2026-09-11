@@ -48,7 +48,12 @@ const LandingPage = () => {
   const { t } = useI18n();
   const [ready, setReady] = useState(false);
   const [overlayGone, setOverlayGone] = useState(false);
-  const [deferred, setDeferred] = useState(false);
+  // Desktop/tablet render sections immediately (loads are fast and placeholder
+  // heights tuned for mobile would mismatch wider layouts, producing CLS from the
+  // height swap). Mobile keeps the deferral to protect the LCP/FCP path.
+  const [deferred, setDeferred] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches,
+  );
 
   useEffect(() => {
     if (!ready) return;
