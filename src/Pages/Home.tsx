@@ -118,30 +118,43 @@ const HeroAnimation = memo(({ className, onReady, playing, isMobile = false }: {
 
   // On mobile the lottie stack (80 KB chunk + 143 KB JSON + eval/render) must
   // not compete with the LCP/TBT window: the right column CSS-animates in at
-  // reveal, and this canvas is only built after the main thread idles
-  // (post-LCP) once it is actually in view. Desktop keeps the current
-  // immediate-on-visible behavior and gains nothing from a delay.
+  // reveal, and the lottie is only built once the hero text (the LCP element)
+  // has actually painted. requestIdleCallback was too eager — the main thread
+  // idles during the network wait for the entry chunk, so the lottie import
+  // still landed inside the critical window. Desktop keeps the current
+  // immediate-on-visible behavior.
   useEffect(() => {
     if (!visible) return;
     if (!isMobile) {
       setDeferred(true);
       return;
     }
+    // Reduced-motion users keep the gradient + slide; skip the 80 KB lottie.
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     let cancelled = false;
-    const go = () => {
+    let observer: PerformanceObserver | null = null;
+    let backstop = 0;
+    const build = () => {
+      observer?.disconnect();
+      window.clearTimeout(backstop);
       if (!cancelled) setDeferred(true);
     };
-    if (typeof window.requestIdleCallback === "function") {
-      window.requestIdleCallback(go, { timeout: 3000 });
-    } else {
-      const t = window.setTimeout(go, 1500);
-      return () => {
-        cancelled = true;
-        window.clearTimeout(t);
-      };
+    if (typeof PerformanceObserver !== "undefined") {
+      observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const latest = entries[entries.length - 1] as PerformanceEntry & {
+          renderTime?: number;
+          loadTime?: number;
+        };
+        if (latest && (latest.renderTime ?? latest.loadTime ?? 0) > 0) build();
+      });
+      observer.observe({ type: "largest-contentful-paint", buffered: true });
     }
+    backstop = window.setTimeout(build, 5000);
     return () => {
       cancelled = true;
+      observer?.disconnect();
+      window.clearTimeout(backstop);
     };
   }, [visible, isMobile]);
   return (

@@ -40,19 +40,26 @@ function renderBlockOptimizer() {
           if (lottieChunk) {
             preloads.push(`<script>
   (function () {
-    if (window.matchMedia("(min-width: 768px)").matches) {
-      var l = document.createElement("link");
-      l.rel = "modulepreload";
-      l.href = "/assets/${lottieChunk}";
-      document.head.appendChild(l);
-      var j = document.createElement("link");
-      j.rel = "preload";
-      j.as = "fetch";
-      j.href = "/animations/lottie.json";
-      j.type = "application/json";
-      j.crossOrigin = "anonymous";
-      document.head.appendChild(j);
-    }
+    // matchMedia read at parse time can observe the pre-emulation viewport
+    // (~800px), which makes mobile/headless runs wrongly select the desktop
+    // path and preload lottie back into the critical path. Read it after the
+    // first frame so device emulation is applied, then preload lottie only
+    // for real desktop clients.
+    requestAnimationFrame(function () {
+      if (window.matchMedia("(min-width: 768px)").matches) {
+        var l = document.createElement("link");
+        l.rel = "modulepreload";
+        l.href = "/assets/${lottieChunk}";
+        document.head.appendChild(l);
+        var j = document.createElement("link");
+        j.rel = "preload";
+        j.as = "fetch";
+        j.href = "/animations/lottie.json";
+        j.type = "application/json";
+        j.crossOrigin = "anonymous";
+        document.head.appendChild(j);
+      }
+    });
   })();
 </script>`)
           }
