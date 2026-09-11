@@ -277,6 +277,72 @@ input:-webkit-autofill:active{
 
 @keyframes hero-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
+/* The visual column owns its entrance. Keeping this motion outside the
+   Lottie canvas prevents a late canvas mount from replacing the slide. */
+@keyframes hero-visual-enter {
+	from {
+		opacity: 0;
+		transform: translateX(var(--hero-visual-enter-offset));
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.hero-visual {
+	--hero-visual-enter-offset: 16rem;
+	opacity: 0;
+	transform: translateX(var(--hero-visual-enter-offset));
+}
+
+.hero-visual--ready {
+	animation: hero-visual-enter 1100ms cubic-bezier(0.22, 1, 0.36, 1) 480ms both;
+}
+
+[dir="rtl"] .hero-visual {
+	--hero-visual-enter-offset: -16rem;
+}
+
+.hero-left-column {
+	--hero-visual-enter-offset: -16rem;
+	opacity: 0;
+	transform: translateX(var(--hero-visual-enter-offset));
+}
+
+[dir="rtl"] .hero-left-column {
+	--hero-visual-enter-offset: 16rem;
+}
+
+.hero-intro--started .hero-left-column {
+	animation: hero-visual-enter 1100ms cubic-bezier(0.22, 1, 0.36, 1) 480ms both;
+}
+
+@keyframes hero-cascade-enter {
+	from {
+		opacity: 0;
+		transform: translateY(18px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.hero-cascade {
+	opacity: 0;
+}
+
+.hero-intro--started .hero-cascade {
+	animation: hero-cascade-enter 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-intro--started .hero-cascade--title { animation-delay: 480ms; }
+.hero-intro--started .hero-cascade--typing { animation-delay: 700ms; }
+.hero-intro--started .hero-cascade--description { animation-delay: 920ms; }
+.hero-intro--started .hero-cascade--actions { animation-delay: 1140ms; }
+.hero-intro--started .hero-cascade--socials { animation-delay: 1360ms; }
+
 /* ── Tech-icon square-walk loader ──────────────────────────────── */
 :root {
 	--loader-pitch: clamp(48px, 11vmin, 64px);
@@ -414,12 +480,42 @@ input:-webkit-autofill:active{
 	animation: nav-slide-in 500ms ease-out;
 }
 
+/* Keep horizontal centering on the toast wrapper. Animating that same
+   transform would override Tailwind's -translate-x-1/2 and cause a jump
+   when the entrance animation completes. */
+@keyframes pwa-update-toast-enter {
+	from {
+		opacity: 0;
+		transform: translateY(calc(100% + 1.5rem));
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.pwa-update-toast {
+	animation: pwa-update-toast-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.animate-square-walk {
 		animation-duration: 60s;
 	}
 	.animate-nav-slide {
 		animation-duration: 0s;
+	}
+	.hero-visual--ready {
+		animation-duration: 1ms;
+		animation-delay: 0ms;
+	}
+	.hero-intro--started .hero-left-column,
+	.hero-intro--started .hero-cascade {
+		animation-duration: 1ms;
+		animation-delay: 0ms;
+	}
+	.pwa-update-toast {
+		animation-duration: 1ms;
 	}
 	.loader-overlay {
 		transition-duration: 100ms;

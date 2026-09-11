@@ -15,6 +15,7 @@ import {
   Unlock,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
+import { useSharedData } from "../../context/DataContext";
 import Swal from "sweetalert2";
 import type { AppSetting, PortfolioComment } from "../../types";
 import { errMessage } from "../../types";
@@ -32,6 +33,7 @@ const Card = ({ children, className = "" }: { children: ReactNode; className?: s
 
 export default function Comments() {
   const { language, t } = useI18n();
+  const { refetch } = useSharedData();
   const [comments, setComments] = useState<PortfolioComment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pinned">("all");
@@ -74,6 +76,16 @@ export default function Comments() {
 
   const pin = async (id: string, value: boolean) => {
     try {
+      if (value) {
+        // Only one comment can be pinned (public UI shows a single pinned comment
+        // and hides every is_pinned=true row from the regular list).
+        const { error: unpinError } = await supabase
+          .from("portfolio_comments")
+          .update({ is_pinned: false })
+          .eq("is_pinned", true)
+          .neq("id", id);
+        if (unpinError) throw unpinError;
+      }
       const { error } = await supabase
         .from("portfolio_comments")
         .update({ is_pinned: value })
@@ -97,13 +109,17 @@ export default function Comments() {
     try {
       const { error } = await supabase
         .from("app_settings")
-        .update({ value: newValue ? "true" : "false" })
-        .eq("key", "comments_frozen");
+        .upsert(
+          { key: "comments_frozen", value: newValue ? "true" : "false" },
+          { onConflict: "key" }
+        );
       
       if (error) {
           throw error;
       }
       
+      refetch();
+
       Swal.fire({
         icon: 'success',
         title: newValue ? t('dashboard.commentsFrozen') : t('dashboard.commentsUnfrozen'),
@@ -489,14 +505,12 @@ export default function Comments() {
 
 // Highlight matching text
 function highlightMatch(text: string, query: string): ReactNode {
-  if (!query.trim()) return text;
-  const regex = new RegExp(
-    `(${query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-    "gi",
-  );
-  const parts = text.split(regex);
+  const trimmed = query.trim();
+  if (!trimmed) return text;
+  const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const parts = text.split(new RegExp(`(${escaped})`, "gi"));
   return parts.map((part, i) =>
-    regex.test(part) ? (
+    part.toLowerCase() === trimmed.toLowerCase() ? (
       <mark key={i} className="bg-indigo-500/30 text-indigo-200 rounded px-0.5">
         {part}
       </mark>

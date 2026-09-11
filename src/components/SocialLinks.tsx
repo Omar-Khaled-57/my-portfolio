@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Linkedin,
   Github,
@@ -45,20 +44,13 @@ const SocialLinks = () => {
   const { t } = useI18n();
   const { theme: currentTheme } = useTheme();
   const { socialLinks: sharedSocialLinks } = useSharedData();
-  const [socialLinks, setSocialLinks] = useState(defaults);
 
   const ghColor = currentTheme === "dark" ? "#f0f0f0" : "#333";
 
-  if (sharedSocialLinks && sharedSocialLinks.length > 0) {
-    if (socialLinks === defaults || socialLinks.length !== sharedSocialLinks.length) {
-      setSocialLinks(sharedSocialLinks);
-    }
-  }
-
-  const linksWithMeta = socialLinks.map((link) => {
+  const linksWithMeta = (sharedSocialLinks && sharedSocialLinks.length > 0 ? sharedSocialLinks : defaults).map((link) => {
     const meta = platformMeta[link.platform] || { icon: Globe, color: "#888", gradient: "from-[#666] to-[#444]" };
-    if (link.platform === "GitHub") meta.color = ghColor;
-    return { ...link, ...meta };
+    const color = link.platform === "GitHub" ? ghColor : meta.color;
+    return { ...link, ...meta, color };
   });
 
   const linkedIn = linksWithMeta.find((link) => link.isPrimary);

@@ -252,8 +252,8 @@ const Navbar = () => {
                             opacity: isOpen ? 1 : 0,
                         }}
                     >
-                        {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         {theme === "dark" ? t("theme.lightMode") : t("theme.darkMode")}
+                        {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                     </button>
                     <button
                         type="button"

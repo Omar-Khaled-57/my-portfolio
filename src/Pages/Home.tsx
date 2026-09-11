@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, Suspense, lazy, useRef } from "react"
+import { useState, useEffect, useCallback, memo, Suspense, lazy, useRef, type AnimationEvent } from "react"
 import { Helmet } from "react-helmet-async"
 import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, Download } from "lucide-react"
 import WhatsAppIcon from "../components/icons/WhatsAppIcon"
@@ -25,10 +25,7 @@ const StatusBadge = memo(({ text }: { text: string }) => (
 ));
 
 const MainTitle = memo(({ first, second }: { first: string; second: string }) => (
-  <div
-    className="space-y-2"
-    style={{ animation: "hero-rise 0.9s ease-out 0.05s backwards" }}
-  >
+  <div className="hero-cascade hero-cascade--title space-y-2">
     <h1 className="text-5xl sm:text-6xl md:text-6xl lg:text-6xl xl:text-7xl font-bold tracking-tight">
       <span className="relative inline-block">
         <span className="absolute -inset-2 bg-gradient-to-r from-[#6366f1] to-[#a855f7] blur-2xl opacity-20"></span>
@@ -87,33 +84,18 @@ const platformIconMap: Record<string, IconProp> = {
   Instagram: Instagram,
 };
 
-const HeroAnimation = memo(({ className }: { className?: string }) => {
+const HeroAnimation = memo(({ className, onReady, playing }: { className?: string; onReady: () => void; playing: boolean }) => {
   const holderRef = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
     const el = holderRef.current;
     if (!el) return;
 
-    let rafId = 0;
-    let timerId = 0;
     let io: IntersectionObserver | null = null;
 
-    const scheduleLottie = () => {
-      if (typeof window.requestIdleCallback === "function") {
-        timerId = window.requestIdleCallback(() => setReady(true), {
-          timeout: 2000,
-        });
-      } else {
-        timerId = window.setTimeout(() => setReady(true), 0);
-      }
-    };
-
     if (typeof IntersectionObserver !== "function") {
-      timerId = window.setTimeout(() => setReady(true), 250);
-      return () => {
-        if (timerId) window.cancelIdleCallback(timerId);
-        else window.clearTimeout(timerId);
-      };
+      setReady(true);
+      return;
     }
 
     io = new IntersectionObserver(
@@ -121,7 +103,7 @@ const HeroAnimation = memo(({ className }: { className?: string }) => {
         if (entries.some((e) => e.isIntersecting)) {
           io?.disconnect();
           io = null;
-          rafId = window.requestAnimationFrame(scheduleLottie);
+          setReady(true);
         }
       },
       { rootMargin: "0px 0px" }
@@ -130,21 +112,13 @@ const HeroAnimation = memo(({ className }: { className?: string }) => {
 
     return () => {
       if (io) io.disconnect();
-      if (typeof window.requestAnimationFrame === "function") {
-        window.cancelAnimationFrame(rafId);
-      }
-      if (typeof window.cancelIdleCallback === "function") {
-        window.cancelIdleCallback(timerId);
-      } else {
-        window.clearTimeout(timerId);
-      }
     };
   }, []);
   return (
     <div ref={holderRef} className={className}>
       {ready && (
         <Suspense fallback={null}>
-          <LottieAnimation animationPath="/animations/lottie.json" className={className} />
+          <LottieAnimation animationPath="/animations/lottie.json" className={className} autoplay={false} playing={playing} onReady={onReady} />
         </Suspense>
       )}
     </div>
@@ -157,7 +131,7 @@ interface SocialLinkItem {
   label: string;
 }
 
-const Home = () => {
+const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { onHeroReady: () => void; forceHeroReveal?: boolean; introStarted?: boolean }) => {
   const { t } = useI18n();
   const { socialLinks: rawSocialLinks } = useSharedData();
   const { canInstall, promptInstall } = usePWAInstall();
@@ -167,6 +141,9 @@ const Home = () => {
   const [wordIndex, setWordIndex] = useState(0)
   const [charIndex, setCharIndex] = useState(0)
   const [isHovering, setIsHovering] = useState(false)
+  const [heroVisualReady, setHeroVisualReady] = useState(false)
+  const [leftColumnEntered, setLeftColumnEntered] = useState(false)
+  const [playHeroAnimation, setPlayHeroAnimation] = useState(false)
   const [socialLinks, setSocialLinks] = useState<SocialLinkItem[]>([
     { icon: Github, link: "https://github.com/Omar-Khaled-57", label: "GitHub Profile" },
     { icon: Linkedin, link: "https://linkedin.com/in/omar-khaled-el-khouly-0a0690313/", label: "LinkedIn Profile" },
@@ -236,6 +213,25 @@ const Home = () => {
     return () => clearTimeout(timeout);
   }, [handleTyping, isTyping]);
 
+  useEffect(() => {
+    if (forceHeroReveal) setHeroVisualReady(true);
+  }, [forceHeroReveal]);
+
+  const handleHeroAnimationReady = useCallback(() => {
+    setHeroVisualReady(true);
+    onHeroReady();
+  }, [onHeroReady]);
+
+  useEffect(() => {
+    if (!leftColumnEntered) return;
+    const timeoutId = window.setTimeout(() => setPlayHeroAnimation(true), 140);
+    return () => window.clearTimeout(timeoutId);
+  }, [leftColumnEntered]);
+
+  const handleLeftColumnAnimationEnd = useCallback((event: AnimationEvent<HTMLDivElement>) => {
+    if (event.animationName === "hero-visual-enter") setLeftColumnEntered(true);
+  }, []);
+
   return (
     <>
       <Helmet>
@@ -267,20 +263,18 @@ const Home = () => {
         })}</script>
       </Helmet>
 
-      <div className="min-h-dvh bg-[var(--bg-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%] pt-20 sm:pt-24 pb-8 sm:pb-12 flex flex-col justify-center landscape:pt-12" id="Home">
+      <div className={`hero-intro min-h-dvh bg-[var(--bg-primary)] overflow-hidden px-[5%] sm:px-[5%] lg:px-[10%] pt-20 sm:pt-24 pb-8 sm:pb-12 flex flex-col justify-center landscape:pt-12 ${introStarted ? "hero-intro--started" : ""}`} id="Home">
         <div className="relative z-10 w-full">
           <div className="container mx-auto">
             <div className="flex flex-col landscape:max-lg:flex-row lg:flex-row items-center justify-center md:justify-between gap-0 sm:gap-12 landscape:max-lg:gap-8 lg:gap-20">
               {/* Left Column */}
-              <div className="w-full landscape:max-lg:w-1/2 lg:w-1/2 space-y-6 sm:space-y-8 text-left lg:text-left order-1 lg:order-1 lg:mt-0"
-                data-aos="fade-right"
-                data-aos-delay="50">
+              <div className="hero-left-column w-full landscape:max-lg:w-1/2 lg:w-1/2 space-y-6 sm:space-y-8 text-left lg:text-left order-1 lg:order-1 lg:mt-0" onAnimationEnd={handleLeftColumnAnimationEnd}>
                 <div className="space-y-4 sm:space-y-6 text-start">
                   <StatusBadge text={t("home.status")} />
                   <MainTitle first={t("home.title.first")} second={t("home.title.second")} />
 
                   {/* Typing Effect */}
-                  <div className="h-8 flex items-center" data-aos="fade-up" data-aos-delay="150">
+                  <div className="hero-cascade hero-cascade--typing h-8 flex items-center">
                     <span className="text-xl md:text-2xl bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent font-light">
                       {text}
                     </span>
@@ -288,20 +282,18 @@ const Home = () => {
                   </div>
 
                   {/* Description */}
-                  <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-xl leading-relaxed font-light"
-                    data-aos="fade-up"
-                    data-aos-delay="250">
+                  <p className="hero-cascade hero-cascade--description text-base md:text-lg text-[var(--text-secondary)] max-w-xl leading-relaxed font-light">
                     {t("home.description")}
                   </p>
 
                   {/* CTA Buttons */}
-                  <div className="flex flex-row gap-3 w-full justify-start" data-aos="fade-up" data-aos-delay="350">
+                  <div className="hero-cascade hero-cascade--actions flex flex-row gap-3 w-full justify-start">
                     <CTAButton href="#Portfolio" text={t("home.projects")} icon={ExternalLink} />
                     <CTAButton href="#Contact" text={t("home.contact")} icon={Mail} contact />
                   </div>
 
                   {/* Social Links */}
-                  <div className="hidden sm:flex gap-4 justify-start" data-aos="fade-up" data-aos-delay="450">
+                  <div className="hero-cascade hero-cascade--socials hidden sm:flex gap-4 justify-start">
                     {socialLinks.map((social, index) => (
                       <SocialLink key={index} {...social} />
                     ))}
@@ -323,9 +315,7 @@ const Home = () => {
               </div>
 
               {/* Right Column - WebM Video */}
-              <div className="w-full landscape:max-lg:w-1/2 lg:w-[75%] py-0 h-[min(360px,38dvh)] sm:portrait:h-[min(500px,50dvh)] landscape:max-lg:h-[min(640px,84dvh)] lg:h-[min(680px,100dvh-6rem)] xl:h-[min(840px,100dvh-6rem)] relative flex items-center justify-center order-2 lg:order-2 mt-5 portrait:max-sm:mt-[clamp(14px,4dvh,40px)] landscape:max-lg:mt-0 sm:mt-0"
-                data-aos="fade-left"
-                data-aos-delay="150">
+              <div className={`hero-visual w-full landscape:max-lg:w-1/2 lg:w-[75%] py-0 h-[min(360px,38dvh)] sm:portrait:h-[min(500px,50dvh)] landscape:max-lg:h-[min(640px,84dvh)] lg:h-[min(680px,100dvh-6rem)] xl:h-[min(840px,100dvh-6rem)] relative flex items-center justify-center order-2 lg:order-2 mt-5 portrait:max-sm:mt-[clamp(14px,4dvh,40px)] landscape:max-lg:mt-0 sm:mt-0 ${heroVisualReady && introStarted ? "hero-visual--ready" : ""}`}>
                 <div
                   className="relative w-full h-full flex items-center justify-center opacity-90"
                   onMouseEnter={() => setIsHovering(true)}
@@ -343,6 +333,8 @@ const Home = () => {
                           ? "scale-[95%] sm:scale-[90%] lg:scale-[95%] rotate-2" 
                           : "scale-[85%] sm:scale-[80%] lg:scale-[85%]"
                       }`}
+                      onReady={handleHeroAnimationReady}
+                      playing={playHeroAnimation}
                     />
                   </div>
 

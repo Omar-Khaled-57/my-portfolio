@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import type { MouseEvent } from "react";
 import { ExternalLink, ArrowRight, Github } from "lucide-react";
 import { toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
@@ -47,21 +46,6 @@ interface CardProjectProps {
 
 const CardProject = ({ img, title, title_ar, description, description_ar, link: ProjectLink, github, id, techTools }: CardProjectProps) => {
   const { t, language } = useI18n();
-  const handleLiveDemo = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (!ProjectLink) {
-      console.log("ProjectLink is empty");
-      e.preventDefault();
-      alert(t("project.liveDemoMissing"));
-    }
-  };
-
-  const handleDetails = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (!id) {
-      console.log("ID is empty");
-      e.preventDefault();
-      alert(t("project.detailsMissing"));
-    }
-  };
 
   return (
     <div className="group relative w-full h-full">
@@ -120,7 +104,6 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
                     href={ProjectLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={handleLiveDemo}
                     className="inline-flex items-center gap-2 text-accent-primary hover:text-accent-secondary transition-colors duration-300 font-semibold text-sm group/link"
                   >
                     <span>{t("project.liveDemo")}</span>
@@ -133,7 +116,6 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
                 <Link
                   to={`/project/${toSlug(title)}`}
                   state={{ projectId: id }}
-                  onClick={handleDetails}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-primary hover:bg-accent-primary hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none shadow-sm hover:shadow-md"
                 >
                   <span className="text-sm font-bold">{t("project.details")}</span>

@@ -14,19 +14,21 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setError('')
     setLoading(true)
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { alert(error.message); setLoading(false); return }
+    if (error) { setError(error.message); setLoading(false); return }
 
     const { data: profile } = await supabase
       .from('profiles').select('role').eq('id', data.user.id).single()
 
     if (profile?.role !== 'admin') {
-      alert(t('login.accessDenied'))
+      setError(t('login.accessDenied'))
       await supabase.auth.signOut()
       setLoading(false)
       return
@@ -150,6 +152,12 @@ export default function Login() {
                   </button>
                 </div>
               </div>
+
+              {error && (
+                <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400" dir="ltr">
+                  {error}
+                </div>
+              )}
 
               <button type="submit" disabled={loading} className="relative group/btn w-full mt-1">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[#4f52c9] to-[#8644c5] rounded-xl opacity-70 blur group-hover/btn:opacity-100 transition duration-300" />

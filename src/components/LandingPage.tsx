@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -10,16 +10,6 @@ const Home = lazy(() => import("../Pages/Home"));
 const About = lazy(() => import("../Pages/About"));
 const Portfolio = lazy(() => import("../Pages/Portfolio"));
 const ContactPage = lazy(() => import("../Pages/Contact"));
-
-const OnMounted = ({ onReady, children }: { onReady: () => void; children: ReactNode }) => {
-  const firedRef = useRef(false);
-  useEffect(() => {
-    if (firedRef.current) return;
-    firedRef.current = true;
-    onReady();
-  }, [onReady]);
-  return <>{children}</>;
-};
 
 const DeferredSection = ({
   id,
@@ -47,7 +37,9 @@ const DeferredSection = ({
 const LandingPage = () => {
   const { t } = useI18n();
   const [ready, setReady] = useState(false);
+  const [heroTimedOut, setHeroTimedOut] = useState(false);
   const [overlayGone, setOverlayGone] = useState(false);
+  const [introStarted, setIntroStarted] = useState(false);
   // Desktop/tablet render sections immediately (loads are fast and placeholder
   // heights tuned for mobile would mismatch wider layouts, producing CLS from the
   // height swap). Mobile keeps the deferral to protect the LCP/FCP path.
@@ -57,9 +49,26 @@ const LandingPage = () => {
 
   useEffect(() => {
     if (!ready) return;
-    const id = setTimeout(() => setOverlayGone(true), 600);
+    const id = setTimeout(() => {
+      setOverlayGone(true);
+      setIntroStarted(true);
+    }, 600);
     return () => clearTimeout(id);
   }, [ready]);
+
+  // The hero is part of the initial view, so wait for its canvas instead of
+  // exposing a page where the visual appears after the entrance has ended.
+  // A failed or very slow asset must not block the app indefinitely.
+  useEffect(() => {
+    if (ready) return;
+    const timeoutId = window.setTimeout(() => {
+      setHeroTimedOut(true);
+      setReady(true);
+    }, 8000);
+    return () => window.clearTimeout(timeoutId);
+  }, [ready]);
+
+  const handleHeroReady = useCallback(() => setReady(true), []);
 
   // Below-the-fold sections are mounted shortly after the first paint so their
   // heavy dependencies (MUI, sweetalert2, …) don't compete with LCP resources.
@@ -92,10 +101,12 @@ const LandingPage = () => {
     <>
       <main>
         <Suspense fallback={null}>
-          <OnMounted onReady={() => setReady(true)}>
-            {ready && <Navbar />}
-            <Home />
-          </OnMounted>
+          {introStarted && <Navbar />}
+          <Home
+            onHeroReady={handleHeroReady}
+            forceHeroReveal={heroTimedOut}
+            introStarted={introStarted}
+          />
         </Suspense>
 
         <DeferredSection id="About" minH={2100} ready={deferred} fallback={<LoadingScreen />}>

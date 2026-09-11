@@ -1,5 +1,5 @@
 <h1>
-  <img src="public/icons/icon.png" alt="Omar Khaled" width="128" height="128" style="vertical-align: middle; margin-right: 12px; border-radius: 12px;">
+  <img src="public/icons/icon-512.png" alt="Omar Khaled" width="128" height="128" style="vertical-align: middle; margin-right: 12px; border-radius: 12px;">
   My Portfolio
 </h1>
 
@@ -28,7 +28,7 @@ My premium personal portfolio with glassmorphism design, multi-language support 
 | **Admin Dashboard** | Secure management of projects, certificates, and comments |
 | **Real-time Comments** | Integrated comment system with pin/unpin and freeze controls |
 | **Supabase Backend** | Database, authentication, and storage via Supabase |
-| **PWA** | Installable progressive web app with offline support |
+| **PWA** | Installable progressive web app — install button (desktop hero + mobile menu) + auto-update toast |
 | **SEO Optimized** | Meta tags, sitemap, and robots.txt configured |
 
 ## Tech Stack
@@ -48,28 +48,29 @@ My premium personal portfolio with glassmorphism design, multi-language support 
 my-portfolio/
 ├── public/
 │   ├── tools/              # Tech stack icons (SVG)
-│   ├── icons/              # App + PWA icons (favicon, icon, ico)
-│   ├── images/             # Open Graph image, photos
+│   ├── icons/              # PWA icons (favicon.svg/png, 192/512, maskable, apple-touch)
+│   ├── images/             # Open Graph image, profile photos
+│   ├── screenshots/        # PWA install screenshots (desktop/mobile)
+│   ├── documents/          # Downloadable CV (PDF)
 │   ├── animations/         # Lottie animation data
 │   ├── fonts/              # Poppins (Latin) + Cairo (Arabic) woff2
-│   ├── manifest.json       # PWA manifest
-│   ├── robots.txt
-│   └── sitemap.xml
+│   ├── robots.txt          # Search engine + AI crawler rules
+│   └── sitemap.xml         # Auto-generated on build
 ├── src/
 │   ├── components/         # Shared components (Navbar, Footer, Loader, CVModal, …)
 │   │   └── dashboard/      # Dashboard UI components
 │   ├── Pages/              # Page components (Home, About, Portfolio, Contact, CV)
 │   │   └── dashboard/      # Admin dashboard pages
 │   ├── context/            # Theme + shared data contexts
-│   ├── hooks/              # Custom hooks
+│   ├── hooks/              # Custom hooks (usePWAInstall, useAOS, …)
 │   ├── assets/             # Static assets
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css           # Global styles & theme variables
-├── scripts/                # Sitemap generator, performance audits
-├── dev/                    # Plans, specs, SQL schema, showcase files
+├── scripts/                # Build scripts — sitemap, icons, screenshots, perf-audit
+├── dev/                    # Plans, specs, SQL schema, lighthouse reports
 ├── index.html
-├── vite.config.js
+├── vite.config.js          # Vite + VitePWA config (manifest, routing, caching)
 └── package.json
 ```
 

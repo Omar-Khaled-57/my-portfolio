@@ -10,6 +10,7 @@ import {
   Inbox,
 } from "lucide-react";
 import { useI18n } from "../../i18n";
+import { useSharedData } from "../../context/DataContext";
 import Swal from "sweetalert2";
 import type { AppSetting } from "../../types";
 import { errMessage } from "../../types";
@@ -25,6 +26,7 @@ const Card = ({ children, className = "" }: { children: ReactNode; className?: s
 
 export default function Emails() {
   const { t } = useI18n();
+  const { refetch } = useSharedData();
   const [isFrozen, setIsFrozen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +36,8 @@ export default function Emails() {
       .from("app_settings")
       .select("value")
       .eq("key", "emails_frozen")
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (data) {
       setIsFrozen((data as unknown as AppSetting).value === "true");
@@ -59,6 +62,8 @@ export default function Emails() {
         );
 
       if (error) throw error;
+
+      refetch();
 
       Swal.fire({
         icon: "success",

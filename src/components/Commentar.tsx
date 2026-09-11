@@ -80,7 +80,7 @@ const Comment = memo(({ comment, formatDate, index: _index, isPinned = false, t 
 ));
 
 interface CommentFormProps {
-  onSubmit: (payload: CommentSubmitPayload) => void;
+  onSubmit: (payload: CommentSubmitPayload) => Promise<boolean>;
   isSubmitting: boolean;
   error: string;
   isFrozen: boolean;
@@ -142,17 +142,19 @@ const CommentForm = memo(({ onSubmit, isSubmitting, error: _error, isFrozen }: C
         }
     }, []);
 
-    const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!newComment.trim() || !userName.trim()) return;
-        
-        onSubmit({ newComment, userName, imageFile });
-        setNewComment('');
-        setUserName('');
-        setImagePreview(null);
-        setImageFile(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        if (textareaRef.current) textareaRef.current.style.height = 'auto';
+
+        const ok = await onSubmit({ newComment, userName, imageFile });
+        if (ok) {
+            setNewComment('');
+            setUserName('');
+            setImagePreview(null);
+            setImageFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (textareaRef.current) textareaRef.current.style.height = 'auto';
+        }
     }, [newComment, userName, imageFile, onSubmit]);
 
     return (
@@ -386,13 +388,30 @@ const Komentar = () => {
         return data.publicUrl;
     }, []);
 
-    const handleCommentSubmit = useCallback(async ({ newComment, userName, imageFile }: CommentSubmitPayload) => {
+    const handleCommentSubmit = useCallback(async ({ newComment, userName, imageFile }: CommentSubmitPayload): Promise<boolean> => {
         setError('');
         setIsSubmitting(true);
-        
+
         try {
-            const profileImageUrl = await uploadImage(imageFile);
-            
+            let profileImageUrl: string | null = null;
+            if (imageFile) {
+                try {
+                    profileImageUrl = await uploadImage(imageFile);
+                } catch (uploadErr) {
+                    // The profile-images bucket is admin-gated; unknown visitors
+                    // (or transient storage failures) must not lose their comment.
+                    console.error('Failed to upload comment profile image, posting without it:', uploadErr);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: t('comments.imageUploadFailed'),
+                        timer: 3000,
+                        showConfirmButton: false,
+                        background: 'var(--bg-secondary)',
+                        color: 'var(--text-primary)'
+                    });
+                }
+            }
+
             const { error } = await supabase
                 .from('portfolio_comments')
                 .insert([
@@ -410,9 +429,11 @@ const Komentar = () => {
             }
 
             fetchComments();
+            return true;
         } catch (error) {
             setError(t('comments.postError'));
             console.error('Error adding comment: ', error);
+            return false;
         } finally {
             setIsSubmitting(false);
         }

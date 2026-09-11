@@ -239,7 +239,7 @@ const ProjectDetails = () => {
         features: selectedProject.features || [],
         tech_stack: selectedProject.tech_stack || [],
         tech_ids: selectedProject.tech_ids || [],
-        github: selectedProject.github || "https://github.com/Omar-Khaled-57",
+        github: selectedProject.github,
       };
       setProject(enhancedProject);
     }
@@ -438,25 +438,58 @@ const ProjectDetails = () => {
                     <span className="relative font-medium">{t("project.liveDemo")}</span>
                   </a>
 
-                  {/* GitHub button — glassmorphic */}
-                  <a
-                    href={project.github ?? undefined}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative inline-flex items-center gap-1.5 md:gap-2 px-4 md:px-8 py-2.5 md:py-4 rounded-xl transition-all duration-300 overflow-hidden text-sm md:text-base shadow-lg hover:scale-105 border border-primary"
-                    style={{
-                      background: 'rgba(168, 85, 247, 0.1)',
-                      backdropFilter: 'blur(16px)',
-                      WebkitBackdropFilter: 'blur(16px)',
-                      color: 'var(--accent-secondary)',
-                    }}
-                  >
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-secondary/20 to-accent-primary/20 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+                  {project.github ? (
+                    /* GitHub link — glassmorphic */
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative inline-flex items-center gap-1.5 md:gap-2 px-4 md:px-8 py-2.5 md:py-4 rounded-xl transition-all duration-300 overflow-hidden text-sm md:text-base shadow-lg hover:scale-105 border border-primary"
+                      style={{
+                        background: 'rgba(168, 85, 247, 0.1)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
+                        color: 'var(--accent-secondary)',
+                      }}
+                    >
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-secondary/20 to-accent-primary/20 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
 
-                    <div className="absolute inset-0 bg-gradient-to-r from-accent-secondary/10 to-accent-primary/10 group-hover:from-accent-secondary/20 group-hover:to-accent-primary/20 transition-all duration-500 rounded-xl" />
-                    <Github className="relative w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" />
-                    <span className="relative font-medium">{t("project.github")}</span>
-                  </a>
+                      <div className="absolute inset-0 bg-gradient-to-r from-accent-secondary/10 to-accent-primary/10 group-hover:from-accent-secondary/20 group-hover:to-accent-primary/20 transition-all duration-500 rounded-xl" />
+                      <Github className="relative w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" />
+                      <span className="relative font-medium">{t("project.github")}</span>
+                    </a>
+                  ) : (
+                    /* GitHub button — explains the source is private */
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void import("sweetalert2").then(({ default: Swal }) =>
+                          Swal.fire({
+                            icon: "info",
+                            title: t("project.privateTitle"),
+                            text: t("project.privateText"),
+                            confirmButtonText: t("project.privateConfirm"),
+                            confirmButtonColor: "#6366f1",
+                            background: "var(--bg-secondary)",
+                            color: "var(--text-primary)",
+                          })
+                        );
+                      }}
+                      className="group relative inline-flex items-center gap-1.5 md:gap-2 px-4 md:px-8 py-2.5 md:py-4 rounded-xl transition-all duration-300 overflow-hidden text-sm md:text-base shadow-lg hover:scale-105 border border-primary cursor-pointer"
+                      style={{
+                        background: 'rgba(168, 85, 247, 0.1)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
+                        color: 'var(--accent-secondary)',
+                      }}
+                    >
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-secondary/20 to-accent-primary/20 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
+
+                      <div className="absolute inset-0 bg-gradient-to-r from-accent-secondary/10 to-accent-primary/10 group-hover:from-accent-secondary/20 group-hover:to-accent-primary/20 transition-all duration-500 rounded-xl" />
+                      <Github className="relative w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" />
+                      <span className="relative font-medium">{t("project.github")}</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="space-y-4 md:space-y-6">

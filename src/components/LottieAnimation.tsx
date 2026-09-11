@@ -7,14 +7,18 @@ const LottieAnimation = ({
   animationPath,
   loop = true,
   autoplay = true,
+  playing,
   className,
   style,
+  onReady,
 }: {
   animationPath: string;
   loop?: boolean;
   autoplay?: boolean;
+  playing?: boolean;
   className?: string;
   style?: CSSProperties;
+  onReady?: () => void;
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const animRef = useRef<ReturnType<typeof lottie.loadAnimation> | null>(null);
@@ -35,13 +39,27 @@ const LottieAnimation = ({
       } as unknown as AnimationConfig["rendererSettings"],
     });
 
+    const notifyReady = () => {
+      // Allow the initialized canvas to paint before the loader starts exiting.
+      window.requestAnimationFrame(() => onReady?.());
+    };
+
+    anim.addEventListener("DOMLoaded", notifyReady);
     animRef.current = anim;
 
     return () => {
+      anim.removeEventListener("DOMLoaded", notifyReady);
       anim.destroy();
       animRef.current = null;
     };
-  }, [animationPath, loop, autoplay]);
+  }, [animationPath, loop, autoplay, onReady]);
+
+  useEffect(() => {
+    const animation = animRef.current;
+    if (!animation || playing === undefined) return;
+    if (playing) animation.play();
+    else animation.pause();
+  }, [playing]);
 
   return <div ref={containerRef} className={className} style={style} />;
 };
