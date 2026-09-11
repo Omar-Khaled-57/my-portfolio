@@ -30,14 +30,6 @@ function renderBlockOptimizer() {
             )
           }
         }
-        html = html.replace(
-          /<script id="vite-plugin-pwa:register-sw"[^>]*><\/script>/,
-          ''
-        )
-        html = html.replace(
-          '</body>',
-          '<script type="module" src="/registerSW.js"></script>\n</body>'
-        )
         fs.writeFileSync(htmlPath, html)
       }
     }
@@ -48,7 +40,8 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      injectRegister: false,
       includeAssets: [
         'icons/icon-512.png',
         'icons/icon-192.png',
@@ -56,7 +49,6 @@ export default defineConfig({
         'icons/icon-192-maskable.png',
         'icons/apple-touch-icon-180.png',
         'icons/apple-touch-icon-152.png',
-        'icons/favicon.svg',
         'icons/favicon-64.png',
         'icons/favicon-48.png',
         'icons/favicon-32.png',
