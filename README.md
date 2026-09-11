@@ -1,5 +1,5 @@
 <h1>
-  <img src="public/icon.png" alt="Omar Khaled" width="128" height="128" style="vertical-align: middle; margin-right: 12px; border-radius: 12px;">
+  <img src="public/icons/icon.png" alt="Omar Khaled" width="128" height="128" style="vertical-align: middle; margin-right: 12px; border-radius: 12px;">
   My Portfolio
 </h1>
 
@@ -23,7 +23,7 @@ My premium personal portfolio with glassmorphism design, multi-language support 
 
 | Feature | Description |
 |---|---|
-| **Glassmorphism UI** | Modern design with smooth animations (Framer Motion, GSAP, AOS, Lottie) |
+| **Glassmorphism UI** | Modern design with smooth animations (Framer Motion, AOS, Lottie) |
 | **Multi-Language** | Fully translated English & Arabic with RTL support |
 | **Admin Dashboard** | Secure management of projects, certificates, and comments |
 | **Real-time Comments** | Integrated comment system with pin/unpin and freeze controls |
@@ -36,8 +36,8 @@ My premium personal portfolio with glassmorphism design, multi-language support 
 | Layer | Library / Tool |
 |---|---|
 | **Framework** | [React 18](https://react.dev) + [Vite](https://vite.dev) |
-| **Styling** | [Tailwind CSS](https://tailwindcss.com) + [Material UI](https://mui.com) + [Headless UI](https://headlessui.com) + [Shadcn/UI](https://ui.shadcn.com) |
-| **Animations** | [Framer Motion](https://www.framer.com/motion), [GSAP](https://gsap.com), [AOS](https://michalsnik.github.io/aos/), [Lottie](https://airbnb.io/lottie/) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com) + [Material UI](https://mui.com) |
+| **Animations** | [Framer Motion](https://www.framer.com/motion), [AOS](https://michalsnik.github.io/aos/), [Lottie](https://airbnb.io/lottie/) |
 | **Backend** | [Supabase](https://supabase.com) (Auth, DB, Storage, Realtime) |
 | **Alerts** | [SweetAlert2](https://sweetalert2.github.io) |
 | **Fonts** | Poppins (Latin), Cairo (Arabic) |
@@ -47,24 +47,29 @@ My premium personal portfolio with glassmorphism design, multi-language support 
 ```
 my-portfolio/
 ├── public/
-│   ├── tools/              # Tech stack icons (SVG + PNG)
-│   ├── icon.png            # App icon
-│   ├── Meta.png            # Open Graph image
-│   ├── Coding.gif          # Animated hero asset
+│   ├── tools/              # Tech stack icons (SVG)
+│   ├── icons/              # App + PWA icons (favicon, icon, ico)
+│   ├── images/             # Open Graph image, photos
+│   ├── animations/         # Lottie animation data
+│   ├── fonts/              # Poppins (Latin) + Cairo (Arabic) woff2
 │   ├── manifest.json       # PWA manifest
+│   ├── robots.txt
 │   └── sitemap.xml
 ├── src/
-│   ├── components/         # Shared components (Navbar, Footer, Modal, etc.)
+│   ├── components/         # Shared components (Navbar, Footer, Loader, CVModal, …)
+│   │   └── dashboard/      # Dashboard UI components
 │   ├── Pages/              # Page components (Home, About, Portfolio, Contact, CV)
 │   │   └── dashboard/      # Admin dashboard pages
-│   ├── context/            # Theme context
+│   ├── context/            # Theme + shared data contexts
 │   ├── hooks/              # Custom hooks
 │   ├── assets/             # Static assets
-│   ├── App.jsx
-│   ├── main.jsx
+│   ├── App.tsx
+│   ├── main.tsx
 │   └── index.css           # Global styles & theme variables
+├── scripts/                # Sitemap generator, performance audits
+├── dev/                    # Plans, specs, SQL schema, showcase files
 ├── index.html
-├── vite.config.ts
+├── vite.config.js
 └── package.json
 ```
 
@@ -103,7 +108,7 @@ npm run build
 
 ## Supabase Setup
 
-Run the SQL in `README.md` (or copy from this file) to create tables, enable RLS, and configure storage buckets. Then create your admin user via **Authentication → Users**, copy their UUID, and insert into `profiles`:
+Run the SQL in [`dev/sqls/001_full_schema.sql`](dev/sqls/001_full_schema.sql) (see [`dev/sqls/README.md`](dev/sqls/README.md)) to create the tables, enable RLS, and configure storage buckets. Then create your admin user via **Authentication → Users**, copy their UUID, and insert into `profiles`:
 
 ```sql
 INSERT INTO public.profiles (id, username, role)
