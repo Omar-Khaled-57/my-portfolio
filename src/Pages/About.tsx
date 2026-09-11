@@ -4,6 +4,7 @@ import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import { useSharedData } from "../context/DataContext"
 import { prefetchCVModal, scheduleCVModalPrefetch } from "../utils/cvModal"
+import { optimizeStorageUrl } from "../utils/imageUrl"
 import type { TFunction, IconProp, Project } from "../types"
 
 const CVModal = lazy(() => import("../components/CVModal"));
@@ -63,7 +64,7 @@ const ProfileImage = memo(({ imageUrl }: { imageUrl: string }) => {
                 />
               )}
               <img
-                src={imageUrl || "/images/photo.png"}
+                src={optimizeStorageUrl(imageUrl, { width: 960, quality: 85 }) || "/images/photo.png"}
                 alt={t("about.profileAlt")}
                 width="320"
                 height="320"

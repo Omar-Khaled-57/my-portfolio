@@ -4,6 +4,7 @@ import { toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
 import { useTheme as useCustomTheme } from "../context/ThemeContext";
 import { getToolImage } from "../utils/techTools";
+import { optimizeStorageUrl } from "../utils/imageUrl";
 import type { TechTool } from "../types";
 
 interface TechIconsProps {
@@ -46,6 +47,10 @@ interface CardProjectProps {
 
 const CardProject = ({ img, title, title_ar, description, description_ar, link: ProjectLink, github, id, techTools }: CardProjectProps) => {
   const { t, language } = useI18n();
+  // Cards display the screenshot at ~450-520px; 2x retina is covered by 1024
+  // and quality 80 keeps screenshots visually sharp while dropping most of the
+  // byte weight (sources are often 1536-1920px PNGs loaded below the fold).
+  const optimizedImg = optimizeStorageUrl(img, { width: 1024, quality: 80 });
 
   return (
     <div className="group relative w-full h-full">
@@ -57,7 +62,7 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-50 z-10 pointer-events-none mix-blend-overlay"></div>
             {img && img !== 'null' ? (
               <img
-                src={img}
+                src={optimizedImg}
                 alt={title}
                 loading="lazy"
                 decoding="async"

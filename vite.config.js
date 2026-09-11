@@ -31,15 +31,31 @@ function renderBlockOptimizer() {
             preloads.push(`<link rel="modulepreload" href="/assets/${homeChunk}">`)
           }
           // The hero animation can only start once lottie-web has parsed and
-          // rendered the animation data, so those two assets are fetched as
-          // early — and at the highest priority — as possible. The reveal is no
-          // longer pinned to them, but they still gate playback.
+          // rendered the animation data, so on desktop these two assets get a
+          // head start. They are deliberately NOT fetchpriority=high (the entry
+          // chunk must win the queue on slow networks) and they are only
+          // injected when the device is desktop: mobile loads lottie lazily
+          // after LCP, so preloading it there wastes bandwidth and outruns
+          // index/react-vendor on throttled connections.
           if (lottieChunk) {
-            preloads.push(`<link rel="modulepreload" fetchpriority="high" href="/assets/${lottieChunk}">`)
+            preloads.push(`<script>
+  (function () {
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      var l = document.createElement("link");
+      l.rel = "modulepreload";
+      l.href = "/assets/${lottieChunk}";
+      document.head.appendChild(l);
+      var j = document.createElement("link");
+      j.rel = "preload";
+      j.as = "fetch";
+      j.href = "/animations/lottie.json";
+      j.type = "application/json";
+      j.crossOrigin = "anonymous";
+      document.head.appendChild(j);
+    }
+  })();
+</script>`)
           }
-          preloads.push(
-            `<link rel="preload" fetchpriority="high" href="/animations/lottie.json" as="fetch" type="application/json" crossorigin>`,
-          )
           // Self-hosted Poppins (latin subset). Preloading the two weights that
           // paint the hero pre-empts the font-swap reflow CLS measured on
           // mobile once the typewriter/paragraph become visible.

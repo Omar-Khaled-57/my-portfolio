@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, Suspense, lazy, useRef, type AnimationEvent } from "react"
+import { useState, useEffect, useCallback, useMemo, memo, Suspense, lazy, useRef, type AnimationEvent } from "react"
 import { Helmet } from "react-helmet-async"
 import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, Download } from "lucide-react"
 import WhatsAppIcon from "../components/icons/WhatsAppIcon"
@@ -84,9 +84,10 @@ const platformIconMap: Record<string, IconProp> = {
   Instagram: Instagram,
 };
 
-const HeroAnimation = memo(({ className, onReady, playing }: { className?: string; onReady: () => void; playing: boolean }) => {
+const HeroAnimation = memo(({ className, onReady, playing, isMobile = false }: { className?: string; onReady: () => void; playing: boolean; isMobile?: boolean }) => {
   const holderRef = useRef<HTMLDivElement | null>(null);
-  const [ready, setReady] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [deferred, setDeferred] = useState(false);
   useEffect(() => {
     const el = holderRef.current;
     if (!el) return;
@@ -94,7 +95,7 @@ const HeroAnimation = memo(({ className, onReady, playing }: { className?: strin
     let io: IntersectionObserver | null = null;
 
     if (typeof IntersectionObserver !== "function") {
-      setReady(true);
+      setVisible(true);
       return;
     }
 
@@ -103,7 +104,7 @@ const HeroAnimation = memo(({ className, onReady, playing }: { className?: strin
         if (entries.some((e) => e.isIntersecting)) {
           io?.disconnect();
           io = null;
-          setReady(true);
+          setVisible(true);
         }
       },
       { rootMargin: "0px 0px" }
@@ -114,9 +115,38 @@ const HeroAnimation = memo(({ className, onReady, playing }: { className?: strin
       if (io) io.disconnect();
     };
   }, []);
+
+  // On mobile the lottie stack (80 KB chunk + 143 KB JSON + eval/render) must
+  // not compete with the LCP/TBT window: the right column CSS-animates in at
+  // reveal, and this canvas is only built after the main thread idles
+  // (post-LCP) once it is actually in view. Desktop keeps the current
+  // immediate-on-visible behavior and gains nothing from a delay.
+  useEffect(() => {
+    if (!visible) return;
+    if (!isMobile) {
+      setDeferred(true);
+      return;
+    }
+    let cancelled = false;
+    const go = () => {
+      if (!cancelled) setDeferred(true);
+    };
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(go, { timeout: 3000 });
+    } else {
+      const t = window.setTimeout(go, 1500);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(t);
+      };
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, isMobile]);
   return (
     <div ref={holderRef} className={className}>
-      {ready && (
+      {deferred && (
         <Suspense fallback={null}>
           <LottieAnimation animationPath="/animations/lottie.json" className={className} autoplay={false} playing={playing} onReady={onReady} />
         </Suspense>
@@ -136,6 +166,12 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
   const { socialLinks: rawSocialLinks } = useSharedData();
   const { canInstall, promptInstall } = usePWAInstall();
   const words = t("home.words");
+  // Same breakpoint as LandingPage (min-width: 768px = desktop): on mobile the
+  // hero visual CSS-animates in at reveal and the lottie loads lazily after LCP.
+  const isMobile = useMemo(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches,
+    [],
+  );
   const [text, setText] = useState("")
   const [isTyping, setIsTyping] = useState(true)
   const [wordIndex, setWordIndex] = useState(0)
@@ -331,7 +367,7 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
               </div>
 
               {/* Right Column - WebM Video */}
-              <div className={`hero-visual w-full landscape:max-lg:w-1/2 lg:w-[75%] py-0 h-[min(360px,38dvh)] sm:portrait:h-[min(500px,50dvh)] landscape:max-lg:h-[min(640px,84dvh)] lg:h-[min(680px,100dvh-6rem)] xl:h-[min(840px,100dvh-6rem)] relative flex items-center justify-center order-2 lg:order-2 mt-5 portrait:max-sm:mt-[clamp(14px,4dvh,40px)] landscape:max-lg:mt-0 sm:mt-0 ${heroVisualReady && introStarted ? "hero-visual--ready" : ""}`}>
+              <div className={`hero-visual w-full landscape:max-lg:w-1/2 lg:w-[75%] py-0 h-[min(360px,38dvh)] sm:portrait:h-[min(500px,50dvh)] landscape:max-lg:h-[min(640px,84dvh)] lg:h-[min(680px,100dvh-6rem)] xl:h-[min(840px,100dvh-6rem)] relative flex items-center justify-center order-2 lg:order-2 mt-5 portrait:max-sm:mt-[clamp(14px,4dvh,40px)] landscape:max-lg:mt-0 sm:mt-0 ${(isMobile || heroVisualReady) && introStarted ? "hero-visual--ready" : ""}`}>
                 <div
                   className="relative w-full h-full flex items-center justify-center opacity-90"
                   onMouseEnter={() => setIsHovering(true)}
@@ -351,6 +387,7 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
                       }`}
                       onReady={handleHeroAnimationReady}
                       playing={playHeroAnimation}
+                      isMobile={isMobile}
                     />
                   </div>
 

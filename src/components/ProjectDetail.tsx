@@ -25,6 +25,7 @@ import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
 import { useSharedData } from "../context/DataContext";
 import { getToolImage, matchToolByName, resolveProjectTools } from "../utils/techTools";
+import { optimizeStorageUrl } from "../utils/imageUrl";
 import type { Project, TechTool, IconProp, TFunction } from "../types";
 
 const TECH_ICONS: Record<string, LucideIcon> = {
@@ -531,7 +532,7 @@ const ProjectDetails = () => {
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl group transition-all duration-500 hover:shadow-accent-primary/20">
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <img
-                    src={project.img}
+                    src={optimizeStorageUrl(project.img, { width: 1600, quality: 80 })}
                     alt={project.title}
                     className="w-full object-cover transform transition-transform duration-700 will-change-transform group-hover:scale-110"
                   />
