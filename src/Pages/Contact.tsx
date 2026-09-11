@@ -4,11 +4,11 @@ import { Share2, User, Mail, MessageSquare, Send, Lock } from "lucide-react";
 import SocialLinks from "../components/SocialLinks";
 import Komentar from "../components/Commentar";
 import useAOS from "../hooks/useAOS";
-import axios from "axios";
 import { useI18n } from "../i18n";
 import { useSharedData } from "../context/DataContext";
 
 const getSwal = async () => (await import("sweetalert2")).default;
+const getAxios = async () => (await import("axios")).default;
 
 interface ContactForm {
   name: string;
@@ -79,6 +79,7 @@ const ContactPage = () => {
       submitData.append('_captcha', 'false'); // Disable captcha
       submitData.append('_template', 'table'); // Format email as a table
 
+      const axios = await getAxios();
       await axios.post(formSubmitUrl, submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',

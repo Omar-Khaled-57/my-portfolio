@@ -115,7 +115,7 @@ export default function Certificates() {
     try {
       setUploading(true)
       const fileName = `cert-${Date.now()}-${file.name}`
-      const { error: uploadError } = await supabase.storage.from('certificate-images').upload(fileName, file)
+      const { error: uploadError } = await supabase.storage.from('certificate-images').upload(fileName, file, { cacheControl: "604800" })
       if (uploadError) throw uploadError
 
       const { data } = supabase.storage.from('certificate-images').getPublicUrl(fileName)

@@ -113,7 +113,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'framer-motion': ['framer-motion'],
           'lottie': ['lottie-web'],
           'mui': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
         },

@@ -14,7 +14,7 @@ import type {
 
 const DataContext = createContext<DataContextValue | null>(null);
 
-const DATA_FETCH_DELAY_MS = 600;
+const DATA_FETCH_DELAY_MS = 0;
 
 const readCache = <T,>(key: string, fallback: T): T => {
   try {

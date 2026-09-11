@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import type { MouseEvent } from "react";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
-import CVModal from "./CVModal";
+import { prefetchCVModal, scheduleCVModalPrefetch } from "../utils/cvModal";
+
+const CVModal = lazy(() => import("./CVModal"));
 
 const Navbar = () => {
     const { isRtl, language, toggleLanguage, t } = useI18n();
@@ -28,6 +30,10 @@ const Navbar = () => {
         window.addEventListener("scroll", handleScroll, { passive: true });
         handleScroll();
         return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    useEffect(() => {
+        scheduleCVModalPrefetch();
     }, []);
 
     useEffect(() => {
@@ -58,7 +64,16 @@ const Navbar = () => {
         };
 
         init();
+
+        const onSectionsReady = () => {
+            if (retryTimer) clearTimeout(retryTimer);
+            if (observer) observer.disconnect();
+            init();
+        };
+        window.addEventListener("sectionsReady", onSectionsReady);
+
         return () => {
+            window.removeEventListener("sectionsReady", onSectionsReady);
             if (retryTimer) clearTimeout(retryTimer);
             if (observer) observer.disconnect();
         };
@@ -136,9 +151,13 @@ const Navbar = () => {
                                     />
                                 </a>
                             ))}
-                             <button
+<button
                                 type="button"
-                                onClick={() => setIsCVModalOpen(true)}
+                                onClick={() => {
+                                    prefetchCVModal();
+                                    setIsCVModalOpen(true);
+                                }}
+                                onMouseEnter={() => prefetchCVModal()}
                                 className="rounded-full border border-primary bg-secondary/50 px-3 py-1.5 text-xs font-bold text-accent-primary hover:bg-accent-primary/10 transition-all duration-300"
                             >
                                 {t("about.downloadCv")}
@@ -224,6 +243,7 @@ const Navbar = () => {
                     <button
                         type="button"
                         onClick={() => {
+                            prefetchCVModal();
                             setIsCVModalOpen(true);
                             setIsOpen(false);
                         }}
@@ -252,7 +272,9 @@ const Navbar = () => {
                 </div>
             </div>
             
-            <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
+            <Suspense fallback={null}>
+                <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
+            </Suspense>
         </nav>
     );
 };

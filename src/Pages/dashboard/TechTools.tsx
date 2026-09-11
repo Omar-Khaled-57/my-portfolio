@@ -348,7 +348,7 @@ export default function TechTools() {
     const fileName = `tool-${Date.now()}-${file.name}`;
     const { error: uploadError } = await supabase.storage
       .from("tool-images")
-      .upload(fileName, file);
+      .upload(fileName, file, { cacheControl: "604800" });
     if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
     const { data } = supabase.storage.from("tool-images").getPublicUrl(fileName);
     return data.publicUrl;

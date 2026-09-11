@@ -1,10 +1,12 @@
-import { useEffect, useState, memo, useMemo, useCallback } from "react"
+import { useEffect, useState, memo, useMemo, useCallback, lazy, Suspense } from "react"
 import { FileText, Code, Award, ArrowUpRight, Sparkles, FolderGit2, Briefcase } from "lucide-react"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import { useSharedData } from "../context/DataContext"
-import CVModal from "../components/CVModal"
+import { prefetchCVModal, scheduleCVModalPrefetch } from "../utils/cvModal"
 import type { TFunction, IconProp, Project } from "../types"
+
+const CVModal = lazy(() => import("../components/CVModal"));
 
 // Memoized Components
 const Header = memo(({ t }: { t: TFunction }) => (
@@ -52,14 +54,23 @@ const ProfileImage = memo(({ imageUrl }: { imageUrl: string }) => {
             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 z-10 transition-opacity duration-700 group-hover:opacity-0 hidden sm:block" />
             <div className="absolute inset-0 bg-gradient-to-t from-purple-500/20 via-transparent to-blue-500/20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 hidden sm:block" />
             
-            <img
-              src={imageUrl || "/images/photo.png"}
-              alt={t("about.profileAlt")}
-              width="320"
-              height="320"
-              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-2"
-              loading="lazy"
-            />
+            <picture>
+              {!imageUrl && (
+                <source
+                  type="image/webp"
+                  srcSet="/images/photo-320.webp 320w, /images/photo-640.webp 640w"
+                  sizes="(max-width: 640px) 288px, 320px"
+                />
+              )}
+              <img
+                src={imageUrl || "/images/photo.png"}
+                alt={t("about.profileAlt")}
+                width="320"
+                height="320"
+                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-2"
+                loading="lazy"
+              />
+            </picture>
 
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 z-20 hidden sm:block">
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -237,6 +248,10 @@ const AboutPage = () => {
   useAOS();
 
   useEffect(() => {
+    scheduleCVModalPrefetch();
+  }, []);
+
+  useEffect(() => {
     let resizeTimer: ReturnType<typeof setTimeout> | undefined;
     const handleResize = () => {
       clearTimeout(resizeTimer);
@@ -385,7 +400,10 @@ const AboutPage = () => {
               <button 
                 data-aos="fade-up"
                 data-aos-duration="800"
-                onClick={() => setIsCVModalOpen(true)}
+                onClick={() => {
+                  prefetchCVModal();
+                  setIsCVModalOpen(true);
+                }}
                 className="w-full lg:w-auto sm:px-6 py-2 sm:py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 flex items-center justify-center lg:justify-start gap-2 border"
                 style={{
                   background: 'rgba(99,102,241,0.15)',
@@ -396,6 +414,7 @@ const AboutPage = () => {
                   boxShadow: '0 8px 32px rgba(99,102,241,0.18)',
                 }}
                 onMouseEnter={e => {
+                  prefetchCVModal();
                   e.currentTarget.style.background = 'rgba(99,102,241,0.28)';
                   e.currentTarget.style.boxShadow = '0 12px 40px rgba(99,102,241,0.28)';
                 }}
@@ -454,7 +473,9 @@ const AboutPage = () => {
         </div>
       </div>
 
-      <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
+      <Suspense fallback={null}>
+        <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
+      </Suspense>
 
       <style>{`
         @keyframes float {

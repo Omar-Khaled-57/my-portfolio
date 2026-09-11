@@ -461,7 +461,7 @@ export default function Projects() {
 
   const uploadImage = async (f: File): Promise<string> => {
     const fileName = `${Date.now()}-${f.name}`;
-    const { error: uploadError } = await supabase.storage.from("project-images").upload(fileName, f);
+    const { error: uploadError } = await supabase.storage.from("project-images").upload(fileName, f, { cacheControl: "604800" });
     if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
 
     const { data } = supabase.storage

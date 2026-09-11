@@ -216,7 +216,7 @@ export default function PersonalInfo() {
 
       const { error: uploadError } = await supabase.storage
         .from('profile-images')
-        .upload(filePath, file);
+        .upload(filePath, file, { cacheControl: "604800" });
 
       if (uploadError) throw uploadError;
 

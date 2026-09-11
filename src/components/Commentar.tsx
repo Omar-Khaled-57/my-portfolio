@@ -373,7 +373,7 @@ const Komentar = () => {
 
         const { error: uploadError } = await supabase.storage
             .from('profile-images')
-            .upload(filePath, imageFile);
+            .upload(filePath, imageFile, { cacheControl: "604800" });
 
         if (uploadError) {
             throw uploadError;

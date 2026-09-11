@@ -10,7 +10,7 @@ import type { IconProp } from "../types"
 const LottieAnimation = lazy(() => import("../components/LottieAnimation"));
 
 const StatusBadge = memo(({ text }: { text: string }) => (
-  <div className="hidden animate-float lg:mx-0" data-aos="zoom-in" data-aos-delay="400">
+  <div className="hidden animate-float lg:mx-0" data-aos="zoom-in" data-aos-delay="100">
     <div className="relative group">
       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-full blur opacity-30 group-hover:opacity-50 transition duration-1000"></div>
       <div className="relative px-3 sm:px-4 py-2 rounded-full bg-black/40 backdrop-blur-xl border border-white/10">
@@ -92,21 +92,52 @@ const HeroAnimation = memo(({ className }: { className?: string }) => {
   useEffect(() => {
     const el = holderRef.current;
     if (!el) return;
+
+    let rafId = 0;
+    let timerId = 0;
+    let io: IntersectionObserver | null = null;
+
+    const scheduleLottie = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        timerId = window.requestIdleCallback(() => setReady(true), {
+          timeout: 2000,
+        });
+      } else {
+        timerId = window.setTimeout(() => setReady(true), 0);
+      }
+    };
+
     if (typeof IntersectionObserver !== "function") {
-      setReady(true);
-      return;
+      timerId = window.setTimeout(() => setReady(true), 250);
+      return () => {
+        if (timerId) window.cancelIdleCallback(timerId);
+        else window.clearTimeout(timerId);
+      };
     }
-    const io = new IntersectionObserver(
+
+    io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
-          setReady(true);
-          io.disconnect();
+          io?.disconnect();
+          io = null;
+          rafId = window.requestAnimationFrame(scheduleLottie);
         }
       },
       { rootMargin: "0px 0px" }
     );
-    io.observe(el);
-    return () => io.disconnect();
+    io?.observe(el);
+
+    return () => {
+      if (io) io.disconnect();
+      if (typeof window.requestAnimationFrame === "function") {
+        window.cancelAnimationFrame(rafId);
+      }
+      if (typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(timerId);
+      } else {
+        window.clearTimeout(timerId);
+      }
+    };
   }, []);
   return (
     <div ref={holderRef} className={className}>
@@ -241,13 +272,13 @@ const Home = () => {
               {/* Left Column */}
               <div className="w-full landscape:max-lg:w-1/2 lg:w-1/2 space-y-6 sm:space-y-8 text-left lg:text-left order-1 lg:order-1 lg:mt-0"
                 data-aos="fade-right"
-                data-aos-delay="200">
+                data-aos-delay="50">
                 <div className="space-y-4 sm:space-y-6 text-start">
                   <StatusBadge text={t("home.status")} />
                   <MainTitle first={t("home.title.first")} second={t("home.title.second")} />
 
                   {/* Typing Effect */}
-                  <div className="h-8 flex items-center" data-aos="fade-up" data-aos-delay="800">
+                  <div className="h-8 flex items-center" data-aos="fade-up" data-aos-delay="150">
                     <span className="text-xl md:text-2xl bg-gradient-to-r from-[var(--text-gradient-start)] to-[var(--text-gradient-end)] bg-clip-text text-transparent font-light">
                       {text}
                     </span>
@@ -257,18 +288,18 @@ const Home = () => {
                   {/* Description */}
                   <p className="text-base md:text-lg text-[var(--text-secondary)] max-w-xl leading-relaxed font-light"
                     data-aos="fade-up"
-                    data-aos-delay="1000">
+                    data-aos-delay="250">
                     {t("home.description")}
                   </p>
 
                   {/* CTA Buttons */}
-                  <div className="flex flex-row gap-3 w-full justify-start" data-aos="fade-up" data-aos-delay="1400">
+                  <div className="flex flex-row gap-3 w-full justify-start" data-aos="fade-up" data-aos-delay="350">
                     <CTAButton href="#Portfolio" text={t("home.projects")} icon={ExternalLink} />
                     <CTAButton href="#Contact" text={t("home.contact")} icon={Mail} contact />
                   </div>
 
                   {/* Social Links */}
-                  <div className="hidden sm:flex gap-4 justify-start" data-aos="fade-up" data-aos-delay="1600">
+                  <div className="hidden sm:flex gap-4 justify-start" data-aos="fade-up" data-aos-delay="450">
                     {socialLinks.map((social, index) => (
                       <SocialLink key={index} {...social} />
                     ))}
@@ -279,7 +310,7 @@ const Home = () => {
               {/* Right Column - WebM Video */}
               <div className="w-full landscape:max-lg:w-1/2 lg:w-[75%] py-0 h-[min(360px,38dvh)] sm:portrait:h-[min(500px,50dvh)] landscape:max-lg:h-[min(640px,84dvh)] lg:h-[min(680px,100dvh-6rem)] xl:h-[min(840px,100dvh-6rem)] relative flex items-center justify-center order-2 lg:order-2 mt-5 portrait:max-sm:mt-[clamp(14px,4dvh,40px)] landscape:max-lg:mt-0 sm:mt-0"
                 data-aos="fade-left"
-                data-aos-delay="600">
+                data-aos-delay="150">
                 <div
                   className="relative w-full h-full flex items-center justify-center opacity-90"
                   onMouseEnter={() => setIsHovering(true)}
