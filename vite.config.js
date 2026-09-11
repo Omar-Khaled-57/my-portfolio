@@ -23,10 +23,26 @@ function renderBlockOptimizer() {
           const homeChunk = fs
             .readdirSync(assetsDir)
             .find((f) => /^Home-[0-9A-Za-z_-]+\.js$/.test(f))
+          const lottieChunk = fs
+            .readdirSync(assetsDir)
+            .find((f) => /^lottie-[0-9A-Za-z_-]+\.js$/.test(f))
+          const preloads = []
           if (homeChunk) {
+            preloads.push(`<link rel="modulepreload" href="/assets/${homeChunk}">`)
+          }
+          // The hero blocks first paint until the lottie canvas is ready, so
+          // start fetching lottie-web and the animation data as early as
+          // possible instead of waiting for the app to boot and mount the hero.
+          if (lottieChunk) {
+            preloads.push(`<link rel="modulepreload" href="/assets/${lottieChunk}">`)
+          }
+          preloads.push(
+            `<link rel="preload" href="/animations/lottie.json" as="fetch" type="application/json" crossorigin>`,
+          )
+          if (preloads.length > 0) {
             html = html.replace(
               '<head>',
-              `<head>\n<link rel="modulepreload" href="/assets/${homeChunk}">`
+              `<head>\n${preloads.join('\n')}`,
             )
           }
         }
@@ -167,7 +183,6 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'lottie': ['lottie-web'],
-          'mui': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
         },
       },
     },
