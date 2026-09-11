@@ -65,7 +65,7 @@ export default defineConfig({
         'screenshots/mobile.png',
       ],
       manifest: {
-        id: 'urn:portfolio:omar-el-khouly',
+        id: '/',
         lang: 'en',
         name: 'Omar Khaled El-Khouly | Software Developer Portfolio',
         short_name: 'Omar Portfolio',

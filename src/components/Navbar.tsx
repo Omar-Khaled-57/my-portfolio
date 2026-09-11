@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import type { MouseEvent } from "react";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Download } from "lucide-react";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
+import { usePWAInstall } from "../hooks/usePWAInstall";
 import { prefetchCVModal, scheduleCVModalPrefetch } from "../utils/cvModal";
 
 const CVModal = lazy(() => import("./CVModal"));
@@ -10,6 +11,7 @@ const CVModal = lazy(() => import("./CVModal"));
 const Navbar = () => {
     const { isRtl, language, toggleLanguage, t } = useI18n();
     const { theme, toggleTheme } = useTheme();
+    const { canInstall, promptInstall } = usePWAInstall();
     const [isOpen, setIsOpen] = useState(false);
     const [isCVModalOpen, setIsCVModalOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -242,26 +244,10 @@ const Navbar = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => {
-                            prefetchCVModal();
-                            setIsCVModalOpen(true);
-                            setIsOpen(false);
-                        }}
-                        className="block w-full text-start px-4 py-3 text-lg font-bold text-accent-primary hover:text-accent-secondary transition-all duration-300 ease"
-                        style={{
-                            transitionDelay: `${(navItems.length + 1) * 100}ms`,
-                            transform: isOpen ? "translateX(0)" : `translateX(${isRtl ? "-50px" : "50px"})`,
-                            opacity: isOpen ? 1 : 0,
-                        }}
-                    >
-                        {t("about.downloadCv")}
-                    </button>
-                    <button
-                        type="button"
                         onClick={toggleTheme}
                         className="flex w-full items-center gap-2 px-4 py-3 text-lg font-medium text-secondary hover:text-primary transition-all duration-300 ease"
                         style={{
-                            transitionDelay: `${(navItems.length + 2) * 100}ms`,
+                            transitionDelay: `${(navItems.length + 1) * 100}ms`,
                             transform: isOpen ? "translateX(0)" : `translateX(${isRtl ? "-50px" : "50px"})`,
                             opacity: isOpen ? 1 : 0,
                         }}
@@ -269,6 +255,37 @@ const Navbar = () => {
                         {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         {theme === "dark" ? t("theme.lightMode") : t("theme.darkMode")}
                     </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            prefetchCVModal();
+                            setIsCVModalOpen(true);
+                            setIsOpen(false);
+                        }}
+                        className="block w-full text-start px-4 py-3 text-lg font-bold text-accent-primary hover:text-accent-secondary transition-all duration-300 ease"
+                        style={{
+                            transitionDelay: `${(navItems.length + 2) * 100}ms`,
+                            transform: isOpen ? "translateX(0)" : `translateX(${isRtl ? "-50px" : "50px"})`,
+                            opacity: isOpen ? 1 : 0,
+                        }}
+                    >
+                        {t("about.downloadCv")}
+                    </button>
+                    {canInstall && (
+                        <button
+                            type="button"
+                            onClick={promptInstall}
+                            className="flex w-full items-center gap-2 px-4 py-3 text-lg font-bold text-accent-primary hover:text-accent-secondary transition-all duration-300 ease"
+                            style={{
+                                transitionDelay: `${(navItems.length + 3) * 100}ms`,
+                                transform: isOpen ? "translateX(0)" : `translateX(${isRtl ? "-50px" : "50px"})`,
+                                opacity: isOpen ? 1 : 0,
+                            }}
+                        >
+                            <Download className="w-5 h-5" />
+                            {t("pwa.install")}
+                        </button>
+                    )}
                 </div>
             </div>
             

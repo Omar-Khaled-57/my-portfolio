@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, memo, Suspense, lazy, useRef } from "react"
 import { Helmet } from "react-helmet-async"
-import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles } from "lucide-react"
+import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, Download } from "lucide-react"
 import WhatsAppIcon from "../components/icons/WhatsAppIcon"
 import useAOS, { refreshAOS } from "../hooks/useAOS"
 import { useI18n } from "../i18n"
 import { useSharedData } from "../context/DataContext"
+import { usePWAInstall } from "../hooks/usePWAInstall"
 import type { IconProp } from "../types"
 
 const LottieAnimation = lazy(() => import("../components/LottieAnimation"));
@@ -159,6 +160,7 @@ interface SocialLinkItem {
 const Home = () => {
   const { t } = useI18n();
   const { socialLinks: rawSocialLinks } = useSharedData();
+  const { canInstall, promptInstall } = usePWAInstall();
   const words = t("home.words");
   const [text, setText] = useState("")
   const [isTyping, setIsTyping] = useState(true)
@@ -303,6 +305,19 @@ const Home = () => {
                     {socialLinks.map((social, index) => (
                       <SocialLink key={index} {...social} />
                     ))}
+                    {canInstall && (
+                      <button
+                        type="button"
+                        onClick={promptInstall}
+                        aria-label="Install app"
+                        className="group relative p-3"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-300 shadow-[0_0_20px_rgba(99,102,241,0.3)]"></div>
+                        <div className="relative rounded-xl bg-secondary backdrop-blur-xl p-2 flex items-center justify-center border border-primary group-hover:border-accent-primary/20 transition-all duration-300 shadow-xl strong-shadow">
+                          <Download className="w-5 h-5 text-primary group-hover:text-primary transition-colors" />
+                        </div>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

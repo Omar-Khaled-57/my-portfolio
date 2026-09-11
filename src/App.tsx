@@ -8,6 +8,7 @@ import ProjectPageLayout from "./components/ProjectPageLayout";
 import GlobalKeyHandler from "./components/GlobalKeyHandler";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoadingScreen from "./components/LoadingScreen";
+import PWAUpdateToast from "./components/PWAUpdateToast";
 
 const CVPage = lazy(() => import('./Pages/CV'));
 const NotFoundPage = lazy(() => import('./Pages/404'));
@@ -20,6 +21,7 @@ function App() {
       <div className="pointer-events-none fixed inset-0 z-0">
         <AnimatedBackground />
       </div>
+      <PWAUpdateToast />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <GlobalKeyHandler />
         <Routes>
