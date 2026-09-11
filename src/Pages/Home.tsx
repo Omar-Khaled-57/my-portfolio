@@ -205,6 +205,22 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
     setIsTyping(true);
   }, [words]);
 
+  // The reveal is now fast enough to catch the typewriter mid-word. Snap the
+  // first shown word to its full length so the hero's largest text paints at
+  // reveal time (behaving exactly like the old flow, where the overlay hid the
+  // page long enough that the first word had already finished typing). The
+  // natural pause → erase → next-word cycle then continues unchanged.
+  const revealSnapped = useRef(false);
+  useEffect(() => {
+    if (!introStarted || revealSnapped.current) return;
+    const w = words[wordIndex];
+    if (w && isTyping && text.length < w.length) {
+      revealSnapped.current = true;
+      setText(w);
+      setCharIndex(w.length);
+    }
+  }, [introStarted, isTyping, text, wordIndex, words]);
+
   useEffect(() => {
     const timeout = setTimeout(
       handleTyping,

@@ -30,14 +30,22 @@ function renderBlockOptimizer() {
           if (homeChunk) {
             preloads.push(`<link rel="modulepreload" href="/assets/${homeChunk}">`)
           }
-          // The hero blocks first paint until the lottie canvas is ready, so
-          // start fetching lottie-web and the animation data as early as
-          // possible instead of waiting for the app to boot and mount the hero.
+          // The hero animation can only start once lottie-web has parsed and
+          // rendered the animation data, so those two assets are fetched as
+          // early — and at the highest priority — as possible. The reveal is no
+          // longer pinned to them, but they still gate playback.
           if (lottieChunk) {
-            preloads.push(`<link rel="modulepreload" href="/assets/${lottieChunk}">`)
+            preloads.push(`<link rel="modulepreload" fetchpriority="high" href="/assets/${lottieChunk}">`)
           }
           preloads.push(
-            `<link rel="preload" href="/animations/lottie.json" as="fetch" type="application/json" crossorigin>`,
+            `<link rel="preload" fetchpriority="high" href="/animations/lottie.json" as="fetch" type="application/json" crossorigin>`,
+          )
+          // Self-hosted Poppins (latin subset). Preloading the two weights that
+          // paint the hero pre-empts the font-swap reflow CLS measured on
+          // mobile once the typewriter/paragraph become visible.
+          preloads.push(
+            `<link rel="preload" href="/fonts/Poppins-400.woff2" as="font" type="font/woff2" crossorigin>`,
+            `<link rel="preload" href="/fonts/Poppins-700.woff2" as="font" type="font/woff2" crossorigin>`,
           )
           if (preloads.length > 0) {
             html = html.replace(

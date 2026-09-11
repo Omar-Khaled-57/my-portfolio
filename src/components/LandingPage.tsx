@@ -38,6 +38,7 @@ const LandingPage = () => {
   const { t } = useI18n();
   const [ready, setReady] = useState(false);
   const [heroTimedOut, setHeroTimedOut] = useState(false);
+  const [firstPaint, setFirstPaint] = useState(false);
   const [overlayGone, setOverlayGone] = useState(false);
   const [introStarted, setIntroStarted] = useState(false);
   // Desktop/tablet render sections immediately (loads are fast and placeholder
@@ -47,14 +48,52 @@ const LandingPage = () => {
     () => typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches,
   );
 
+  // Wait for a genuinely painted frame (double rAF), then let the loader keep
+  // its short fixed "brand moment" before the reveal. The intro is no longer
+  // pinned to the lottie canvas: playback itself stays gated on canvas
+  // readiness (Home's `heroVisualReady`/`playing`), so the animation can never
+  // start late or stutter — while the hero text is no longer stuck behind a
+  // page-sized overlay that waits on a 140 KB JSON + lottie-web evaluation on
+  // mobile. This is what lets LCP fire at first content paint instead of at
+  // animation-ready (~8 s on throttled mobile).
   useEffect(() => {
-    if (!ready) return;
-    const id = setTimeout(() => {
-      setOverlayGone(true);
-      setIntroStarted(true);
-    }, 600);
-    return () => clearTimeout(id);
-  }, [ready]);
+    let cancelled = false;
+    const go = () => {
+      if (cancelled) return;
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        requestAnimationFrame(() => {
+          if (!cancelled) setFirstPaint(true);
+        });
+      });
+    };
+    if (document.readyState === "complete") {
+      go();
+    } else {
+      const onLoad = () => go();
+      window.addEventListener("load", onLoad, { once: true });
+      // Safety net: rAF can stall in a background/hidden tab.
+      const t = window.setTimeout(go, 2000);
+      return () => {
+        cancelled = true;
+        window.removeEventListener("load", onLoad);
+        window.clearTimeout(t);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!firstPaint) return;
+    const id = window.setTimeout(() => setIntroStarted(true), 450);
+    return () => window.clearTimeout(id);
+  }, [firstPaint]);
+
+  // Unmount the overlay after its 500 ms CSS fade has finished.
+  useEffect(() => {
+    if (!introStarted) return;
+    const id = window.setTimeout(() => setOverlayGone(true), 600);
+    return () => window.clearTimeout(id);
+  }, [introStarted]);
 
   // The hero is part of the initial view, so wait for its canvas instead of
   // exposing a page where the visual appears after the entrance has ended.
@@ -70,25 +109,23 @@ const LandingPage = () => {
 
   const handleHeroReady = useCallback(() => setReady(true), []);
 
-  // Below-the-fold sections are mounted shortly after the first paint so their
-  // heavy dependencies (MUI, sweetalert2, …) don't compete with LCP resources.
-  // Lightweight placeholders (with section IDs + estimated min-height) are
-  // rendered immediately to keep the page height stable (CLS=0).
+  // Below-the-fold sections (About, Portfolio, Contact) stay deferred on small
+  // screens so their heavy deps (MUI, sweetalert2, …) don't compete with the
+  // hero/LCP window. On mobile, main-thread idle previously fired while the
+  // loader still hid the page, dragging ~131 KB of section chunks in front of
+  // the animation; scheduling from first-paint + a delay keeps that burst
+  // firmly after LCP. Placeholders keep the height stable (CLS stays 0).
   useEffect(() => {
-    const start = () => {
+    if (!firstPaint) return;
+    const t = window.setTimeout(() => {
       if (typeof window.requestIdleCallback === "function") {
-        window.requestIdleCallback(() => setDeferred(true), { timeout: 1200 });
+        window.requestIdleCallback(() => setDeferred(true), { timeout: 1500 });
       } else {
         window.setTimeout(() => setDeferred(true), 1200);
       }
-    };
-    if (typeof window.requestAnimationFrame !== "function") {
-      start();
-      return;
-    }
-    const raf = window.requestAnimationFrame(() => window.setTimeout(start, 0));
-    return () => window.cancelAnimationFrame(raf);
-  }, []);
+    }, 1800);
+    return () => window.clearTimeout(t);
+  }, [firstPaint]);
 
   useEffect(() => {
     if (!deferred) return;
@@ -123,7 +160,7 @@ const LandingPage = () => {
       </main>
       <Footer />
       {!overlayGone && (
-        <div className={`loader-overlay ${ready ? "loader-overlay--hide" : ""}`}>
+        <div className={`loader-overlay ${introStarted ? "loader-overlay--hide" : ""}`}>
           <Loader />
           <span className="loader-caption">{t("common.loading")}</span>
         </div>
