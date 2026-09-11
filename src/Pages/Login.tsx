@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from "../supabase";
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useTheme } from "../context/ThemeContext"
 import { Mail, Lock, LogIn, Sparkles, Eye, EyeOff, Sun, Moon, Languages, ArrowLeft } from 'lucide-react'
 import { useI18n } from "../i18n"
@@ -35,6 +36,10 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative bg-[var(--bg-primary)]">
+      <Helmet>
+        <title>Login — Omar Khaled El-Khouly</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {/* Back Button */}
       <div className="absolute top-6 left-6 flex items-center gap-3" dir="ltr">
         <button

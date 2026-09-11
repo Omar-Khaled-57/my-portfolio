@@ -85,8 +85,8 @@ async function main() {
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
 
   const urls = [
-    { loc: `${SITE_URL}/`, priority: "1.0" },
-    { loc: `${SITE_URL}/cv`, priority: "0.8" },
+    { loc: `${SITE_URL}/`, priority: "1.0", changefreq: "weekly" },
+    { loc: `${SITE_URL}/cv`, priority: "0.8", changefreq: "monthly" },
   ];
 
   if (supabaseUrl && supabaseKey) {
@@ -98,6 +98,7 @@ async function main() {
         urls.push({
           loc: `${SITE_URL}/project/${slug}`,
           priority: "0.7",
+          changefreq: "monthly",
           lastmod: project.created_at
             ? project.created_at.slice(0, 10)
             : undefined,
@@ -114,7 +115,7 @@ async function main() {
   const body = urls
     .map((u) => {
       const lastmod = u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : "";
-      return `  <url>\n    <loc>${xmlEscape(u.loc)}</loc>${lastmod}\n    <priority>${u.priority}</priority>\n  </url>`;
+      return `  <url>\n    <loc>${xmlEscape(u.loc)}</loc>${lastmod}\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`;
     })
     .join("\n");
 

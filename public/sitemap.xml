@@ -2,70 +2,84 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://omar-el-khouly.vercel.app/</loc>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/cv</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/mockup-studio</loc>
     <lastmod>2026-07-28</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/catarina-team-planning-and-goal-tracking-platform</loc>
     <lastmod>2026-07-24</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/storybox3-ai-photo-storyteller</loc>
     <lastmod>2026-05-25</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/qrio-qr-maker</loc>
     <lastmod>2026-05-25</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/boardflow-cross-platform-task-management</loc>
     <lastmod>2026-05-24</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/youssef-sayed-portfolio-website</loc>
     <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/hodor-the-gatekeeper</loc>
     <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/ahmed-hany-designer-portfolio</loc>
     <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/devora-x-start-web-course</loc>
     <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/zenith-thermal-monitor</loc>
     <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/storybox-local-ai-photo-storyteller</loc>
     <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://omar-el-khouly.vercel.app/project/queueless</loc>
     <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 </urlset>

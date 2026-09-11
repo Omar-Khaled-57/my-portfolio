@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import Projects from './dashboard/Projects'
 import Certificates from './dashboard/Certificates'
 import TechTools from './dashboard/TechTools'
@@ -28,6 +29,10 @@ export default function Dashboard() {
   return (
     // Key: DO NOT use overflow-hidden here so the main scrollbar can be interacted with normally
     <div className="flex text-primary bg-primary" style={{ height: '100dvh' }}>
+      <Helmet>
+        <title>Dashboard — Omar Khaled El-Khouly</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div

@@ -1,3 +1,22 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /login
+
+# AI crawlers — explicitly allowed for portfolio discoverability
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
 Sitemap: https://omar-el-khouly.vercel.app/sitemap.xml

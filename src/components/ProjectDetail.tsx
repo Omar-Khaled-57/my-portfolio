@@ -316,11 +316,38 @@ const ProjectDetails = () => {
           "name": project.title,
           "description": project.description,
           "url": projectUrl,
+          "image": project.img,
+          "datePublished": project.created_at,
+          "inLanguage": "en",
+          "keywords": project.tech_stack,
+          "about": ["Web Development", "Software Engineering"],
           "author": {
             "@type": "Person",
-              "name": t("about.name"),
+            "name": t("about.name"),
             "url": "https://github.com/Omar-Khaled-57"
+          },
+          "publisher": {
+            "@type": "Person",
+            "name": t("about.name")
           }
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://omar-el-khouly.vercel.app/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": project.title,
+              "item": projectUrl
+            }
+          ]
         })}</script>
       </Helmet>
 
