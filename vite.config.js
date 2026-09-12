@@ -23,10 +23,57 @@ function renderBlockOptimizer() {
           const homeChunk = fs
             .readdirSync(assetsDir)
             .find((f) => /^Home-[0-9A-Za-z_-]+\.js$/.test(f))
+          const lottieChunk = fs
+            .readdirSync(assetsDir)
+            .find((f) => /^lottie-[0-9A-Za-z_-]+\.js$/.test(f))
+          const preloads = []
           if (homeChunk) {
+            preloads.push(`<link rel="modulepreload" href="/assets/${homeChunk}">`)
+          }
+          // The hero animation can only start once lottie-web has parsed and
+          // rendered the animation data, so on desktop these two assets get a
+          // head start. They are deliberately NOT fetchpriority=high (the entry
+          // chunk must win the queue on slow networks) and they are only
+          // injected when the device is desktop: mobile loads lottie lazily
+          // after LCP, so preloading it there wastes bandwidth and outruns
+          // index/react-vendor on throttled connections.
+          if (lottieChunk) {
+            preloads.push(`<script>
+  (function () {
+    // matchMedia read at parse time can observe the pre-emulation viewport
+    // (~800px), which makes mobile/headless runs wrongly select the desktop
+    // path and preload lottie back into the critical path. Read it after the
+    // first frame so device emulation is applied, then preload lottie only
+    // for real desktop clients.
+    requestAnimationFrame(function () {
+      if (window.matchMedia("(min-width: 768px)").matches) {
+        var l = document.createElement("link");
+        l.rel = "modulepreload";
+        l.href = "/assets/${lottieChunk}";
+        document.head.appendChild(l);
+        var j = document.createElement("link");
+        j.rel = "preload";
+        j.as = "fetch";
+        j.href = "/animations/lottie.json";
+        j.type = "application/json";
+        j.crossOrigin = "anonymous";
+        document.head.appendChild(j);
+      }
+    });
+  })();
+</script>`)
+          }
+          // Self-hosted Poppins (latin subset). Preloading the two weights that
+          // paint the hero pre-empts the font-swap reflow CLS measured on
+          // mobile once the typewriter/paragraph become visible.
+          preloads.push(
+            `<link rel="preload" href="/fonts/Poppins-400.woff2" as="font" type="font/woff2" crossorigin>`,
+            `<link rel="preload" href="/fonts/Poppins-700.woff2" as="font" type="font/woff2" crossorigin>`,
+          )
+          if (preloads.length > 0) {
             html = html.replace(
               '<head>',
-              `<head>\n<link rel="modulepreload" href="/assets/${homeChunk}">`
+              `<head>\n${preloads.join('\n')}`,
             )
           }
         }
@@ -167,7 +214,6 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'lottie': ['lottie-web'],
-          'mui': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
         },
       },
     },

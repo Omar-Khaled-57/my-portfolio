@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, Suspense, lazy, useRef, type AnimationEvent } from "react"
+import { useState, useEffect, useCallback, useMemo, memo, Suspense, lazy, useRef, type AnimationEvent } from "react"
 import { Helmet } from "react-helmet-async"
 import { Github, Linkedin, Mail, ExternalLink, Instagram, Sparkles, Download } from "lucide-react"
 import WhatsAppIcon from "../components/icons/WhatsAppIcon"
@@ -84,9 +84,10 @@ const platformIconMap: Record<string, IconProp> = {
   Instagram: Instagram,
 };
 
-const HeroAnimation = memo(({ className, onReady, playing }: { className?: string; onReady: () => void; playing: boolean }) => {
+const HeroAnimation = memo(({ className, onReady, playing, isMobile = false }: { className?: string; onReady: () => void; playing: boolean; isMobile?: boolean }) => {
   const holderRef = useRef<HTMLDivElement | null>(null);
-  const [ready, setReady] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [deferred, setDeferred] = useState(false);
   useEffect(() => {
     const el = holderRef.current;
     if (!el) return;
@@ -94,7 +95,7 @@ const HeroAnimation = memo(({ className, onReady, playing }: { className?: strin
     let io: IntersectionObserver | null = null;
 
     if (typeof IntersectionObserver !== "function") {
-      setReady(true);
+      setVisible(true);
       return;
     }
 
@@ -103,7 +104,7 @@ const HeroAnimation = memo(({ className, onReady, playing }: { className?: strin
         if (entries.some((e) => e.isIntersecting)) {
           io?.disconnect();
           io = null;
-          setReady(true);
+          setVisible(true);
         }
       },
       { rootMargin: "0px 0px" }
@@ -114,9 +115,55 @@ const HeroAnimation = memo(({ className, onReady, playing }: { className?: strin
       if (io) io.disconnect();
     };
   }, []);
+
+  // On mobile the lottie stack (80 KB chunk + JSON + eval/render) must not
+  // compete with the LCP/TBT window: the right column CSS-animates in at
+  // reveal, and the lottie is only built once the LCP has *settled* — the
+  // first LCP candidate paints early, so debounce a quiet gap after the last
+  // candidate before importing. Desktop keeps immediate-on-visible behavior.
+  useEffect(() => {
+    if (!visible) return;
+    if (!isMobile) {
+      setDeferred(true);
+      return;
+    }
+    // Reduced-motion users keep the gradient + slide; skip the 80 KB lottie.
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    let cancelled = false;
+    let observer: PerformanceObserver | null = null;
+    let settleTimer = 0;
+    let backstop = 0;
+    const build = () => {
+      observer?.disconnect();
+      window.clearTimeout(settleTimer);
+      window.clearTimeout(backstop);
+      if (!cancelled) setDeferred(true);
+    };
+    if (typeof PerformanceObserver !== "undefined") {
+      observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const latest = entries[entries.length - 1] as PerformanceEntry & {
+          renderTime?: number;
+          loadTime?: number;
+        };
+        if (latest && (latest.renderTime ?? latest.loadTime ?? 0) > 0) {
+          window.clearTimeout(settleTimer);
+          settleTimer = window.setTimeout(build, 800);
+        }
+      });
+      observer.observe({ type: "largest-contentful-paint", buffered: true });
+    }
+    backstop = window.setTimeout(build, 6000);
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+      window.clearTimeout(settleTimer);
+      window.clearTimeout(backstop);
+    };
+  }, [visible, isMobile]);
   return (
     <div ref={holderRef} className={className}>
-      {ready && (
+      {deferred && (
         <Suspense fallback={null}>
           <LottieAnimation animationPath="/animations/lottie.json" className={className} autoplay={false} playing={playing} onReady={onReady} />
         </Suspense>
@@ -136,6 +183,12 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
   const { socialLinks: rawSocialLinks } = useSharedData();
   const { canInstall, promptInstall } = usePWAInstall();
   const words = t("home.words");
+  // Same breakpoint as LandingPage (min-width: 768px = desktop): on mobile the
+  // hero visual CSS-animates in at reveal and the lottie loads lazily after LCP.
+  const isMobile = useMemo(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches,
+    [],
+  );
   const [text, setText] = useState("")
   const [isTyping, setIsTyping] = useState(true)
   const [wordIndex, setWordIndex] = useState(0)
@@ -180,6 +233,7 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
   }, []);
 
   const handleTyping = useCallback(() => {
+    if (isMobile) return; // mobile paints the static role text (LCP) up front
     if (isTyping) {
       if (charIndex < words[wordIndex].length) {
         setText(prev => prev + words[wordIndex][charIndex]);
@@ -196,14 +250,41 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
         setIsTyping(true);
       }
     }
-  }, [charIndex, isTyping, wordIndex, words]);
+  }, [charIndex, isTyping, wordIndex, words, isMobile]);
 
   useEffect(() => {
+    // Mobile: paint the full first role immediately (no type/erase cycle), so
+    // the hero's largest text — the LCP element — is fully rendered at reveal
+    // instead of waiting on a throttled typewriter that can cycle mid-word.
+    if (isMobile) {
+      const first = words[0] ?? "";
+      setText(first);
+      setCharIndex(first.length);
+      setWordIndex(0);
+      setIsTyping(false);
+      return;
+    }
     setText("");
     setCharIndex(0);
     setWordIndex(0);
     setIsTyping(true);
-  }, [words]);
+  }, [words, isMobile]);
+
+  // The reveal is now fast enough to catch the typewriter mid-word. Snap the
+  // first shown word to its full length so the hero's largest text paints at
+  // reveal time (behaving exactly like the old flow, where the overlay hid the
+  // page long enough that the first word had already finished typing). The
+  // natural pause → erase → next-word cycle then continues unchanged.
+  const revealSnapped = useRef(false);
+  useEffect(() => {
+    if (!introStarted || revealSnapped.current) return;
+    const w = words[wordIndex];
+    if (w && isTyping && text.length < w.length) {
+      revealSnapped.current = true;
+      setText(w);
+      setCharIndex(w.length);
+    }
+  }, [introStarted, isTyping, text, wordIndex, words]);
 
   useEffect(() => {
     const timeout = setTimeout(
@@ -315,7 +396,7 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
               </div>
 
               {/* Right Column - WebM Video */}
-              <div className={`hero-visual w-full landscape:max-lg:w-1/2 lg:w-[75%] py-0 h-[min(360px,38dvh)] sm:portrait:h-[min(500px,50dvh)] landscape:max-lg:h-[min(640px,84dvh)] lg:h-[min(680px,100dvh-6rem)] xl:h-[min(840px,100dvh-6rem)] relative flex items-center justify-center order-2 lg:order-2 mt-5 portrait:max-sm:mt-[clamp(14px,4dvh,40px)] landscape:max-lg:mt-0 sm:mt-0 ${heroVisualReady && introStarted ? "hero-visual--ready" : ""}`}>
+              <div className={`hero-visual w-full landscape:max-lg:w-1/2 lg:w-[75%] py-0 h-[min(360px,38dvh)] sm:portrait:h-[min(500px,50dvh)] landscape:max-lg:h-[min(640px,84dvh)] lg:h-[min(680px,100dvh-6rem)] xl:h-[min(840px,100dvh-6rem)] relative flex items-center justify-center order-2 lg:order-2 mt-5 portrait:max-sm:mt-[clamp(14px,4dvh,40px)] landscape:max-lg:mt-0 sm:mt-0 ${(isMobile || heroVisualReady) && introStarted ? "hero-visual--ready" : ""}`}>
                 <div
                   className="relative w-full h-full flex items-center justify-center opacity-90"
                   onMouseEnter={() => setIsHovering(true)}
@@ -335,6 +416,7 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
                       }`}
                       onReady={handleHeroAnimationReady}
                       playing={playHeroAnimation}
+                      isMobile={isMobile}
                     />
                   </div>
 
