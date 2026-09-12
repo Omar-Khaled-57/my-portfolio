@@ -116,13 +116,11 @@ const HeroAnimation = memo(({ className, onReady, playing, isMobile = false }: {
     };
   }, []);
 
-  // On mobile the lottie stack (80 KB chunk + 143 KB JSON + eval/render) must
-  // not compete with the LCP/TBT window: the right column CSS-animates in at
-  // reveal, and the lottie is only built once the hero text (the LCP element)
-  // has actually painted. requestIdleCallback was too eager — the main thread
-  // idles during the network wait for the entry chunk, so the lottie import
-  // still landed inside the critical window. Desktop keeps the current
-  // immediate-on-visible behavior.
+  // On mobile the lottie stack (80 KB chunk + JSON + eval/render) must not
+  // compete with the LCP/TBT window: the right column CSS-animates in at
+  // reveal, and the lottie is only built once the LCP has *settled* — the
+  // first LCP candidate paints early, so debounce a quiet gap after the last
+  // candidate before importing. Desktop keeps immediate-on-visible behavior.
   useEffect(() => {
     if (!visible) return;
     if (!isMobile) {
@@ -133,9 +131,11 @@ const HeroAnimation = memo(({ className, onReady, playing, isMobile = false }: {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     let cancelled = false;
     let observer: PerformanceObserver | null = null;
+    let settleTimer = 0;
     let backstop = 0;
     const build = () => {
       observer?.disconnect();
+      window.clearTimeout(settleTimer);
       window.clearTimeout(backstop);
       if (!cancelled) setDeferred(true);
     };
@@ -146,14 +146,18 @@ const HeroAnimation = memo(({ className, onReady, playing, isMobile = false }: {
           renderTime?: number;
           loadTime?: number;
         };
-        if (latest && (latest.renderTime ?? latest.loadTime ?? 0) > 0) build();
+        if (latest && (latest.renderTime ?? latest.loadTime ?? 0) > 0) {
+          window.clearTimeout(settleTimer);
+          settleTimer = window.setTimeout(build, 800);
+        }
       });
       observer.observe({ type: "largest-contentful-paint", buffered: true });
     }
-    backstop = window.setTimeout(build, 5000);
+    backstop = window.setTimeout(build, 6000);
     return () => {
       cancelled = true;
       observer?.disconnect();
+      window.clearTimeout(settleTimer);
       window.clearTimeout(backstop);
     };
   }, [visible, isMobile]);
@@ -229,6 +233,7 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
   }, []);
 
   const handleTyping = useCallback(() => {
+    if (isMobile) return; // mobile paints the static role text (LCP) up front
     if (isTyping) {
       if (charIndex < words[wordIndex].length) {
         setText(prev => prev + words[wordIndex][charIndex]);
@@ -245,14 +250,25 @@ const Home = ({ onHeroReady, forceHeroReveal = false, introStarted = false }: { 
         setIsTyping(true);
       }
     }
-  }, [charIndex, isTyping, wordIndex, words]);
+  }, [charIndex, isTyping, wordIndex, words, isMobile]);
 
   useEffect(() => {
+    // Mobile: paint the full first role immediately (no type/erase cycle), so
+    // the hero's largest text — the LCP element — is fully rendered at reveal
+    // instead of waiting on a throttled typewriter that can cycle mid-word.
+    if (isMobile) {
+      const first = words[0] ?? "";
+      setText(first);
+      setCharIndex(first.length);
+      setWordIndex(0);
+      setIsTyping(false);
+      return;
+    }
     setText("");
     setCharIndex(0);
     setWordIndex(0);
     setIsTyping(true);
-  }, [words]);
+  }, [words, isMobile]);
 
   // The reveal is now fast enough to catch the typewriter mid-word. Snap the
   // first shown word to its full length so the hero's largest text paints at
