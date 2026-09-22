@@ -20,6 +20,7 @@ import { useI18n } from "../../i18n";
 import { useSharedData } from "../../context/DataContext";
 import { useTheme as useCustomTheme } from "../../context/ThemeContext";
 import { getToolImage } from "../../utils/techTools";
+import { toSlug, isValidSlug } from "../../utils/slug";
 import { useDragOrder } from "../../hooks/useDragOrder";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import DashboardModal from "../../components/dashboard/DashboardModal";
@@ -203,6 +204,7 @@ const ProjectForm = ({
   const [form, setForm] = useState<ProjectFormData>({
     Title: initial?.title || "",
     TitleAr: initial?.title_ar || "",
+    Slug: initial?.slug || "",
     Description: initial?.description || "",
     DescriptionAr: initial?.description_ar || "",
     TechStack: initial?.tech_stack ? initial.tech_stack.join(", ") : "",
@@ -260,6 +262,16 @@ const ProjectForm = ({
             value={form.TitleAr}
             onChange={set("TitleAr")}
             placeholder={t("dashboard.titleArPlaceholder")}
+          />
+        </div>
+
+        <div className="sm:col-span-2">
+          <DashboardInput
+            label={t("dashboard.projectSlug") || "URL Slug"}
+            value={form.Slug}
+            onChange={set("Slug")}
+            placeholder={toSlug(form.Title) || t("dashboard.projectSlugPlaceholder") || "e.g. cataracta"}
+            hint={t("dashboard.projectSlugHint") || "Optional. Blank = auto from title. Lowercase a-z, numbers and hyphens only."}
           />
         </div>
 
@@ -470,6 +482,31 @@ export default function Projects() {
     return data.publicUrl;
   };
 
+  const resolveSlug = async (
+    raw: string,
+    excludeId?: string
+  ): Promise<{ slug: string | null; error?: string }> => {
+    const trimmed = raw.trim().toLowerCase();
+    if (!trimmed) return { slug: null };
+    if (!isValidSlug(trimmed)) {
+      return {
+        slug: null,
+        error: t("dashboard.projectSlugFormatError") || "Use lowercase a-z, 0-9 and hyphens only.",
+      };
+    }
+    let query = supabase.from("projects").select("id").eq("slug", trimmed).limit(1);
+    if (excludeId) query = query.neq("id", excludeId);
+    const { data, error } = await query;
+    if (error) throw error;
+    if (data && data.length > 0) {
+      return {
+        slug: null,
+        error: `${t("dashboard.projectSlugTaken") || "Slug already in use by another project"}: "${trimmed}".`,
+      };
+    }
+    return { slug: trimmed };
+  };
+
   const handleCreate = async (form: ProjectFormData, file: File | null) => {
     try {
       const unknown = parseIds(form.TechIds).filter((id) => !techTools.find((tool) => tool.id === id));
@@ -478,6 +515,17 @@ export default function Projects() {
           icon: "warning",
           title: t("dashboard.techIdsUnknownTitle"),
           text: `${t("dashboard.techIdsUnknown")}: ${unknown.join(", ")}`,
+          background: "var(--bg-secondary)",
+          color: "var(--text-primary)",
+        });
+        return;
+      }
+      const { slug, error: slugError } = await resolveSlug(form.Slug);
+      if (slugError) {
+        Swal.fire({
+          icon: "warning",
+          title: t("dashboard.projectSlug"),
+          text: slugError,
           background: "var(--bg-secondary)",
           color: "var(--text-primary)",
         });
@@ -502,6 +550,7 @@ export default function Projects() {
           .filter(Boolean),
         link: form.Link,
         github: form.Github,
+        slug: slug,
         order_index: maxOrder + 1,
       });
 
@@ -546,6 +595,17 @@ export default function Projects() {
         });
         return;
       }
+      const { slug, error: slugError } = await resolveSlug(form.Slug, editProject?.id);
+      if (slugError) {
+        Swal.fire({
+          icon: "warning",
+          title: t("dashboard.projectSlug"),
+          text: slugError,
+          background: "var(--bg-secondary)",
+          color: "var(--text-primary)",
+        });
+        return;
+      }
       setUploading(true);
       let imgUrl = editProject?.img || "";
       if (file) imgUrl = await uploadImage(file);
@@ -566,6 +626,7 @@ export default function Projects() {
             .filter(Boolean),
           link: form.Link,
           github: form.Github,
+          slug,
         })
         .eq("id", editProject?.id || "");
 

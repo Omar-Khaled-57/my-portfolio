@@ -64,7 +64,7 @@ function xmlEscape(value) {
 
 async function fetchProjects(supabaseUrl, supabaseKey) {
   const res = await fetch(
-    `${supabaseUrl}/rest/v1/projects?select=title,created_at&is_published=eq.true&order=id.desc`,
+    `${supabaseUrl}/rest/v1/projects?select=title,slug,created_at&is_published=eq.true&order=id.desc`,
     {
       headers: {
         apikey: supabaseKey,
@@ -93,7 +93,9 @@ async function main() {
     try {
       const projects = await fetchProjects(supabaseUrl, supabaseKey);
       for (const project of projects) {
-        const slug = toSlug(project.title);
+        const slug = (project.slug && project.slug.trim())
+          ? project.slug.trim()
+          : toSlug(project.title);
         if (!slug) continue;
         urls.push({
           loc: `${SITE_URL}/project/${slug}`,

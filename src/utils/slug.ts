@@ -27,3 +27,13 @@ export const toSlug = (title?: string | null): string => {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 };
+
+/**
+ * Resolves the canonical URL slug for a project: a curated `slug` when set,
+ * otherwise the title-derived slug. Keeps all links/canonical/sitemap routes
+ * in sync in a single place.
+ */
+export const projectSlug = (project: { slug?: string | null; title?: string | null }): string =>
+  (project.slug && project.slug.trim()) ? project.slug.trim() : toSlug(project.title);
+
+export const isValidSlug = (slug: string): boolean => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);

@@ -3,6 +3,7 @@ import type { ComponentType, CSSProperties, ReactNode } from "react";
 
 export interface Project {
   id: string;
+  slug: string | null;
   title: string;
   title_ar: string | null;
   description: string;
@@ -118,6 +119,7 @@ export interface DataContextValue {
 export interface ProjectFormData {
   Title: string;
   TitleAr: string;
+  Slug: string;
   Description: string;
   DescriptionAr: string;
   TechStack: string;

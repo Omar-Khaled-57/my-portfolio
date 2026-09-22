@@ -312,6 +312,7 @@ export default function FullWidthTabs() {
                       img={project.img}
                       title={project.title}
                       title_ar={project.title_ar}
+                      slug={project.slug}
                       description={project.description}
                       description_ar={project.description_ar}
                       link={project.link}

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ExternalLink, ArrowRight, Github } from "lucide-react";
-import { toSlug } from "../utils/slug";
+import { projectSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
 import { useTheme as useCustomTheme } from "../context/ThemeContext";
 import { getToolImage } from "../utils/techTools";
@@ -37,6 +37,7 @@ interface CardProjectProps {
   img: string;
   title: string;
   title_ar: string | null;
+  slug?: string | null;
   description: string;
   description_ar: string | null;
   link: string | null;
@@ -45,7 +46,7 @@ interface CardProjectProps {
   techTools: TechTool[];
 }
 
-const CardProject = ({ img, title, title_ar, description, description_ar, link: ProjectLink, github, id, techTools }: CardProjectProps) => {
+const CardProject = ({ img, title, title_ar, slug, description, description_ar, link: ProjectLink, github, id, techTools }: CardProjectProps) => {
   const { t, language } = useI18n();
   // Cards display the screenshot at ~450-520px; 2x retina is covered by 1024
   // and quality 80 keeps screenshots visually sharp while dropping most of the
@@ -119,7 +120,7 @@ const CardProject = ({ img, title, title_ar, description, description_ar, link: 
 
               {id ? (
                 <Link
-                  to={`/project/${toSlug(title)}`}
+                  to={`/project/${projectSlug({ slug, title })}`}
                   state={{ projectId: id }}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-primary hover:bg-accent-primary hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none shadow-sm hover:shadow-md"
                 >

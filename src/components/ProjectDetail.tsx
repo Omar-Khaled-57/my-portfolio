@@ -20,7 +20,7 @@ import {
   Languages,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { toSlug } from "../utils/slug";
+import { projectSlug, toSlug } from "../utils/slug";
 import { useI18n } from "../i18n";
 import { useTheme } from "../context/ThemeContext";
 import { useSharedData } from "../context/DataContext";
@@ -230,7 +230,7 @@ const ProjectDetails = () => {
     }
     if (!selectedProject) {
       selectedProject = source.find(
-        (p) => toSlug(p.title) === slug,
+        (p) => projectSlug(p) === slug || toSlug(p.title) === slug,
       ) || null;
     }
 
@@ -281,7 +281,7 @@ const ProjectDetails = () => {
     );
   }
 
-  const projectUrl = `https://omar-el-khouly.vercel.app/project/${toSlug(project.title)}`;
+  const projectUrl = `https://omar-el-khouly.vercel.app/project/${projectSlug(project)}`;
   const projectTools = project.tech_ids?.length
     ? resolveProjectTools(project, contextTechTools)
     : [];
