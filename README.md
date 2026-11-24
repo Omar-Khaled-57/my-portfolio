@@ -18,7 +18,7 @@ My premium personal portfolio with glassmorphism design, multi-language support 
 🌐 **Live:** [omar-el-khouly.vercel.app](https://omar-el-khouly.vercel.app)
 
 <p align="center">
-  <img src="public/screenshots/desktop.png" alt="My Portfolio desktop home page in its dark indigo theme" width="100%">
+  <img src="public/screenshots/desktop-docs.webp" alt="My Portfolio desktop home page in its dark indigo theme" width="100%">
 </p>
 
 ---
